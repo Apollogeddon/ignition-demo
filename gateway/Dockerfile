@@ -15,12 +15,14 @@ FROM docker.io/inductiveautomation/ignition:${IGNITION_VERSION}
 WORKDIR /usr/local/bin/ignition
 
 # Third-party modules (.modl), if any: drop them in gateway/modules/
-COPY --chown=ignition:ignition --chmod=u=rwX,go=rX gateway/modules/ user-lib/modules/
+COPY --chown=ignition:ignition gateway/modules/ user-lib/modules/
 
 # One folder per project, named as the gateway knows it (project.json's parent
 # refers to these names)
-COPY --chown=ignition:ignition --chmod=u=rwX,go=rX projects/library/src/ assets/projects/library/
-COPY --chown=ignition:ignition --chmod=u=rwX,go=rX projects/project/src/ assets/projects/project/
+COPY --chown=ignition:ignition projects/library/src/ assets/projects/library/
+COPY --chown=ignition:ignition projects/project/src/ assets/projects/project/
+# checkouts on Windows give everything mode 777; make it owner-writable only
+RUN chmod -R a-x,u=rwX,go=rX assets/projects user-lib/modules
 
 LABEL org.opencontainers.image.title="ignition-gateway" \
       org.opencontainers.image.description="Ignition with the demo projects baked in"
