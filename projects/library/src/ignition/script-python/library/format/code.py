@@ -1,8 +1,7 @@
 """Formatting helpers shared by every project."""
 
-import sys
-
-if sys.version_info.major >= 3:
+MYPY = False
+if MYPY:
 	from typing import Optional
 
 

@@ -1,14 +1,13 @@
 """Asset queries and summaries for the overview views."""
 
-import sys
-
 from library.data import toRows
 from system.db import execQuery
 from system.util import getLogger
 
 LOGGER = getLogger("demo.project.assets")
 
-if sys.version_info.major >= 3:
+MYPY = False
+if MYPY:
 	from typing import Any, Dict, Iterable, List
 
 
