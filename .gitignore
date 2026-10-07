@@ -22,3 +22,6 @@ local/data/
 
 # Built gateway image context
 gateway/projects/
+
+# Lock files belong to root modules (environments) only
+deploy/modules/**/.terraform.lock.hcl
