@@ -58,4 +58,4 @@ jobs:
           context: .
           file: gateway/Dockerfile
           push: false
-          tags: ignition-demo-gateway:ci
+          tags: ignition-gateway:ci

@@ -7,14 +7,14 @@
 # Gateway: http://localhost:8088 (admin / IGNITION_ADMIN_PASSWORD from .env)
 # Designer changes are written straight into projects/*/src; run the tests and
 # commit them like any other change.
-name: ignition-demo
+name: ignition
 
 services:
   gateway:
     build:
       context: ..
       dockerfile: gateway/Dockerfile
-    image: ignition-demo-gateway:local
+    image: ignition-gateway:local
     ports:
       - "8088:8088"
     environment:
@@ -25,7 +25,7 @@ services:
       GATEWAY_ADMIN_PASSWORD: ${IGNITION_ADMIN_PASSWORD:?set it in local/.env}
     command:
       - -n
-      - ignition-demo-local
+      - ignition-local
       - -m
       - "1024"
       - --

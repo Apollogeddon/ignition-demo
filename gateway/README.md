@@ -5,8 +5,8 @@
 `modules/`.
 
 ```sh
-docker build -f gateway/Dockerfile -t ignition-demo-gateway:dev .
-docker build -f gateway/Dockerfile --build-arg IGNITION_VERSION=8.3.9 -t ignition-demo-gateway:dev .
+docker build -f gateway/Dockerfile -t ignition-gateway:dev .
+docker build -f gateway/Dockerfile --build-arg IGNITION_VERSION=8.3.9 -t ignition-gateway:dev .
 ```
 
 The gateway must be started with these arguments (the `gateway` OpenTofu

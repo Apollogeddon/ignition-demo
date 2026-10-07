@@ -39,8 +39,8 @@ There is no registry in the reference cluster, so the image is imported into
 k3s's containerd directly (and pulled with `imagePullPolicy: Never`):
 
 ```sh
-docker build -f gateway/Dockerfile -t localhost/ignition-demo-gateway:dev .
-docker save localhost/ignition-demo-gateway:dev -o gateway.tar
+docker build -f gateway/Dockerfile -t localhost/ignition-gateway:dev .
+docker save localhost/ignition-gateway:dev -o gateway.tar
 # on the k3s host (in WSL: the file is under /mnt/c/...)
 sudo k3s ctr images import gateway.tar
 ```
