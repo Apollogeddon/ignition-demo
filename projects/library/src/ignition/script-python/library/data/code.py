@@ -1,13 +1,10 @@
 """Dataset helpers shared by every project."""
 
-import sys
+MYPY = False
+if MYPY:
+	from typing import Any, Dict, List
 
-if sys.version_info.major >= 3:
-	from typing import TYPE_CHECKING, Any, Dict, List
-
-	# Java classes exist only as stubs outside the gateway
-	if TYPE_CHECKING:
-		from com.inductiveautomation.ignition.common import Dataset
+	from com.inductiveautomation.ignition.common import Dataset
 
 
 def toRows(

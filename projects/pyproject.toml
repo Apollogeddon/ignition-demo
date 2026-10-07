@@ -32,6 +32,8 @@ extraPaths = ["library/src/ignition/script-python", "project/src/ignition/script
 typeCheckingMode = "standard"
 # the stubs have no runtime source; the gateway provides it
 reportMissingModuleSource = "none"
+# scripts import types under "MYPY = False / if MYPY:"; the gateway never runs them
+defineConstant = { MYPY = true }
 
 [tool.ruff]
 line-length = 100
