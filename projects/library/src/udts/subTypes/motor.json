@@ -1,0 +1,51 @@
+{
+    "name": "motor",
+    "tagType": "UdtType",
+    "tags": [
+        {
+            "dataType": "Boolean",
+            "name": "running",
+            "tagType": "AtomicTag",
+            "value": false,
+            "valueSource": "memory"
+        },
+        {
+            "dataType": "Float4",
+            "engHigh": 100.0,
+            "engLow": 0.0,
+            "engUnit": "%",
+            "name": "speed",
+            "tagType": "AtomicTag",
+            "value": 0.0,
+            "valueSource": "memory"
+        },
+        {
+            "alarms": [
+                {
+                    "ackMode": "Auto",
+                    "activeCondition": {
+                        "bindType": "Expression",
+                        "value": "{Value}"
+                    },
+                    "displayPath": {
+                        "bindType": "Expression",
+                        "value": "concat({RootInstanceName}, \":\", {TagName})"
+                    },
+                    "label": {
+                        "bindType": "Expression",
+                        "value": "concat({RootInstanceName}, \": motor fault\")"
+                    },
+                    "mode": "OnCondition",
+                    "name": "Motor Fault",
+                    "priority": "High",
+                    "timeOnDelaySeconds": 5.0
+                }
+            ],
+            "dataType": "Boolean",
+            "name": "fault",
+            "tagType": "AtomicTag",
+            "value": false,
+            "valueSource": "memory"
+        }
+    ]
+}
