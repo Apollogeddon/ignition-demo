@@ -1,0 +1,24 @@
+# Python
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.coverage
+junit-report.xml
+dist/
+
+# OpenTofu
+.terraform/
+.terraform.lock.hcl.bak
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.example.tfvars
+.tofurc.local
+
+# Local stack
+local/.env
+local/data/
+
+# Built gateway image context
+gateway/projects/
