@@ -1,0 +1,10 @@
+{
+  "base": {
+    "style": {
+      "backgroundColor": "var(--neutral-10)",
+      "borderRadius": "8px",
+      "boxShadow": "var(--boxShadow1)",
+      "padding": "16px"
+    }
+  }
+}

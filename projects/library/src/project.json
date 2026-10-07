@@ -1,0 +1,7 @@
+{
+  "title": "Library",
+  "description": "Shared scripts, styles and views inherited by the application projects",
+  "parent": "",
+  "enabled": true,
+  "inheritable": true
+}

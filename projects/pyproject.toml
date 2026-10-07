@@ -1,0 +1,57 @@
+[project]
+name = "ignition-projects"
+version = "0.1.0"
+description = "Tooling for the Ignition projects: lint, type-check and unit-test their scripts"
+requires-python = ">=3.12"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "ignition-api-stubs==8.3.9.post1",
+    "pyright>=1.1.400",
+    "pytest>=8.4",
+    "pytest-cov>=6.2",
+    "ruff>=0.12",
+]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+# each project's scripts import as they do in the gateway, e.g. library.format
+pythonpath = ["library/src/ignition/script-python", "project/src/ignition/script-python"]
+testpaths = ["library/tests", "project/tests"]
+addopts = "--cov --cov-report=term-missing"
+
+[tool.coverage.run]
+source = ["library/src/ignition/script-python", "project/src/ignition/script-python"]
+
+[tool.pyright]
+include = ["library", "conftest.py"]
+extraPaths = ["library/src/ignition/script-python", "project/src/ignition/script-python"]
+typeCheckingMode = "standard"
+# the stubs have no runtime source; the gateway provides it
+reportMissingModuleSource = "none"
+
+[tool.ruff]
+line-length = 100
+# the gateway runs these scripts on Jython 2.7: no f-strings or annotations in
+# src (type comments instead), so ruff's py3-only upgrades are disabled there
+target-version = "py312"
+
+[tool.ruff.format]
+indent-style = "tab"
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "COM812", "CPY001", "D203", "D213", "W191", "D206",
+    # Ignition's naming conventions: camelCase functions, arguments and resources
+    "N802", "N803", "N806", "N999",
+    "INP001",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# F401: typing names are used only in type comments, which ruff does not read
+"*/src/**" = ["UP", "FA", "ANN", "F401", "RUF001"]
+"*/tests/**" = ["S101", "ANN", "D", "PLR2004"]
