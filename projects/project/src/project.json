@@ -1,0 +1,7 @@
+{
+  "title": "Project",
+  "description": "The application project: asset overview views and scripts",
+  "parent": "library",
+  "enabled": true,
+  "inheritable": false
+}
