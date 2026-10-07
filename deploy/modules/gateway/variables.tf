@@ -31,6 +31,12 @@ variable "image_pull_policy" {
   default     = "IfNotPresent"
 }
 
+variable "image_pull_secrets" {
+  description = "Pull secret names for a private registry"
+  type        = list(string)
+  default     = []
+}
+
 variable "admin_password" {
   description = "Gateway admin password; generated when null"
   type        = string

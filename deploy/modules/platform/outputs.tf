@@ -28,3 +28,8 @@ output "db_password" {
   value       = kubernetes_secret_v1.db.data["POSTGRES_PASSWORD"]
   sensitive   = true
 }
+
+output "image_pull_secrets" {
+  description = "Pull secret names for the gateway (empty for public images)"
+  value       = [for s in kubernetes_secret_v1.registry : s.metadata[0].name]
+}

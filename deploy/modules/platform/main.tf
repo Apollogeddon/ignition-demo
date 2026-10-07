@@ -196,3 +196,23 @@ resource "kubernetes_network_policy_v1" "db" {
     }
   }
 }
+
+# Pull secret for a private registry (e.g. a private GHCR package)
+resource "kubernetes_secret_v1" "registry" {
+  count = nonsensitive(var.registry == null) ? 0 : 1
+  metadata {
+    name      = "registry"
+    namespace = local.namespace
+    labels    = local.labels
+  }
+  type = "kubernetes.io/dockerconfigjson"
+  data = {
+    ".dockerconfigjson" = jsonencode({
+      auths = {
+        (var.registry.server) = {
+          auth = base64encode("${var.registry.username}:${var.registry.password}")
+        }
+      }
+    })
+  }
+}

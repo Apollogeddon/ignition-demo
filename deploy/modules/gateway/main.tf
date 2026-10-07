@@ -7,9 +7,10 @@ locals {
   values = {
     applicationName = var.name
     image = {
-      repository = var.image_repository
-      tag        = var.image_tag
-      pullPolicy = var.image_pull_policy
+      repository       = var.image_repository
+      tag              = var.image_tag
+      pullPolicy       = var.image_pull_policy
+      imagePullSecrets = [for name in var.image_pull_secrets : { name = name }]
     }
     certManager = {
       issuer = { name = var.issuer.name, kind = var.issuer.kind }
