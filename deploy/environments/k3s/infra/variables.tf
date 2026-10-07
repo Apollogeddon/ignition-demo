@@ -13,7 +13,7 @@ variable "kube_context" {
 variable "namespace" {
   description = "Namespace for the demo"
   type        = string
-  default     = "ignition-demo"
+  default     = "ignition"
 }
 
 variable "image_repository" {
