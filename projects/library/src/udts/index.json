@@ -1,0 +1,7 @@
+[
+    "subTypes/motor",
+    "equipment/pump",
+    "equipment/blower",
+    "equipment/mixer",
+    "equipment/level"
+]

@@ -1,0 +1,11 @@
+{
+    "name": "mixer",
+    "tagType": "UdtType",
+    "tags": [
+        {
+            "name": "motor",
+            "tagType": "UdtInstance",
+            "typeId": "subTypes/motor"
+        }
+    ]
+}

@@ -1,0 +1,19 @@
+{
+    "name": "pump",
+    "tagType": "UdtType",
+    "tags": [
+        {
+            "name": "motor",
+            "tagType": "UdtInstance",
+            "typeId": "subTypes/motor"
+        },
+        {
+            "dataType": "Float4",
+            "engUnit": "L/s",
+            "name": "flow",
+            "tagType": "AtomicTag",
+            "value": 0.0,
+            "valueSource": "memory"
+        }
+    ]
+}

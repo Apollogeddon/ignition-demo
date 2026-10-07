@@ -1,0 +1,19 @@
+{
+    "name": "blower",
+    "tagType": "UdtType",
+    "tags": [
+        {
+            "name": "motor",
+            "tagType": "UdtInstance",
+            "typeId": "subTypes/motor"
+        },
+        {
+            "dataType": "Float4",
+            "engUnit": "kPa",
+            "name": "pressure",
+            "tagType": "AtomicTag",
+            "value": 0.0,
+            "valueSource": "memory"
+        }
+    ]
+}

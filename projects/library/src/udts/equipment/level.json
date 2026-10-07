@@ -1,0 +1,37 @@
+{
+    "name": "level",
+    "tagType": "UdtType",
+    "tags": [
+        {
+            "alarms": [
+                {
+                    "ackMode": "Auto",
+                    "activeCondition": {
+                        "bindType": "Expression",
+                        "value": "{Value} > 90"
+                    },
+                    "displayPath": {
+                        "bindType": "Expression",
+                        "value": "concat({RootInstanceName}, \":\", {TagName})"
+                    },
+                    "label": {
+                        "bindType": "Expression",
+                        "value": "concat({RootInstanceName}, \": level above 90%\")"
+                    },
+                    "mode": "OnCondition",
+                    "name": "High Level",
+                    "priority": "Medium",
+                    "timeOnDelaySeconds": 5.0
+                }
+            ],
+            "dataType": "Float4",
+            "engHigh": 100.0,
+            "engLow": 0.0,
+            "engUnit": "%",
+            "name": "level",
+            "tagType": "AtomicTag",
+            "value": 0.0,
+            "valueSource": "memory"
+        }
+    ]
+}
