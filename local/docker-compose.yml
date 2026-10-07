@@ -1,0 +1,63 @@
+# Local stack for Designer work: the gateway image's Ignition version with the
+# project folders mounted live, plus the demo database.
+#
+#   cp local/.env.example local/.env
+#   docker compose -f local/docker-compose.yml up -d
+#
+# Gateway: http://localhost:8088 (admin / IGNITION_ADMIN_PASSWORD from .env)
+# Designer changes are written straight into projects/*/src; run the tests and
+# commit them like any other change.
+name: ignition-demo
+
+services:
+  gateway:
+    build:
+      context: ..
+      dockerfile: gateway/Dockerfile
+    image: ignition-demo-gateway:local
+    ports:
+      - "8088:8088"
+    environment:
+      ACCEPT_IGNITION_EULA: "Y"
+      DISABLE_QUICKSTART: "true"
+      IGNITION_EDITION: standard
+      GATEWAY_ADMIN_USERNAME: admin
+      GATEWAY_ADMIN_PASSWORD: ${IGNITION_ADMIN_PASSWORD:?set it in local/.env}
+    command:
+      - -n
+      - ignition-demo-local
+      - -m
+      - "1024"
+      - --
+      - -Dignition.projects.dir=/usr/local/bin/ignition/assets/projects
+      # pick up file changes quickly while developing
+      - -Dignition.projects.scanFrequency=10
+    volumes:
+      - gateway-data:/usr/local/bin/ignition/data
+      # live project folders: the Designer edits these files directly
+      - ../projects/library/src:/usr/local/bin/ignition/assets/projects/library
+      - ../projects/project/src:/usr/local/bin/ignition/assets/projects/project
+    depends_on:
+      database:
+        condition: service_healthy
+
+  database:
+    image: docker.io/library/postgres:17
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: demo
+      POSTGRES_USER: demo
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?set it in local/.env}
+    volumes:
+      - database-data:/var/lib/postgresql/data
+      - ../db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U demo -d demo"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  gateway-data:
+  database-data:
