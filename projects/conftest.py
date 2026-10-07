@@ -18,6 +18,7 @@ builtins.basestring = str  # type: ignore[attr-defined]
 SYSTEM_MODULES = (
 	"system",
 	"system.dataset",
+	"system.file",
 	"system.date",
 	"system.db",
 	"system.perspective",
@@ -27,6 +28,15 @@ SYSTEM_MODULES = (
 )
 MOCKS = {name: MagicMock(name=name) for name in SYSTEM_MODULES}
 sys.modules.update(MOCKS)
+
+
+class Throwable(Exception):  # noqa: N818
+	"""Stand-in for java.lang.Throwable, so except (Exception, Throwable) works."""
+
+
+java = MagicMock(name="java")
+java.lang.Throwable = Throwable
+sys.modules.update({"java": java, "java.lang": java.lang})
 
 
 @pytest.fixture(autouse=True)
