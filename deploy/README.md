@@ -75,7 +75,7 @@ provider_installation {
 ```
 
 The provider authenticates with a gateway API key that has read and write
-access (create one under Platform > Security > API Keys):
+access (create one in the gateway web UI's API key settings):
 
 ```sh
 cd deploy/environments/k3s/config
