@@ -5,7 +5,7 @@ locals {
   namespace = var.create_namespace ? kubernetes_namespace_v1.this[0].metadata[0].name : var.namespace
   labels = {
     "app.kubernetes.io/name"       = "database"
-    "app.kubernetes.io/part-of"    = "ignition-demo"
+    "app.kubernetes.io/part-of"    = "ignition"
     "app.kubernetes.io/managed-by" = "opentofu"
   }
   init_files = { for f in fileset(var.db_init_dir, "*.sql") : f => file("${var.db_init_dir}/${f}") }
@@ -18,7 +18,7 @@ resource "kubernetes_namespace_v1" "this" {
     labels = {
       # the chart runs restricted-compliant pods; enforce it
       "pod-security.kubernetes.io/enforce" = "restricted"
-      "app.kubernetes.io/part-of"          = "ignition-demo"
+      "app.kubernetes.io/part-of"          = "ignition"
     }
   }
 }
