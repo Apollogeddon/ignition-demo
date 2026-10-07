@@ -17,6 +17,7 @@ builtins.basestring = str  # type: ignore[attr-defined]
 
 SYSTEM_MODULES = (
 	"system",
+	"system.dataset",
 	"system.date",
 	"system.db",
 	"system.perspective",

@@ -27,7 +27,7 @@ addopts = "--cov --cov-report=term-missing"
 source = ["library/src/ignition/script-python", "project/src/ignition/script-python"]
 
 [tool.pyright]
-include = ["library", "conftest.py"]
+include = ["library", "project", "conftest.py"]
 extraPaths = ["library/src/ignition/script-python", "project/src/ignition/script-python"]
 typeCheckingMode = "standard"
 # the stubs have no runtime source; the gateway provides it
@@ -53,5 +53,5 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 # F401: typing names are used only in type comments, which ruff does not read
-"*/src/**" = ["UP", "FA", "ANN", "F401", "RUF001"]
-"*/tests/**" = ["S101", "ANN", "D", "PLR2004"]
+"*/src/**" = ["UP", "FA", "ANN", "F401", "G001", "RUF001"]
+"*/tests/**" = ["S101", "ANN", "D", "PLR2004", "TC003"]
