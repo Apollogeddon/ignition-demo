@@ -1,7 +1,7 @@
 # The gateway image: Ignition with this repository's projects baked in.
 #
 # Build from the repository root so the projects are in the context:
-#   docker build -f gateway/Dockerfile -t ignition-demo-gateway .
+#   docker build -f gateway/Dockerfile -t ignition-gateway .
 #
 # The projects are copied outside the data volume, to assets/projects, and the
 # gateway is pointed at them with -Dignition.projects.dir (see the gateway
@@ -22,5 +22,5 @@ COPY --chown=ignition:ignition --chmod=u=rwX,go=rX gateway/modules/ user-lib/mod
 COPY --chown=ignition:ignition --chmod=u=rwX,go=rX projects/library/src/ assets/projects/library/
 COPY --chown=ignition:ignition --chmod=u=rwX,go=rX projects/project/src/ assets/projects/project/
 
-LABEL org.opencontainers.image.title="ignition-demo-gateway" \
+LABEL org.opencontainers.image.title="ignition-gateway" \
       org.opencontainers.image.description="Ignition with the demo projects baked in"

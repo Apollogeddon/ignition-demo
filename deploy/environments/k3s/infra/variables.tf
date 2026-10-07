@@ -19,7 +19,7 @@ variable "namespace" {
 variable "image_repository" {
   description = "Gateway image repository"
   type        = string
-  default     = "localhost/ignition-demo-gateway"
+  default     = "localhost/ignition-gateway"
 }
 
 variable "image_tag" {
