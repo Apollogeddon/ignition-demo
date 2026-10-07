@@ -1,0 +1,7 @@
+# Only the gateway's inputs go into the build context
+*
+!gateway/modules/
+!projects/library/src/
+!projects/project/src/
+**/__pycache__
+**/*.pyc
