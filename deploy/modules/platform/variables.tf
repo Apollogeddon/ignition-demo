@@ -56,3 +56,14 @@ variable "db_client_labels" {
   type        = map(string)
   default     = { "app.kubernetes.io/name" = "ignition" }
 }
+
+variable "registry" {
+  description = "Credentials for a private image registry, stored as a pull secret (e.g. GHCR with a read:packages token); null for public images"
+  type = object({
+    server   = string
+    username = string
+    password = string
+  })
+  default   = null
+  sensitive = true
+}

@@ -19,7 +19,7 @@ variable "namespace" {
 variable "image_repository" {
   description = "Gateway image repository"
   type        = string
-  default     = "localhost/ignition-gateway"
+  default     = "ghcr.io/apollogeddon/ignition-gateway"
 }
 
 variable "image_tag" {
@@ -28,9 +28,22 @@ variable "image_tag" {
 }
 
 variable "image_pull_policy" {
-  description = "Never when the image is imported into k3s directly (see deploy/README.md)"
+  description = "IfNotPresent for a registry; Never for an image imported into k3s directly (see deploy/README.md)"
   type        = string
-  default     = "Never"
+  default     = "IfNotPresent"
+}
+
+variable "ghcr_token" {
+  description = "GitHub token with read:packages, when the GHCR package is private; null for a public package"
+  type        = string
+  default     = null
+  sensitive   = true
+}
+
+variable "ghcr_username" {
+  description = "GitHub user owning ghcr_token"
+  type        = string
+  default     = null
 }
 
 variable "hostname" {
