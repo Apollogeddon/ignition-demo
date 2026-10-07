@@ -1,0 +1,8 @@
+{
+  "pages": {
+    "/": {
+      "title": "Assets",
+      "viewPath": "Page/Home"
+    }
+  }
+}

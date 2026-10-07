@@ -1,0 +1,81 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {},
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Title"
+        },
+        "position": {
+          "shrink": 0
+        },
+        "props": {
+          "text": "Assets by area",
+          "textStyle": {
+            "fontSize": "24px",
+            "fontWeight": "bold"
+          }
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Summary"
+        },
+        "position": {
+          "basis": "300px",
+          "grow": 1
+        },
+        "propConfig": {
+          "props.data": {
+            "binding": {
+              "config": {
+                "expression": "now(60000)"
+              },
+              "transforms": [
+                {
+                  "code": "\treturn project.assets.getSummary()",
+                  "type": "script"
+                }
+              ],
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "columns": [
+            {
+              "field": "area",
+              "header": {
+                "title": "Area"
+              }
+            },
+            {
+              "field": "count",
+              "header": {
+                "title": "Assets"
+              }
+            }
+          ],
+          "style": {
+            "classes": "Card"
+          }
+        },
+        "type": "ia.display.table"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "direction": "column",
+      "style": {
+        "gap": "16px",
+        "padding": "16px"
+      }
+    },
+    "type": "ia.container.flex"
+  }
+}
