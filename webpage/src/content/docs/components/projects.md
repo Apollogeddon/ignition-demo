@@ -3,7 +3,7 @@ title: Projects
 description: Ignition projects kept as files, with tested scripts and clean diffs.
 ---
 
-Each folder in `projects/` is one Ignition project. `src/` holds exactly the files the gateway and the Designer read and write, so the repository is the project.
+Each folder in `projects/` is one Ignition project, and this page covers how they are kept as files and how their scripts are checked. `src/` holds exactly the files the gateway and the Designer read and write, so the repository is the project.
 
 | Project | Role |
 | --- | --- |
@@ -39,14 +39,40 @@ Gateway scripts run on Jython 2.7, while the tooling runs them under Python 3.12
 cd projects
 uv sync
 uv run ruff format --check . && uv run ruff check .
-uv run pyright
+uv run basedpyright
+uv run poe compat
 uv run pytest
-# against the 8.1 stubs (CI runs both)
+```
+
+`uv sync` installs the 8.3 API stubs by default. To run the tests against the 8.1 stubs as well, use a second environment (CI runs every check against both):
+
+```sh
 UV_PROJECT_ENVIRONMENT=.venv-81 uv sync --no-default-groups --group dev --group ignition81
 UV_PROJECT_ENVIRONMENT=.venv-81 uv run --no-sync pytest
 ```
 
-`conftest.py` registers mocks for the `system.*` modules, so scripts import under pytest exactly as they do in the gateway.
+The checks are also [poe](https://poethepoet.natn.io/) tasks, run with `uv run poe <task>`:
+
+| Task | Runs |
+| --- | --- |
+| `format` | `ruff format .` |
+| `lint` | `ruff check --fix .`, then `ruff format .` |
+| `type` | `basedpyright` |
+| `compat` | vermin and `forgepy check-jython`: the scripts must stay valid Jython 2.7 |
+| `test` | `pytest`, with coverage |
+| `sync-check` | `forgepy sync --check`: fails if the configs in `.forgepy/` are out of date |
+| `security` | `osv-scanner scan -r .` (needs OSV-Scanner installed) |
+
+## Tooling
+
+The tooling comes from [forgepy](https://github.com/apollogeddon/forgepy)'s `--jython` setup:
+
+- `ruff.toml` extends forgepy's managed Jython base in `.forgepy/ruff-jython.toml`, selects every rule, and turns off the ones that don't fit Jython scripts or Ignition's naming conventions. Scripts are indented with tabs, as the Designer writes them; the tests target Python 3.12.
+- `pyrightconfig.json` extends `.forgepy/pyrightconfig.json`, adds the script folders to the import path, and defines `MYPY` as true so basedpyright reads the type-only imports.
+- `uv run forgepy sync` refreshes the files in `.forgepy/`; CI fails if they are out of date.
+- `conftest.py` registers mocks for the `system.*` modules, so scripts import under pytest exactly as they do in the gateway.
+
+Lefthook runs ruff on staged Python files, and the compatibility check whenever a script under `*/src/` changes.
 
 ## The resource sanitiser
 

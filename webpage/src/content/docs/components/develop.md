@@ -3,7 +3,7 @@ title: Develop
 description: A local gateway and database in Docker Compose, with the projects mounted live.
 ---
 
-`develop/` runs a gateway and a PostgreSQL database in Docker (or Podman). The gateway is built from the same `gateway/Dockerfile` as every other environment, with `projects/library/src` and `projects/project/src` mounted live into it.
+`develop/` is the local development environment: a gateway and a PostgreSQL database in Docker (or Podman). The gateway is built from the same `gateway/Dockerfile` as every other environment, with `projects/library/src` and `projects/project/src` mounted live into it.
 
 ## Starting
 
@@ -35,7 +35,7 @@ docker compose -f develop/docker-compose.yml up -d --build
 ## The loop
 
 1. Edit in the Designer, or in an editor: the gateway rescans the project folders every 10 seconds. Changes land in `projects/*/src`.
-2. Run the checks: `uv run pytest`, ruff and pyright (see [Projects](../projects/#checks)).
+2. Run the checks in `projects/`: ruff, basedpyright, `poe compat` and pytest (see [Projects](../projects/#checks)).
 3. Commit. The resource sanitiser strips the Designer's noise from `resource.json` files as they are staged.
 
 ## Gateway configuration
@@ -43,12 +43,15 @@ docker compose -f develop/docker-compose.yml up -d --build
 **8.3.** `develop/config/` applies the cluster's `gateway-config` module to this gateway, so it gets the same configuration as a deployed one. It authenticates with the key from `GATEWAY_API_TOKEN`, which the gateway installs for itself on start:
 
 ```sh
+set -a; . develop/.env; set +a     # load GATEWAY_API_TOKEN and DB_PASSWORD
 cd develop/config
-export IGNITION_TOKEN="$GATEWAY_API_TOKEN"     # from develop/.env
+export IGNITION_TOKEN="$GATEWAY_API_TOKEN"
 tofu init && tofu apply -var db_password="$DB_PASSWORD"
 ```
 
-**8.1.** There is no REST API; the gateway seeds itself from `gateway/seed/seed.json` on start (see [Gateway Image](../gateway-image/#81-the-seed)). The seed folder is mounted live, so an edit to the spec is applied the next time the project restarts its scripts.
+The Ignition provider isn't on a registry yet; see [Cluster](../cluster/#3-config) for installing it.
+
+**8.1.** There is no REST API; the gateway seeds itself from `gateway/seed/seed.json` on start (see [Gateway image](../gateway-image/#81-the-seed)). The seed folder is mounted live, so an edit to the spec is applied the next time the project restarts its scripts.
 
 ## Reset
 
