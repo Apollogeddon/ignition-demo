@@ -70,7 +70,8 @@ docker compose -f develop/docker-compose.yml up -d --build
 cd projects
 uv sync
 uv run ruff format --check . && uv run ruff check .
-uv run pyright
+uv run basedpyright
+uv run poe compat
 uv run pytest
 ```
 

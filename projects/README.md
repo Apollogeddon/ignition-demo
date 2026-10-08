@@ -35,9 +35,12 @@ Gateway scripts run on Jython 2.7, while the tooling here runs them under Python
 cd projects
 uv sync
 uv run ruff format --check . && uv run ruff check .
-uv run pyright
+uv run basedpyright
+uv run poe compat
 uv run pytest
 ```
+
+The tooling comes from [forgepy](https://github.com/apollogeddon/forgepy)'s `--jython` setup: `ruff.toml` and `pyrightconfig.json` extend its managed bases in `.forgepy/` (refresh them with `uv run forgepy sync`), and `poe compat` checks the scripts stay valid Jython 2.7. Lefthook runs ruff on staged files and the compatibility check when a script changes.
 
 `conftest.py` registers mocks for the `system.*` modules, so scripts import under pytest exactly as they do in the gateway.
 

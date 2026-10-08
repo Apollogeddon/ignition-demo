@@ -1,0 +1,3 @@
+# The Ignition image starts as root to prepare the data volume, and its entrypoint then
+# runs the gateway as the ignition user, so the Dockerfile has no USER line.
+DS-0002
