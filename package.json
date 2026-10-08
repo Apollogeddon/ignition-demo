@@ -3,11 +3,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "prepare": "lefthook install || exit 0"
+    "prepare": "lefthook install || exit 0",
+    "lint:md": "markdownlint-cli2 --fix \"**/*.{md,mdx}\""
   },
   "devDependencies": {
     "@commitlint/cli": "21.2.3",
     "@commitlint/config-conventional": "21.2.3",
-    "lefthook": "2.1.16"
+    "lefthook": "2.1.16",
+    "markdownlint-cli2": "0.22.1"
   }
 }
