@@ -1,7 +1,7 @@
 <br />
 <div align="center">
   <a href="https://apollogeddon.github.io/ignition-demo">
-    <img src="../webpage/public/favicon.png" alt="Logo" width="100" height="100">
+    <img src="webpage/public/favicon.png" alt="Logo" width="100" height="100">
   </a>
   <h3 align="center">Ignition Demo</h3>
   <p align="center">
@@ -69,7 +69,7 @@ uv run pytest
 
 ### Deploy
 
-Each environment is applied in two stages: `infra` (the platform and the gateway), then `config` (the gateway's configuration). See [`cluster/`](../cluster/README.md) for the k3s reference environment.
+Each environment is applied in two stages: `infra` (the platform and the gateway), then `config` (the gateway's configuration). See [`cluster/`](cluster/README.md) for the k3s reference environment.
 
 ## 🗂️ Layout
 
