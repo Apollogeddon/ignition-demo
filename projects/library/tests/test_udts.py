@@ -104,3 +104,48 @@ def test_import_all_succeeds() -> None:
 	module("system.file").readFileAsString.return_value = '["subTypes/motor"]'
 	assert importAll("library") == 0
 	module("system.tag").importTags.assert_called_once()
+
+
+def test_normalise_drops_8_1_placeholders_and_sorts_members() -> None:
+	exported_81 = {
+		"name": "pump",
+		"tagType": "UdtType",
+		"tags": [
+			{
+				"name": "motor",
+				"tagType": "UdtInstance",
+				"typeId": "subTypes/motor",
+				"tags": [
+					{"name": "speed", "tagType": "AtomicTag"},
+					{"name": "running", "tagType": "AtomicTag", "value": True},
+				],
+			},
+			{"name": "flow", "tagType": "AtomicTag", "valueSource": "memory"},
+		],
+	}
+	assert json.loads(normalise(json.dumps(exported_81))) == {
+		"name": "pump",
+		"tagType": "UdtType",
+		"tags": [
+			{"name": "flow", "tagType": "AtomicTag", "valueSource": "memory"},
+			# the override on running is kept; the bare speed placeholder is not
+			{
+				"name": "motor",
+				"tagType": "UdtInstance",
+				"typeId": "subTypes/motor",
+				"tags": [
+					{"name": "running", "tagType": "AtomicTag", "value": True},
+				],
+			},
+		],
+	}
+
+
+def test_normalise_keeps_bare_members_of_a_type() -> None:
+	# outside an instance, a member with no other properties is a real definition
+	udt = {
+		"name": "t",
+		"tagType": "UdtType",
+		"tags": [{"name": "b", "tagType": "Folder"}, {"name": "a", "tagType": "AtomicTag"}],
+	}
+	assert [t["name"] for t in json.loads(normalise(json.dumps(udt)))["tags"]] == ["a", "b"]

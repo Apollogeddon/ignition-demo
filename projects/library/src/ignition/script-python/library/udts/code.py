@@ -56,12 +56,44 @@ def definitions(
 	return result
 
 
+def canonical(
+	tag,  # type: Any
+	inInstance=False,  # type: bool  # noqa: FBT002 - Jython 2.7 has no keyword-only arguments
+):
+	# type: (...) -> Any
+	"""Return a tag definition without export noise, members sorted by name.
+
+	Exports differ between versions in ways that mean nothing: 8.1 lists every
+	member of a nested UdtInstance as a bare {name, tagType} placeholder, and
+	the versions order members differently. Placeholders are dropped (a member
+	with any override keeps it) and members are sorted, so a definition exports
+	to the same file on 8.1 and 8.3.
+	"""
+	if isinstance(tag, list):
+		members = [canonical(t, inInstance) for t in tag]
+		members = [
+			t
+			for t in members
+			if not (inInstance and isinstance(t, dict) and set(t) <= {"name", "tagType"})
+		]
+		return sorted(members, key=lambda t: t.get("name", "") if isinstance(t, dict) else "")
+	if isinstance(tag, dict):
+		nested = inInstance or tag.get("tagType") == "UdtInstance"
+		result = dict(tag)
+		if "tags" in result:
+			result["tags"] = canonical(result["tags"], nested)
+		if nested and result.get("tags") == []:
+			del result["tags"]
+		return result
+	return tag
+
+
 def normalise(
 	text,  # type: str
 ):
 	# type: (...) -> str
-	"""Return a tag export as sorted, four-space-indented JSON."""
-	data = json.loads(text)  # type: Any
+	"""Return a tag export in canonical form: no placeholders, sorted, four-space JSON."""
+	data = canonical(json.loads(text))  # type: Any
 	return json.dumps(data, indent=4, sort_keys=True, separators=(",", ": ")) + "\n"
 
 
