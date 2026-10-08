@@ -16,6 +16,11 @@ updates:
       prefix: "fix(deps)"
     # Wait 3 days after a version is published before proposing it, so a
     # compromised release has time to be caught/yanked upstream first.
+    # astro-mermaid accepts mermaid 10 or 11 only, so a major mermaid update
+    # breaks the webpage's install until astro-mermaid supports it
+    ignore:
+      - dependency-name: "mermaid"
+        update-types: ["version-update:semver-major"]
     cooldown:
       default-days: 3
 
