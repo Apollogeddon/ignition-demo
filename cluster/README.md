@@ -28,7 +28,7 @@ Each environment is applied in two stages, because the Ignition provider can onl
 
 ## The k3s reference environment
 
-Prerequisites: OpenTofu 1.8+, the `Ubuntu-k3s` kube context, cert-manager with the `ignition-cluster-issuer` ClusterIssuer, and traefik (k3s's default).
+Prerequisites: OpenTofu 1.8+, a kubeconfig context for the cluster (`kube_context`, default `default`, the name k3s gives it), cert-manager with a ClusterIssuer (`issuer_name`, default `cluster-issuer`), and traefik (k3s's default).
 
 ### 1. Build the image and load it into k3s
 
