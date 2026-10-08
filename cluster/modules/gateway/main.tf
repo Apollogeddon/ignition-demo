@@ -34,7 +34,7 @@ locals {
         GATEWAY_ADMIN_PASSWORD         = local.admin_password
         IGNITION_GAN_KEYSTORE_PASSWORD = random_password.keystore["gan"].result
         IGNITION_WEB_KEYSTORE_PASSWORD = random_password.keystore["web"].result
-      }, local.datasource_env)
+      }, local.gateway_environment)
       redundancy = { enabled = var.redundancy }
       # user traffic only ever reaches the Active gateway
       activeRouting = { enabled = var.redundancy }
@@ -75,6 +75,18 @@ resource "random_password" "admin" {
   special = false
 }
 
+# 8.3: an API key the gateway installs from GATEWAY_API_TOKEN on start (see
+# gateway/api-token.sh), for the ignition provider; 32 random bytes, base64url
+resource "random_bytes" "api_token" {
+  count  = var.ignition_version == "8.3" ? 1 : 0
+  length = 32
+}
+
+locals {
+  api_token           = var.ignition_version == "8.3" ? "${var.api_token_name}:${replace(replace(replace(random_bytes.api_token[0].base64, "+", "-"), "/", "_"), "=", "")}" : null
+  gateway_environment = var.ignition_version == "8.3" ? { GATEWAY_API_TOKEN = local.api_token } : var.seed_environment
+}
+
 resource "random_password" "keystore" {
   for_each = toset(["gan", "web"])
   length   = 20
@@ -82,15 +94,6 @@ resource "random_password" "keystore" {
 }
 
 locals {
-  # read by library.config on 8.1 (see projects/library)
-  datasource_env = merge([
-    for name, db in var.startup_datasources : {
-      "GATEWAY_DB_${upper(name)}_URL"      = db.url
-      "GATEWAY_DB_${upper(name)}_USER"     = db.user
-      "GATEWAY_DB_${upper(name)}_PASSWORD" = db.password
-      "GATEWAY_DB_${upper(name)}_DRIVER"   = db.driver
-    }
-  ]...)
   admin_password = coalesce(var.admin_password, try(random_password.admin[0].result, null))
 }
 

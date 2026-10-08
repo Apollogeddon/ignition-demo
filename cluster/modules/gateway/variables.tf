@@ -82,18 +82,29 @@ variable "values" {
   default     = {}
 }
 
-variable "startup_datasources" {
+variable "ignition_version" {
+  description = "Ignition major.minor of the image (8.1 or 8.3): 8.3 gets an API key for gateway-config, 8.1 a seed environment"
+  type        = string
+  default     = "8.3"
+  validation {
+    condition     = contains(["8.1", "8.3"], var.ignition_version)
+    error_message = "ignition_version must be 8.1 or 8.3."
+  }
+}
+
+variable "api_token_name" {
+  description = "Name of the generated API key (8.3); OpenTofu's ignition provider authenticates with it"
+  type        = string
+  default     = "iac"
+}
+
+variable "seed_environment" {
   description = <<-EOT
-    Database connections the gateway creates on startup when missing, keyed by
-    connection name. For Ignition 8.1, which has no REST API for the
-    gateway-config module; leave empty on 8.3 so OpenTofu stays their only owner.
+    Environment variables for the gateway's seed spec (gateway/seed/seed.json),
+    which the 8.1 startup event applies: connection URLs, users' passwords and
+    so on. Ignored on 8.3, where gateway-config configures the gateway.
   EOT
-  type = map(object({
-    url      = string
-    user     = string
-    password = string
-    driver   = optional(string, "PostgreSQL")
-  }))
-  default   = {}
-  sensitive = true
+  type        = map(string)
+  default     = {}
+  sensitive   = true
 }
