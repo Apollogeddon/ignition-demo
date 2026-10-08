@@ -1,47 +1,30 @@
 version: 2
-updates:
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-    commit-message:
-      prefix: "chore(ci)"
-    groups:
-      actions:
-        patterns:
-          - "*"
-    # Wait 3 days after a version is published before proposing it, so a
-    # compromised release has time to be caught/yanked upstream first.
-    cooldown:
-      default-days: 3
 
+registries:
+  # @apollogeddon/forgejs lives on GitHub Packages, which needs a token even to read
+  github-packages:
+    type: npm-registry
+    url: https://npm.pkg.github.com
+    token: ${{ secrets.FORGEJS_PACKAGES_TOKEN }}
+
+updates:
   - package-ecosystem: "npm"
     directories:
       - "/"
       - "/webpage"
+    registries:
+      - github-packages
+    # Weekly and grouped: one pull request, so one CI run, for the week's updates.
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
     groups:
-      # These packages must stay on matching versions - group them at any update
-      # type so Dependabot never proposes one half of a pair without the other.
-      commitlint:
-        patterns:
-          - "@commitlint/*"
-      astro:
-        patterns:
-          - "astro"
-          - "astro-*"
-          - "@astrojs/*"
-      # Group remaining non-major updates to reduce PR volume
       dependencies:
-        patterns:
-          - "*"
-        update-types:
-          - "minor"
-          - "patch"
+        patterns: ["*"]
     commit-message:
       prefix: "fix(deps)"
+    # Wait 3 days after a version is published before proposing it, so a
+    # compromised release has time to be caught/yanked upstream first.
     cooldown:
       default-days: 3
 
@@ -49,17 +32,28 @@ updates:
     directory: "/projects"
     schedule:
       interval: "weekly"
-    ignore:
-      # pinned to the Ignition versions the projects target, one per dependency group
-      - dependency-name: "ignition-api-stubs"
     groups:
       dependencies:
-        patterns:
-          - "*"
-        update-types:
-          - "minor"
-          - "patch"
+        patterns: ["*"]
+    # pinned to the Ignition versions the projects target, one per dependency group
+    ignore:
+      - dependency-name: "ignition-api-stubs"
     commit-message:
       prefix: "fix(deps)"
+    cooldown:
+      default-days: 3
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      actions:
+        patterns: ["*"]
+    commit-message:
+      prefix: "chore(ci)"
+    # CI deliberately tracks forgejs's reusable workflows at @main.
+    ignore:
+      - dependency-name: "apollogeddon/forgejs"
     cooldown:
       default-days: 3
