@@ -1,12 +1,11 @@
-# Local stack for Designer work: the gateway image's Ignition version with the
-# project folders mounted live, plus the demo database.
+# Local development: the gateway image at the Ignition version of your choice,
+# with the library and project folders mounted live, plus the demo database.
 #
-#   cp develop/.env.example develop/.env
-#   docker compose -f develop/docker-compose.yml up -d
+#   cp develop/.env.example develop/.env      # then set the passwords
+#   docker compose -f develop/docker-compose.yml up -d --build
 #
-# Gateway: http://localhost:8088 (admin / IGNITION_ADMIN_PASSWORD from .env)
-# Designer changes are written straight into projects/*/src; run the tests and
-# commit them like any other change.
+# Gateway: http://localhost:${GATEWAY_HTTP_PORT:-8088} (admin / IGNITION_ADMIN_PASSWORD)
+# The Designer writes straight into projects/*/src; test and commit from there.
 name: ignition
 
 services:
@@ -14,9 +13,13 @@ services:
     build:
       context: ..
       dockerfile: gateway/Dockerfile
-    image: ignition-gateway:local
+      args:
+        IGNITION_VERSION: ${IGNITION_VERSION:-8.3.10}
+    image: ignition-gateway:develop-${IGNITION_VERSION:-8.3.10}
+    hostname: gateway
     ports:
-      - "8088:8088"
+      - "${GATEWAY_HTTP_PORT:-8088}:8088"
+      - "${GATEWAY_HTTPS_PORT:-8043}:8043"
     environment:
       ACCEPT_IGNITION_EULA: "Y"
       DISABLE_QUICKSTART: "true"
@@ -25,26 +28,35 @@ services:
       GATEWAY_ADMIN_PASSWORD: ${IGNITION_ADMIN_PASSWORD:?set it in develop/.env}
     command:
       - -n
-      - ignition-local
+      - ignition-develop
       - -m
-      - "1024"
+      - "${GATEWAY_MEMORY_MB:-1024}"
       - --
-      - -Dignition.projects.dir=/usr/develop/bin/ignition/assets/projects
-      # pick up file changes quickly while developing
+      - gateway.useProxyForwardedHeader=true
+      - -Dignition.projects.dir=/usr/local/bin/ignition/assets/projects
+      # pick up file changes quickly while developing (the cluster uses 60)
       - -Dignition.projects.scanFrequency=10
     volumes:
-      - gateway-data:/usr/develop/bin/ignition/data
-      # live project folders: the Designer edits these files directly
-      - ../projects/library/src:/usr/develop/bin/ignition/assets/projects/library
-      - ../projects/project/src:/usr/develop/bin/ignition/assets/projects/project
+      - gateway-data:/usr/local/bin/ignition/data
+      # live project folders: the Designer edits these files directly, and
+      # edits made in an editor are picked up within scanFrequency seconds
+      - ../projects/library/src:/usr/local/bin/ignition/assets/projects/library
+      - ../projects/project/src:/usr/local/bin/ignition/assets/projects/project
     depends_on:
       database:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8088/StatusPing | grep -q RUNNING"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 60s
 
   database:
     image: docker.io/library/postgres:17
+    hostname: database
     ports:
-      - "5432:5432"
+      - "${DB_PORT:-5432}:5432"
     environment:
       POSTGRES_DB: demo
       POSTGRES_USER: demo
