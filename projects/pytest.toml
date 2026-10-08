@@ -1,0 +1,12 @@
+[pytest]
+# each project's scripts import as they do in the gateway, e.g. library.format
+pythonpath = ["library/src/ignition/script-python", "project/src/ignition/script-python"]
+testpaths = ["library/tests", "project/tests"]
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--cov",
+    "--cov-branch",
+    "--cov-report=term-missing",
+    "--junitxml=junit-report.xml",
+]

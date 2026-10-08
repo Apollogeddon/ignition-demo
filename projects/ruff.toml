@@ -1,0 +1,37 @@
+# The scripts run on Jython 2.7: forgepy's Jython base turns off the rules whose fixes
+# need Python 3, and targets the oldest version ruff supports.
+extend = ".forgepy/ruff-jython.toml"
+line-length = 100
+
+[format]
+indent-style = "tab"
+
+[lint]
+# every rule, less the ones below
+extend-select = ["ALL"]
+ignore = [
+    "COM812", "CPY001", "D203", "D213", "W191", "D206",
+    # Ignition's naming conventions: camelCase functions, arguments and resources
+    "N802", "N803", "N806", "N999",
+    "INP001",
+]
+
+[lint.per-file-ignores]
+# selecting ALL turns the Jython base's rules back on, so its list is repeated here:
+# UP, PTH, RUF005, F401 (imports used only by type comments, which ruff doesn't read)
+# FA, ANN: the scripts annotate with type comments
+# G010, TRY400: the gateway logger has warn() and no exception()
+# PLC0415: deferred imports keep version-specific modules off the other version
+# PERF203: a try in a loop costs nothing extra on Jython's JVM
+"*/src/**" = ["UP", "PTH", "RUF005", "F401", "FA", "ANN", "G001", "G010", "PERF203", "PLC0415", "RUF001", "TRY400"]
+# the 8.1 adapter: its methods are documented by library.seed's sections
+"*/src/ignition/script-python/library/gateway81/code.py" = ["D102", "D107"]
+# gateway event scripts (8.3 format): Ignition supplies the project packages
+# and expects these exact function definitions
+"*/src/ignition/{startup,update,shutdown}/*.py" = ["D100", "D103", "F821", "N802", "INP001"]
+"*/tests/**" = ["S101", "ANN", "D", "EM101", "FBT001", "PLR2004", "TC003", "TRY003"]
+
+# the tests run on CPython 3
+[per-file-target-version]
+"*/tests/**" = "py312"
+"conftest.py" = "py312"
