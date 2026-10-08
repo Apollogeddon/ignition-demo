@@ -29,21 +29,22 @@ EVENTS = (
     ("shutdown", "onShutdown.py", "setShutdownScript"),
 )
 
+# canonical form (scripts/sanitise.py): sorted keys, two-space indent
 RESOURCE = """{
-  "scope": "G",
-  "version": 1,
-  "restricted": false,
-  "overridable": true,
-  "files": [
-    "data.bin"
-  ],
   "attributes": {
     "lastModification": {
       "actor": "system",
       "timestamp": "2025-01-01T00:00:00Z"
     },
     "lastModificationSignature": "0000000000000000000000000000000000000000000000000000000000000000"
-  }
+  },
+  "files": [
+    "data.bin"
+  ],
+  "overridable": true,
+  "restricted": false,
+  "scope": "G",
+  "version": 1
 }
 """
 
