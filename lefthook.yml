@@ -8,6 +8,15 @@ commit-msg:
 
 pre-commit:
   commands:
+    projects-lint:
+      root: projects/
+      glob: "*.py"
+      run: uv run ruff check --fix {staged_files} && uv run ruff format {staged_files}
+      stage_fixed: true
+    projects-compat:
+      root: projects/
+      glob: "*/src/**/*.py"
+      run: uv run poe compat
     shellcheck:
       glob: "*.sh"
       # CI runs shellcheck on every script, so the hook doesn't insist it's installed
