@@ -53,7 +53,12 @@ MODULE_SETTINGS = {
 }
 
 IDP_RECORD = "com.inductiveautomation.ignition.gateway.auth.idp.IdpAdapterRecord"
-SYSPROPS_RECORD = "com.inductiveautomation.ignition.gateway.model.SystemPropertiesRecord"
+# the gateway's system settings, as Property constants of this class
+SYSTEM_PROPERTIES = "com.inductiveautomation.ignition.gateway.model.GatewaySystemProperties"
+# seed "gateway" keys -> GatewaySystemProperties constants
+SYSTEM_SETTINGS = {
+	"auditProfile": "GatewayAuditProfile",
+}
 SECURITY_LEVEL = "com.inductiveautomation.ignition.common.auth.security.level.SecurityLevelConfig"
 
 # an Ignition IdP backed by a user source, as the gateway creates "default"
@@ -297,15 +302,23 @@ class Gateway81(object):
 
 	def updateSystemSettings(self, item):
 		# type: (Dict[str, Any]) -> bool
-		"""Set the system settings that differ; return whether any did."""
-		meta = self.meta(SYSPROPS_RECORD)
-		rec = self.records(meta)[0]
-		wanted = {}
-		if "auditProfile" in item:
-			wanted["GatewayAuditProfile"] = item["auditProfile"]
-		changed = {k: v for k, v in wanted.items() if rec.getString(self.field(meta, k)) != v}
-		if not changed:
-			return False
-		self.setFields(rec, meta, changed)
-		self.pi.save(rec)
-		return True
+		"""Set the system settings that differ; return whether any did.
+
+		Through the system properties manager, as the web UI does: it updates
+		the gateway's cached copy and tells its listeners (the audit manager
+		reads its gateway profile from that copy), which saving the record
+		directly does not.
+		"""
+		properties = self.recordClass(SYSTEM_PROPERTIES)
+		manager = self.ctx.getSystemPropertiesManager()
+		changed = False
+		for key, value in sorted(item.items()):
+			if key not in SYSTEM_SETTINGS:
+				msg = "unknown gateway setting {}".format(key)
+				raise ValueError(msg)
+			prop = properties.getField(SYSTEM_SETTINGS[key]).get(None)
+			if manager.getPropertyValue(prop) != value:
+				# True: notify the listeners
+				manager.setPropertyValue(prop, value, True)  # noqa: FBT003
+				changed = True
+		return changed
