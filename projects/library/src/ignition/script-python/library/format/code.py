@@ -1,5 +1,12 @@
 """Formatting helpers shared by every project."""
 
+# built at run time: a u"" literal would not survive the formatter, and Jython
+# 2.7 needs unicode here, not a byte string
+try:
+	EM_DASH = unichr(0x2014)  # type: ignore[name-defined]
+except NameError:
+	EM_DASH = chr(0x2014)
+
 MYPY = False
 if MYPY:
 	from typing import Optional
@@ -30,5 +37,5 @@ def percent(
 	# type: (...) -> str
 	"""Format a 0-1 ratio as a percentage, or an em dash when it is unknown."""
 	if value is None:
-		return "—"
+		return EM_DASH
 	return "{:.{}f}%".format(value * 100, digits)
