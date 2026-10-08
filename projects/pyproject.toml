@@ -70,4 +70,4 @@ ignore = [
 # gateway event scripts (8.3 format): Ignition supplies the project packages
 # and expects these exact function definitions
 "*/src/ignition/{startup,update,shutdown}/*.py" = ["D100", "D103", "F821", "N802", "INP001"]
-"*/tests/**" = ["S101", "ANN", "D", "PLR2004", "TC003"]
+"*/tests/**" = ["S101", "ANN", "D", "FBT001", "PLR2004", "TC003"]
