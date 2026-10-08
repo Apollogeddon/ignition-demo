@@ -1,18 +1,21 @@
-"""Strip the Designer's noise from Ignition resource.json files.
+"""Strip the Designer's and the gateway's noise from Ignition resource.json files.
 
 Every save in the Designer rewrites a resource's lastModification (who and
-when) and its lastModificationSignature, and may list a thumbnail.png. None of
-it changes what the resource does, but it turns every save into a diff and every
-merge into a conflict. This rewrites those fields to fixed values:
+when) and its lastModificationSignature, and may list a thumbnail.png; a
+gateway reading projects from disk (8.1) rewrites them too, reordering keys
+and dropping the final newline. None of it changes what the resource does, but
+it turns every save into a diff and every merge into a conflict. This writes
+each resource.json in one canonical form:
 
-    actor                       -> "system"
-    timestamp                   -> "2025-01-01T00:00:00Z"
+    lastModification.actor      -> "system"
+    lastModification.timestamp  -> "2025-01-01T00:00:00Z"
     lastModificationSignature   -> a fixed value
     "thumbnail.png" in files    -> removed
+    layout                      -> sorted keys, two-space indent, final newline
 
-Only those fields change; the rest of the file is left byte for byte, so the
-diff stays minimal. Ignition accepts the fixed values and rewrites them on its
-next save.
+Ignition accepts the fixed values and the key order, and rewrites them on its
+next save; with the git filter (scripts/setup-git.sh) those rewrites never
+show up as changes.
 
 Usage:
     sanitise.py < resource.json           # git clean filter (stdin -> stdout)
@@ -22,26 +25,41 @@ Usage:
 
 from __future__ import annotations
 
-import re
+import json
 import sys
 from pathlib import Path
+from typing import Any
 
+ACTOR = "system"
+TIMESTAMP = "2025-01-01T00:00:00Z"
 SIGNATURE = "0" * 64
-RULES = (
-    (re.compile(r'("actor"\s*:\s*")[^"]*(")'), r"\g<1>system\g<2>"),
-    (re.compile(r'("timestamp"\s*:\s*")[^"]*(")'), r"\g<1>2025-01-01T00:00:00Z\g<2>"),
-    (re.compile(r'("lastModificationSignature"\s*:\s*")[^"]*(")'), rf"\g<1>{SIGNATURE}\g<2>"),
-    (re.compile(r',\s*"thumbnail\.png"'), ""),
-    (re.compile(r'"thumbnail\.png"\s*,\s*'), ""),
-    (re.compile(r'\[\s*"thumbnail\.png"\s*\]'), "[]"),
-)
+
+
+def clean(resource: dict[str, Any]) -> dict[str, Any]:
+    """Return the resource with its noisy fields set to fixed values."""
+    files = resource.get("files")
+    if isinstance(files, list):
+        resource["files"] = [f for f in files if f != "thumbnail.png"]
+    attributes = resource.get("attributes")
+    if isinstance(attributes, dict):
+        modification = attributes.get("lastModification")
+        if isinstance(modification, dict):
+            modification["actor"] = ACTOR
+            modification["timestamp"] = TIMESTAMP
+        if "lastModificationSignature" in attributes:
+            attributes["lastModificationSignature"] = SIGNATURE
+    return resource
 
 
 def sanitise(text: str) -> str:
-    """Return the resource with the noisy fields set to fixed values."""
-    for pattern, replacement in RULES:
-        text = pattern.sub(replacement, text)
-    return text
+    """Return a resource.json in canonical form; text that is not a JSON object is returned as-is."""
+    try:
+        resource = json.loads(text)
+    except json.JSONDecodeError:
+        return text
+    if not isinstance(resource, dict):
+        return text
+    return json.dumps(clean(resource), indent=2, sort_keys=True, ensure_ascii=False) + "\n"
 
 
 def main(argv: list[str]) -> int:
@@ -57,11 +75,11 @@ def main(argv: list[str]) -> int:
     dirty = []
     for path in files:
         text = path.read_text("utf-8")
-        clean = sanitise(text)
-        if clean != text:
+        canonical = sanitise(text)
+        if canonical != text:
             dirty.append(path)
             if mode == "--fix":
-                path.write_text(clean, "utf-8", newline="")
+                path.write_text(canonical, "utf-8", newline="")
     if mode == "--check" and dirty:
         sys.stderr.write("not sanitised (run scripts/sanitise.py --fix):\n")
         sys.stderr.writelines(f"  {p}\n" for p in dirty)
