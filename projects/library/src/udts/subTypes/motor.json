@@ -3,23 +3,6 @@
     "tagType": "UdtType",
     "tags": [
         {
-            "dataType": "Boolean",
-            "name": "running",
-            "tagType": "AtomicTag",
-            "value": false,
-            "valueSource": "memory"
-        },
-        {
-            "dataType": "Float4",
-            "engHigh": 100.0,
-            "engLow": 0.0,
-            "engUnit": "%",
-            "name": "speed",
-            "tagType": "AtomicTag",
-            "value": 0.0,
-            "valueSource": "memory"
-        },
-        {
             "alarms": [
                 {
                     "ackMode": "Auto",
@@ -45,6 +28,23 @@
             "name": "fault",
             "tagType": "AtomicTag",
             "value": false,
+            "valueSource": "memory"
+        },
+        {
+            "dataType": "Boolean",
+            "name": "running",
+            "tagType": "AtomicTag",
+            "value": false,
+            "valueSource": "memory"
+        },
+        {
+            "dataType": "Float4",
+            "engHigh": 100.0,
+            "engLow": 0.0,
+            "engUnit": "%",
+            "name": "speed",
+            "tagType": "AtomicTag",
+            "value": 0.0,
             "valueSource": "memory"
         }
     ]
