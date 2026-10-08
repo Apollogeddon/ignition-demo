@@ -19,9 +19,12 @@ OpenTofu and a Kubernetes cluster are only needed to deploy; see [Cluster](../..
 git clone https://github.com/apollogeddon/ignition-demo.git
 cd ignition-demo
 scripts/setup-git.sh          # once per clone (setup-git.ps1 on Windows)
+npm ci                        # installs the commit-message hook
 ```
 
 `setup-git.sh` registers a git filter that strips the Designer's timestamps and signatures from `resource.json` files as they are staged. Without it, every Designer save shows up as a change. See [Projects](../../components/projects/#the-resource-sanitiser).
+
+`npm ci` installs lefthook, which checks that commit messages follow [Conventional Commits](https://www.conventionalcommits.org/).
 
 ## 2. Start the develop stack
 
