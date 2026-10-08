@@ -26,11 +26,13 @@ services:
       IGNITION_EDITION: standard
       GATEWAY_ADMIN_USERNAME: admin
       GATEWAY_ADMIN_PASSWORD: ${IGNITION_ADMIN_PASSWORD:?set it in develop/.env}
-      # 8.1 only: the startup event creates the demo connection from these
-      # (8.3 gets it from develop/config through the REST API)
+      # 8.1 only: variables for the seed spec (gateway/seed/seed.json), which
+      # the startup event applies; 8.3 gets its configuration from
+      # develop/config through the REST API
       GATEWAY_DB_DEMO_URL: jdbc:postgresql://database:5432/demo
       GATEWAY_DB_DEMO_USER: demo
       GATEWAY_DB_DEMO_PASSWORD: ${DB_PASSWORD:?set it in develop/.env}
+      DEMO_USERS_PASSWORD: ${DEMO_USERS_PASSWORD:?set it in develop/.env}
     command:
       - -n
       - ignition-develop
@@ -47,6 +49,8 @@ services:
       # edits made in an editor are picked up within scanFrequency seconds
       - ../projects/library/src:/usr/local/bin/ignition/assets/projects/library
       - ../projects/project/src:/usr/local/bin/ignition/assets/projects/project
+      # the seed spec, live (8.1 applies it on start and after project changes)
+      - ../gateway/seed:/usr/local/bin/ignition/assets/seed:ro
     depends_on:
       database:
         condition: service_healthy

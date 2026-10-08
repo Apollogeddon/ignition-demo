@@ -2,6 +2,7 @@
 *
 !gateway/modules/
 !gateway/assets/
+!gateway/seed/
 !gateway/install-assets.sh
 !gateway/entrypoint.sh
 !projects/library/src/
