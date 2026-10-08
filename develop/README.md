@@ -17,17 +17,17 @@ docker compose -f develop/docker-compose.yml up -d --build
 2. Run the checks (see `projects/README.md`): `uv run pytest`, ruff, pyright.
 3. Commit. `scripts/setup-git.sh` makes git strip the Designer's noise from `resource.json` files as they are staged.
 
-## Gateway configuration (8.3)
+## Gateway configuration
 
-`config/` applies the cluster's `gateway-config` module to this gateway, so the develop gateway gets the same database connection and alarm journal:
+On 8.3, `config/` applies the cluster's `gateway-config` module to this gateway. It authenticates with `GATEWAY_API_TOKEN` from `.env`, which the gateway installs for itself on start:
 
 ```sh
 cd develop/config
-export IGNITION_TOKEN='<name>:<secret>'      # an API key created in the gateway
+export IGNITION_TOKEN="$GATEWAY_API_TOKEN"
 tofu init && tofu apply -var db_password="$DB_PASSWORD"
 ```
 
-On 8.1 there is no REST API; create the `demo` database connection in the gateway web UI (PostgreSQL, `jdbc:postgresql://database:5432/demo`).
+On 8.1 there is no REST API; the gateway seeds itself from `gateway/seed/seed.json` on start (mounted live from the repository).
 
 ## Reset
 

@@ -67,10 +67,12 @@ provider_installation {
 }
 ```
 
-The provider authenticates with a gateway API key that has read and write access (create one in the gateway web UI's API key settings):
+The provider authenticates with the API key the `infra` stage generated, which the gateway installed for itself; `config` reads it from the `infra` state (set `IGNITION_TOKEN` to use another):
 
 ```sh
 cd cluster/environments/k3s/config
-export IGNITION_TOKEN='<name>:<secret>'
+tofu init
 tofu apply
 ```
+
+On 8.1 there is no `config` stage: the gateway seeds itself on start (`gateway/seed/seed.json`).
