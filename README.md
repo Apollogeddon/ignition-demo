@@ -39,10 +39,11 @@ A template for running Ignition 8.1 and 8.3 as code: the gateway, its configurat
 
 ### Setup
 
-Once per clone, enable the resource sanitiser:
+Once per clone, enable the resource sanitiser and install the commit hooks:
 
 ```sh
 scripts/setup-git.sh
+npm ci   # lefthook: commit messages must follow Conventional Commits
 ```
 
 ## 🛠️ Usage
@@ -96,4 +97,8 @@ Projects are deliberately not managed through the REST API: the image is their s
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Please feel free to submit a Pull Request. Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/) (`feat: ...`, `fix(webpage): ...`), which the commit hook checks.
+
+## 📄 License
+
+Released under the [MIT License](LICENSE).
