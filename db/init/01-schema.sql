@@ -1,5 +1,5 @@
 -- The demo application's tables. PostgreSQL runs the files in this folder, in
--- name order, when it initialises an empty database (local/ and the platform
+-- name order, when it initialises an empty database (develop/ and the platform
 -- module mount it at /docker-entrypoint-initdb.d).
 
 CREATE TABLE area (

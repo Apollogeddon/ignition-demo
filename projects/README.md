@@ -51,7 +51,7 @@ under pytest exactly as they do in the gateway.
 
 ## Editing in the Designer
 
-Start the local stack (`local/`), which mounts `src/` of each project into the
+Start the develop stack (`develop/`), which mounts `src/` of each project into the
 gateway, and edit in the Designer. Changes land straight in these folders;
 `scripts/setup-git.sh` makes git strip the Designer's noise from
 `resource.json` files when they are staged.

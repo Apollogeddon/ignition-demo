@@ -40,10 +40,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: opentofu/setup-opentofu@v1
-      - run: tofu fmt -check -recursive deploy
+      - run: tofu fmt -check -recursive cluster develop
       - name: Validate the modules and the infra stage
         run: |
-          for dir in deploy/modules/platform deploy/modules/gateway deploy/environments/k3s/infra; do
+          for dir in cluster/modules/platform cluster/modules/gateway cluster/environments/k3s/infra; do
             tofu -chdir="$dir" init -backend=false -input=false >/dev/null
             tofu -chdir="$dir" validate
           done

@@ -11,10 +11,10 @@ and every environment is built the same way.
 - **Immutable gateway image.** `gateway/` bakes the projects into the image and
   points Ignition at them, so shipping a project means shipping a new image tag,
   and every gateway in a redundant pair runs the same code.
-- **Platform as code.** `deploy/` uses OpenTofu to install the
+- **Platform as code.** `cluster/` uses OpenTofu to install the
   [ignition-failover](https://github.com/apollogeddon/ignition-helm) chart with
   redundancy, TLS and active routing, plus its database.
-- **Gateway configuration as code.** `deploy/` also configures the running
+- **Gateway configuration as code.** `cluster/` also configures the running
   gateway through its REST API with the
   [ignition provider](https://github.com/apollogeddon/ignition-tfpl): database
   connections, tag providers, user sources, alarm journals and so on.
@@ -26,9 +26,9 @@ and every environment is built the same way.
 | `projects/library/` | An inheritable project: shared scripts, styles and views |
 | `projects/project/` | The application project; inherits from `library` |
 | `gateway/` | The gateway image: Ignition plus the projects |
-| `deploy/modules/` | OpenTofu modules: `platform`, `gateway`, `gateway-config`, `trial-keepalive` |
-| `deploy/environments/` | One root module per environment (`k3s` is the reference) |
-| `local/` | Docker Compose for Designer work, with the projects mounted live |
+| `cluster/modules/` | OpenTofu modules: `platform`, `gateway`, `gateway-config`, `trial-keepalive` |
+| `cluster/environments/` | One root module per environment (`k3s` is the reference) |
+| `develop/` | Docker Compose for local development, with the projects mounted live |
 | `scripts/` | Repository tooling: the resource sanitiser and git setup |
 
 ## Who owns what

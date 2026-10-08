@@ -10,7 +10,7 @@ docker build -f gateway/Dockerfile --build-arg IGNITION_VERSION=8.3.9 -t ignitio
 ```
 
 The gateway must be started with these arguments (the `gateway` OpenTofu
-module and `local/docker-compose.yml` set them):
+module and `develop/docker-compose.yml` set them):
 
 ```
 -- -Dignition.projects.dir=/usr/local/bin/ignition/assets/projects -Dignition.projects.scanFrequency=60
@@ -26,4 +26,4 @@ module and `local/docker-compose.yml` set them):
 
 The flip side is that the deployed gateway's projects are read-only in
 practice: Designer edits there are lost on the next restart. Make changes with
-the local stack, where the project folders are mounted live, and commit them.
+the develop stack, where the project folders are mounted live, and commit them.

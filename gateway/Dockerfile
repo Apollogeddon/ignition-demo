@@ -8,7 +8,7 @@
 # module's Helm values). The image is then the only source of project
 # contents: a new image tag ships new projects, and both gateways of a
 # redundant pair always run the same ones. Designer edits made on a deployed
-# gateway are not kept; develop against local/ instead.
+# gateway are not kept; develop against develop/ instead.
 ARG IGNITION_VERSION=8.3.10
 FROM docker.io/inductiveautomation/ignition:${IGNITION_VERSION}
 

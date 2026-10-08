@@ -28,7 +28,7 @@ variable "image_tag" {
 }
 
 variable "image_pull_policy" {
-  description = "IfNotPresent for a registry; Never for an image imported into k3s directly (see deploy/README.md)"
+  description = "IfNotPresent for a registry; Never for an image imported into k3s directly (see cluster/README.md)"
   type        = string
   default     = "IfNotPresent"
 }
