@@ -1,0 +1,13 @@
+{
+  "name": "ignition-demo",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "prepare": "lefthook install || exit 0"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "21.2.3",
+    "@commitlint/config-conventional": "21.2.3",
+    "lefthook": "2.1.16"
+  }
+}

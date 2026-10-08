@@ -25,3 +25,6 @@ gateway/projects/
 
 # Lock files belong to root modules (environments) only
 cluster/modules/**/.terraform.lock.hcl
+
+# Repository tooling (commitlint, lefthook)
+node_modules/
