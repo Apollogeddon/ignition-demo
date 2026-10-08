@@ -4,14 +4,10 @@ version = "0.1.0"
 description = "Tooling for the Ignition projects: lint, type-check and unit-test their scripts"
 requires-python = ">=3.12"
 dependencies = []
+classifiers = ["Private :: Do Not Upload"]
 
 [dependency-groups]
-dev = [
-    "pyright>=1.1.400",
-    "pytest>=8.4",
-    "pytest-cov>=6.2",
-    "ruff>=0.12",
-]
+dev = ["forgepy[toolchain]", "vermin>=1.8"]
 
 # Ignition API stubs: one group per gateway version; CI checks both
 ignition83 = ["ignition-api-stubs==8.3.9.post1"]
@@ -22,11 +18,9 @@ package = false
 default-groups = ["dev", "ignition83"]
 conflicts = [[{ group = "ignition81" }, { group = "ignition83" }]]
 
-[tool.pytest.ini_options]
-# each project's scripts import as they do in the gateway, e.g. library.format
-pythonpath = ["library/src/ignition/script-python", "project/src/ignition/script-python"]
-testpaths = ["library/tests", "project/tests"]
-addopts = "--cov --cov-report=term-missing"
+
+[tool.uv.sources]
+forgepy = {git = "https://github.com/apollogeddon/forgepy"}
 
 [tool.coverage.report]
 # type-only imports never run
@@ -35,43 +29,15 @@ exclude_also = ["if MYPY:"]
 [tool.coverage.run]
 source = ["library/src/ignition/script-python", "project/src/ignition/script-python"]
 
-[tool.pyright]
-include = ["library", "project", "conftest.py"]
-exclude = ["*/src/ignition/startup", "*/src/ignition/update", "*/src/ignition/shutdown", "**/.venv*"]
-extraPaths = ["library/src/ignition/script-python", "project/src/ignition/script-python"]
-typeCheckingMode = "standard"
-# the stubs have no runtime source; the gateway provides it
-reportMissingModuleSource = "none"
-# scripts import types under "MYPY = False / if MYPY:"; the gateway never runs them
-defineConstant = { MYPY = true }
+[tool.poe.tasks]
+format = "ruff format ."
+security = "osv-scanner scan -r ."
+sync-check = "forgepy sync --check"
+type = "basedpyright"
+test = "pytest"
 
-[tool.ruff]
-line-length = 100
-# the gateway runs these scripts on Jython 2.7: no f-strings or annotations in
-# src (type comments instead), so ruff's py3-only upgrades are disabled there
-target-version = "py312"
+[tool.poe.tasks.lint]
+shell = "ruff check --fix . && ruff format ."
 
-[tool.ruff.format]
-indent-style = "tab"
-
-[tool.ruff.lint]
-select = ["ALL"]
-ignore = [
-    "COM812", "CPY001", "D203", "D213", "W191", "D206",
-    # Ignition's naming conventions: camelCase functions, arguments and resources
-    "N802", "N803", "N806", "N999",
-    "INP001",
-]
-
-[tool.ruff.lint.per-file-ignores]
-# F401: typing names are used only in type comments, which ruff does not read
-# G010, TRY400: the gateway logger has warn() and no exception()
-# PTH, RUF005: Jython 2.7 has no pathlib or [*a, b] unpacking
-# PLC0415: deferred imports keep version-specific modules off the other version
-"*/src/**" = ["UP", "FA", "ANN", "F401", "G001", "G010", "PLC0415", "PTH", "RUF001", "RUF005", "TRY400"]
-# the 8.1 adapter: its methods are documented by library.seed's sections
-"*/src/ignition/script-python/library/gateway81/code.py" = ["D102", "D107"]
-# gateway event scripts (8.3 format): Ignition supplies the project packages
-# and expects these exact function definitions
-"*/src/ignition/{startup,update,shutdown}/*.py" = ["D100", "D103", "F821", "N802", "INP001"]
-"*/tests/**" = ["S101", "ANN", "D", "EM101", "FBT001", "PLR2004", "TC003", "TRY003"]
+[tool.poe.tasks.compat]
+shell = "vermin --target=2.7- --violations --no-tips --eval-annotations --exclude typing library/src project/src && forgepy check-jython library/src project/src"

@@ -3,43 +3,101 @@ name: CI
 on:
   push:
     branches: [main]
-    tags: ["v*"]
   pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  # never cancel a run on main mid-release, or the release is created but no image published
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 permissions:
   contents: read
 
 jobs:
-  projects:
-    name: Projects (Ignition ${{ matrix.ignition }} API)
+  # What a pull request needs: each check runs only when its own files, or this
+  # workflow, changed. A push to main or a manual run checks everything.
+  changes:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        # the uv dependency group with that version's API stubs
-        ignition: ["8.1", "8.3"]
-    defaults:
-      run:
-        working-directory: projects
-    env:
-      UV_NO_DEFAULT_GROUPS: "1"
+    timeout-minutes: 5
+    outputs:
+      projects: ${{ steps.diff.outputs.projects }}
+      resources: ${{ steps.diff.outputs.resources }}
+      tofu: ${{ steps.diff.outputs.tofu }}
+      image: ${{ steps.diff.outputs.image }}
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
-      - name: Install
-        run: uv sync --locked --group dev --group "ignition${IGNITION/./}"
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Find what changed
+        id: diff
         env:
-          IGNITION: ${{ matrix.ignition }}
-      - run: uv run --no-sync ruff format --check .
-      - run: uv run --no-sync ruff check .
-      - run: uv run --no-sync pyright
-      - run: uv run --no-sync pytest
+          EVENT: ${{ github.event_name }}
+          BASE: ${{ github.event.pull_request.base.sha }}
+          WORKFLOW: '^\.github/workflows/ci\.yaml$'
+          PROJECTS: '^projects/'
+          RESOURCES: '^(scripts/|gateway/|projects/|.*\.sh$|\.shellcheckrc$)'
+          TOFU: '^(cluster/|develop/|gateway/Dockerfile$|\.trivyignore$)'
+          IMAGE: '^(gateway/|projects/(library|project)/src/)'
+        run: |
+          if [ "$EVENT" != pull_request ] || ! git cat-file -e "$BASE^{commit}" 2>/dev/null; then
+            for check in projects resources tofu image; do echo "$check=true" >> "$GITHUB_OUTPUT"; done
+            exit 0
+          fi
+          files=$(git diff --name-only "$BASE" HEAD)
+          printf '%s\n' "$files"
+          for check in projects resources tofu image; do
+            pattern=$(printenv "${check^^}")
+            if printf '%s\n' "$files" | grep -qE "$pattern|$WORKFLOW"; then value=true; else value=false; fi
+            echo "$check=$value" | tee -a "$GITHUB_OUTPUT"
+          done
+
+  # forgepy's checks for the Jython scripts: ruff, basedpyright, the Jython 2.7
+  # compatibility check and pytest, once per Ignition API (8.1 and 8.3), each with
+  # that version's API stubs from its uv dependency group
+  projects:
+    name: Projects (Ignition ${{ matrix.ignition }} API)
+    needs: changes
+    if: needs.changes.outputs.projects == 'true'
+    strategy:
+      matrix:
+        include:
+          - ignition: "8.1"
+            group: ignition81
+          - ignition: "8.3"
+            group: ignition83
+    uses: apollogeddon/forgepy/.github/workflows/testing.yml@main
+    permissions:
+      contents: write
+    with:
+      working_directory: projects
+      python_version: "3.12"
+      sync_args: --no-default-groups --group dev --group ${{ matrix.group }}
+      run_build: false
+      # the webpage's checks already scan the repository for secrets
+      enable_secrets: false
+      # one job upgrades uv.lock's vulnerable packages on main
+      auto_patch: ${{ matrix.group == 'ignition83' }}
+      artifact_name: projects-${{ matrix.group }}
 
   resources:
     name: Resources and scripts
+    needs: changes
+    if: needs.changes.outputs.resources == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
+      # pinned, as the runner's shellcheck version changes what it reports
+      - name: Install shellcheck
+        env:
+          VERSION: v0.11.0
+        run: |
+          curl -sSfL "https://github.com/koalaman/shellcheck/releases/download/$VERSION/shellcheck-$VERSION.linux.x86_64.tar.xz" \
+            | tar -xJ -C "$RUNNER_TEMP" --strip-components=1 "shellcheck-$VERSION/shellcheck"
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
       - name: shellcheck
         run: git ls-files -z '*.sh' | xargs -0 shellcheck
       - name: Sanitiser tests
@@ -57,8 +115,11 @@ jobs:
             || { echo "::error::run scripts/generate-event-scripts.sh and commit the result"; exit 1; }
 
   tofu:
-    name: OpenTofu
+    name: OpenTofu and config scan
+    needs: changes
+    if: needs.changes.outputs.tofu == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: opentofu/setup-opentofu@v1
@@ -69,11 +130,42 @@ jobs:
             tofu -chdir="$dir" init -backend=false -input=false >/dev/null
             tofu -chdir="$dir" validate
           done
+      # misconfigurations in the OpenTofu code, the compose file and the Dockerfile
+      - name: Trivy config scan
+        uses: aquasecurity/trivy-action@v0.35.0
+        with:
+          scan-type: config
+          scan-ref: .
+          exit-code: '1'
+          severity: 'CRITICAL,HIGH'
+
+  # On main, after the checks: opens or updates the release pull request, and creates
+  # the release when it merges. The image job publishes that release's images, as a
+  # tag created with GITHUB_TOKEN doesn't start a workflow.
+  version:
+    needs: [projects, resources, tofu]
+    if: ${{ !failure() && !cancelled() && github.event_name == 'push' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      version: ${{ steps.release.outputs.version }}
+    steps:
+      - id: release
+        uses: googleapis/release-please-action@v4
+        with:
+          config-file: .github/release.json
+          manifest-file: .github/.release.json
 
   image:
     name: Gateway image (Ignition ${{ matrix.ignition }})
+    needs: [changes, projects, resources, version]
+    if: ${{ !failure() && !cancelled() && needs.changes.outputs.image == 'true' }}
     runs-on: ubuntu-latest
-    needs: [projects, resources]
+    timeout-minutes: 30
     strategy:
       matrix:
         ignition: ["8.1.55", "8.3.10"]
@@ -81,8 +173,9 @@ jobs:
       contents: read
       packages: write
     env:
-      # pull requests only build and test; main and v* tags publish to GHCR
+      # pull requests only build and test; main publishes to GHCR
       PUBLISH: ${{ github.event_name == 'push' }}
+      RELEASE: ${{ needs.version.outputs.release_created == 'true' }}
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
@@ -109,13 +202,13 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ghcr.io/${{ github.repository_owner }}/ignition-gateway
-          # every tag carries the Ignition version: 8.3.10-main,
-          # 8.3.10-sha-<commit>, 8.3.10-1.2.0
+          # every tag carries the Ignition version: 8.3.10-main, 8.3.10-sha-<commit>,
+          # and for a release 8.3.10-<release version>
           flavor: prefix=${{ matrix.ignition }}-,onlatest=true
           tags: |
             type=sha,format=long
             type=ref,event=branch
-            type=semver,pattern={{version}}
+            type=raw,value=${{ needs.version.outputs.version }},enable=${{ env.RELEASE }}
       - name: Publish
         if: env.PUBLISH == 'true'
         uses: docker/build-push-action@v6
@@ -127,3 +220,23 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha,scope=${{ matrix.ignition }}
+
+  # pull requests only: on main, webpage.yaml runs on its own push trigger
+  webpage:
+    if: github.event_name == 'pull_request'
+    uses: ./.github/workflows/webpage.yaml
+    permissions:
+      contents: write
+      packages: read
+      pages: write
+      id-token: write
+      pull-requests: write
+
+  # last, so a Dependabot pull request merges only once every check above has passed
+  auto-merge:
+    needs: [projects, resources, tofu, image, webpage]
+    if: ${{ !failure() && !cancelled() && github.event_name == 'pull_request' }}
+    uses: apollogeddon/forgepy/.github/workflows/merge.yml@main
+    permissions:
+      contents: write
+      pull-requests: write

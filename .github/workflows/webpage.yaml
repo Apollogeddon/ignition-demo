@@ -1,12 +1,11 @@
 name: Webpage
 
+# Pull requests run it from ci.yaml, before the Dependabot merge.
 on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
+  workflow_call:
   workflow_dispatch:
 
 permissions:
