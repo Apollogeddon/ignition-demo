@@ -47,8 +47,7 @@ CI runs on every pull request and on `main`:
 | Sanitised resources | the sanitiser's own tests, and that every committed `resource.json` is clean |
 | OpenTofu | `tofu fmt` and `tofu validate` for the modules and the `infra` stage |
 | Gateway image | builds the image; on `main` and `v*` tags, publishes it to GHCR |
-| Webpage quality | Gitleaks over the repository, OSV-Scanner, Biome and the type check, from forgejs's `quality.yml` |
 | Markdown | markdownlint over every Markdown file |
-| Webpage build | builds this site; on `main`, deploys it to GitHub Pages |
+| Website | forgejs's `website.yml`: Gitleaks over the repository, OSV-Scanner, Biome, the type check and the build; on `main`, deploys this site to GitHub Pages |
 
 Deploying is then a matter of setting the new image tag in the environment and applying it. Because the projects are in the image, a rollback is deploying the previous tag.
