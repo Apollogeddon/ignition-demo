@@ -1,33 +1,33 @@
 {
-  "scope": "DG",
-  "version": 2,
-  "restricted": false,
-  "overridable": true,
-  "files": [
-    "query.sql"
-  ],
   "attributes": {
-    "useMaxReturnSize": false,
     "autoBatchEnabled": false,
-    "fallbackValue": "",
-    "maxReturnSize": 100,
-    "cacheUnit": "MIN",
-    "type": "Query",
-    "enabled": true,
     "cacheAmount": 1,
     "cacheEnabled": false,
+    "cacheUnit": "MIN",
     "database": "demo",
+    "enabled": true,
     "fallbackEnabled": false,
-    "lastModificationSignature": "0000000000000000000000000000000000000000000000000000000000000000",
-    "permissions": [
-      {
-        "zone": "",
-        "role": ""
-      }
-    ],
+    "fallbackValue": "",
     "lastModification": {
       "actor": "system",
       "timestamp": "2025-01-01T00:00:00Z"
-    }
-  }
+    },
+    "lastModificationSignature": "0000000000000000000000000000000000000000000000000000000000000000",
+    "maxReturnSize": 100,
+    "permissions": [
+      {
+        "role": "",
+        "zone": ""
+      }
+    ],
+    "type": "Query",
+    "useMaxReturnSize": false
+  },
+  "files": [
+    "query.sql"
+  ],
+  "overridable": true,
+  "restricted": false,
+  "scope": "DG",
+  "version": 2
 }
