@@ -7,7 +7,7 @@ variable "kubeconfig" {
 variable "kube_context" {
   description = "kubeconfig context of the k3s cluster"
   type        = string
-  default     = "Ubuntu-k3s"
+  default     = "default"
 }
 
 variable "namespace" {
@@ -54,7 +54,7 @@ variable "hostname" {
 variable "issuer_name" {
   description = "cert-manager ClusterIssuer for the gateway and ingress certificates"
   type        = string
-  default     = "ignition-cluster-issuer"
+  default     = "cluster-issuer"
 }
 
 variable "redundancy" {
