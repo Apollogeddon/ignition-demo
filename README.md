@@ -46,6 +46,12 @@ scripts/setup-git.sh
 npm ci   # lefthook: commit messages must follow Conventional Commits
 ```
 
+`npm ci` installs `@apollogeddon/forgejs` from GitHub Packages, which needs a GitHub token with `read:packages` in your user `~/.npmrc`:
+
+```sh
+npm config set "//npm.pkg.github.com/:_authToken" "<token>"
+```
+
 ## 🛠️ Usage
 
 ### Local Gateway

@@ -24,7 +24,7 @@ npm ci                        # installs the commit-message hook
 
 `setup-git.sh` registers a git filter that strips the Designer's timestamps and signatures from `resource.json` files as they are staged. Without it, every Designer save shows up as a change. See [Projects](../../components/projects/#the-resource-sanitiser).
 
-`npm ci` installs lefthook, which checks that commit messages follow [Conventional Commits](https://www.conventionalcommits.org/).
+`npm ci` installs lefthook, which checks that commit messages follow [Conventional Commits](https://www.conventionalcommits.org/). It installs [forgejs](https://github.com/apollogeddon/forgejs) from GitHub Packages, so it needs a GitHub token with `read:packages` in your user `~/.npmrc` (`npm config set "//npm.pkg.github.com/:_authToken" "<token>"`).
 
 ## 2. Start the develop stack
 

@@ -47,7 +47,5 @@ The `image` job builds the gateway image, once per Ignition version (8.1 and 8.3
 
 The [`webpage.yaml`](./workflows/webpage.yaml) workflow manages the [Astro](https://astro.build/)-based documentation site:
 
-- **Quality**: Calls [forgejs](https://github.com/apollogeddon/forgejs)'s `quality.yml`: Gitleaks over the whole repository, OSV-Scanner on the site's dependencies, Biome and the type check.
 - **Markdown**: Lints every Markdown file in the repository with `markdownlint-cli2`.
-- **Build**: Installs dependencies and builds the static site located in the `webpage/` directory, on pull requests too, so a broken site fails the pull request.
-- **Deploy**: On `main`, publishes the build artifacts to **GitHub Pages**.
+- **Website**: Calls [forgejs](https://github.com/apollogeddon/forgejs)'s `website.yml`: Gitleaks over the whole repository, OSV-Scanner on the site's dependencies, Biome, the type check and the build, on pull requests too, so a broken site fails the pull request. On `main` it commits any OSV security patches and deploys to **GitHub Pages**.
