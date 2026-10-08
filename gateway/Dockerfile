@@ -30,6 +30,9 @@ COPY --chown=ignition:ignition gateway/assets/icons/ assets/icons/
 COPY --chown=ignition:ignition gateway/assets/certs/ assets/certs/
 COPY --chown=ignition:ignition gateway/install-assets.sh gateway/entrypoint.sh assets/
 
+# Ignition 8.1 gateway configuration, applied by the startup event (library.seed)
+COPY --chown=ignition:ignition gateway/seed/ assets/seed/
+
 # One folder per project, named as the gateway knows it (project.json's parent
 # refers to these names)
 COPY --chown=ignition:ignition projects/library/src/ assets/projects/library/
