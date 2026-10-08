@@ -28,7 +28,7 @@ COPY --chown=ignition:ignition gateway/assets/web/ webserver/webapps/main/
 # start by install-assets.sh (the data volume outlives the image)
 COPY --chown=ignition:ignition gateway/assets/icons/ assets/icons/
 COPY --chown=ignition:ignition gateway/assets/certs/ assets/certs/
-COPY --chown=ignition:ignition gateway/install-assets.sh gateway/entrypoint.sh gateway/api-token.sh gateway/api_token_grant.py assets/
+COPY --chown=ignition:ignition gateway/install-assets.sh gateway/entrypoint.sh gateway/api-token.sh gateway/api_token_grant.py gateway/trial-keepalive.sh assets/
 
 # Ignition 8.1 gateway configuration, applied by the startup event (library.seed)
 COPY --chown=ignition:ignition gateway/seed/ assets/seed/
@@ -41,7 +41,7 @@ COPY --chown=ignition:ignition projects/project/src/ assets/projects/project/
 # checkouts on Windows give everything mode 777; make it owner-writable only,
 # with the two scripts executable
 RUN chmod -R a-x,u=rwX,go=rX assets user-lib/modules webserver/webapps/main \
-    && chmod 0755 assets/install-assets.sh assets/entrypoint.sh assets/api-token.sh
+    && chmod 0755 assets/install-assets.sh assets/entrypoint.sh assets/api-token.sh assets/trial-keepalive.sh
 
 ENTRYPOINT ["/usr/local/bin/ignition/assets/entrypoint.sh"]
 

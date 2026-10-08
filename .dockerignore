@@ -7,6 +7,7 @@
 !gateway/entrypoint.sh
 !gateway/api-token.sh
 !gateway/api_token_grant.py
+!gateway/trial-keepalive.sh
 !projects/library/src/
 !projects/project/src/
 **/__pycache__
