@@ -21,7 +21,7 @@
 	"devDependencies": {
 		"@astrojs/mdx": "^5.0.3",
 		"@astrojs/sitemap": "^3.7.2",
-		"@biomejs/biome": "^2.4.9",
+		"@biomejs/biome": "2.5.15",
 		"mermaid": "^11.13.0"
 	}
 }
