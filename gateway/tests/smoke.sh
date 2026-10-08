@@ -35,10 +35,11 @@ echo "gateway ${version} running"
 
 failures=0
 check() { if eval "$2"; then echo "ok   $1"; else echo "FAIL $1"; failures=$((failures + 1)); fi; }
-# projects start shortly after the gateway reports RUNNING (same line on 8.1 and 8.3)
+# projects start, and their startup event runs, shortly after the gateway
+# reports RUNNING (the same log lines on 8.1 and 8.3)
 for _ in $(seq 24); do
   logs=$("${engine}" logs "${name}" 2>&1)
-  grep -q "Project started.*project-name=project" <<< "${logs}" && break
+  grep -q "UDT definitions imported" <<< "${logs}" && break
   sleep 5
 done
 
@@ -48,6 +49,8 @@ check "project project loaded from the image" 'grep -q "Project started.*project
 code() { "${engine}" exec "${name}" curl -s -o /dev/null -w "%{http_code}" -m 5 "http://localhost:8088$1"; }
 check "Perspective serves the project" '[ "$(code /data/perspective/client/project)" = 200 ]'
 check "Perspective rejects an unknown project" '[ "$(code /data/perspective/client/no-such-project)" = 404 ]'
+# the startup event (8.3 startup/onStartup.py, 8.1 the generated data.bin)
+check "startup event imported the UDTs exactly once" '[ "$(grep -c "UDT definitions imported" <<< "${logs}")" = 1 ]'
 check "icon library served" 'get http://localhost:8088/data/perspective/icons/equipment | grep -q "id=\"pump\""'
 check "web file served from the web root" 'get http://localhost:8088/operator-guide.html | grep -q "Operator guide"'
 
