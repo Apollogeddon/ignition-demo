@@ -9,7 +9,7 @@ description: OpenTofu modules that deploy and configure the gateway on Kubernete
 | --- | --- |
 | `modules/platform` | The namespace (restricted Pod Security) and the demo PostgreSQL database, initialised from `db/init` |
 | `modules/gateway` | The [ignition-failover](https://apollogeddon.github.io/ignition-helm/) chart running the gateway image |
-| `modules/gateway-config` | Gateway resources through the REST API (8.3): the database connection and alarm journal |
+| `modules/gateway-config` | Gateway resources through the REST API (8.3): the database connection, alarm journal, user source and identity provider, login audit profile, and SMTP and email notification profiles, matching the 8.1 seed where the provider has a resource (not yet: security levels, users and roles, the gateway's audit profile setting) |
 
 Each environment is applied in two stages, because the Ignition provider can only connect once the gateway is running:
 

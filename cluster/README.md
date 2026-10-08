@@ -6,7 +6,7 @@ OpenTofu modules and one root module per environment.
 | --- | --- |
 | `modules/platform` | The namespace (restricted Pod Security) and the demo PostgreSQL database, initialised from `db/init` |
 | `modules/gateway` | The [ignition-failover](https://github.com/apollogeddon/ignition-helm) chart running the gateway image |
-| `modules/gateway-config` | Gateway resources through the REST API: the database connection and alarm journal |
+| `modules/gateway-config` | Gateway resources through the REST API (8.3): the database connection, alarm journal, user source and identity provider, audit profile, and SMTP and email notification profiles |
 
 Each environment is applied in two stages, because the Ignition provider can only connect once the gateway is up:
 
