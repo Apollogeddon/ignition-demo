@@ -1,0 +1,65 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "chore(ci)"
+    groups:
+      actions:
+        patterns:
+          - "*"
+    # Wait 3 days after a version is published before proposing it, so a
+    # compromised release has time to be caught/yanked upstream first.
+    cooldown:
+      default-days: 3
+
+  - package-ecosystem: "npm"
+    directories:
+      - "/"
+      - "/webpage"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    groups:
+      # These packages must stay on matching versions - group them at any update
+      # type so Dependabot never proposes one half of a pair without the other.
+      commitlint:
+        patterns:
+          - "@commitlint/*"
+      astro:
+        patterns:
+          - "astro"
+          - "astro-*"
+          - "@astrojs/*"
+      # Group remaining non-major updates to reduce PR volume
+      dependencies:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+    commit-message:
+      prefix: "fix(deps)"
+    cooldown:
+      default-days: 3
+
+  - package-ecosystem: "uv"
+    directory: "/projects"
+    schedule:
+      interval: "weekly"
+    ignore:
+      # pinned to the Ignition versions the projects target, one per dependency group
+      - dependency-name: "ignition-api-stubs"
+    groups:
+      dependencies:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+    commit-message:
+      prefix: "fix(deps)"
+    cooldown:
+      default-days: 3
