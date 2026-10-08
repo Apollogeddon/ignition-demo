@@ -8,7 +8,7 @@ resource "ignition_database_connection" "demo" {
   name        = var.connection_name
   description = "Demo application database (managed by OpenTofu)"
   type        = "PostgreSQL"
-  translator  = "POSTGRESQL"
+  translator  = "POSTGRES"
   connect_url = "jdbc:postgresql://${var.database.host}:${var.database.port}/${var.database.name}"
   username    = var.database.user
   password    = var.database.password
