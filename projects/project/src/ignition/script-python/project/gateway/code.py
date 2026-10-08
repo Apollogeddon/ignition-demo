@@ -7,6 +7,7 @@ everything they do lives here where it can be tested.
 import traceback
 
 from java.lang import Throwable
+from library.config import ensureDatasource
 from library.udts import exportAll, importAll
 from project.assets import syncInstances
 from system.util import getLogger
@@ -15,6 +16,9 @@ LOGGER = getLogger("demo.project.gateway")
 
 UDT_PROJECTS = ("library",)
 
+# the database connection the project's named queries use
+DATABASE = "demo"
+
 MYPY = False
 if MYPY:
 	from typing import Any
@@ -22,7 +26,15 @@ if MYPY:
 
 def onStartup():
 	# type: (...) -> None
-	"""Import the UDT definitions, then create an instance per asset."""
+	"""Import the UDT definitions, then create an instance per asset.
+
+	On 8.1 the database connection is created from the environment first (8.3
+	gets it from OpenTofu through the REST API).
+	"""
+	try:
+		ensureDatasource(DATABASE)
+	except (Exception, Throwable) as e:  # noqa: BLE001
+		LOGGER.error("Database connection {} not created: {}".format(DATABASE, e))
 	for project in UDT_PROJECTS:
 		importAll(project)
 	try:
