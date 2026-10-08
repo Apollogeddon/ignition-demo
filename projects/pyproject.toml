@@ -7,15 +7,20 @@ dependencies = []
 
 [dependency-groups]
 dev = [
-    "ignition-api-stubs==8.3.9.post1",
     "pyright>=1.1.400",
     "pytest>=8.4",
     "pytest-cov>=6.2",
     "ruff>=0.12",
 ]
 
+# Ignition API stubs: one group per gateway version; CI checks both
+ignition83 = ["ignition-api-stubs==8.3.9.post1"]
+ignition81 = ["ignition-api-stubs==8.1.55"]
+
 [tool.uv]
 package = false
+default-groups = ["dev", "ignition83"]
+conflicts = [[{ group = "ignition81" }, { group = "ignition83" }]]
 
 [tool.pytest.ini_options]
 # each project's scripts import as they do in the gateway, e.g. library.format

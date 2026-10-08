@@ -29,11 +29,13 @@ def test_summarise_nothing() -> None:
 
 
 def test_get_summary_runs_the_named_query() -> None:
-	db: MagicMock = sys.modules["system.db"]  # type: ignore[assignment]
-	with patch("project.assets.code.toRows", return_value=[{"area": "North"}]) as toRows:
+	with (
+		patch("project.assets.code.namedQuery") as namedQuery,
+		patch("project.assets.code.toRows", return_value=[{"area": "North"}]) as toRows,
+	):
 		assert getSummary() == [{"area": "North", "count": 1}]
-	db.execQuery.assert_called_once_with("assets/list", {})
-	toRows.assert_called_once_with(db.execQuery.return_value)
+	namedQuery.assert_called_once_with("assets/list")
+	toRows.assert_called_once_with(namedQuery.return_value)
 
 
 ROWS = [

@@ -1,7 +1,7 @@
 """Asset queries and summaries for the overview views."""
 
 from library.data import toRows
-from system.db import execQuery
+from library.db import namedQuery
 from system.tag import configure
 from system.util import getLogger
 
@@ -28,7 +28,7 @@ def summarise(
 def getSummary():
 	# type: (...) -> List[Dict[str, Any]]
 	"""Run the assets/list named query and summarise it per area."""
-	summary = summarise(toRows(execQuery("assets/list", {})))
+	summary = summarise(toRows(namedQuery("assets/list")))
 	LOGGER.debug("Summarised {} areas".format(len(summary)))
 	return summary
 
@@ -72,7 +72,7 @@ def syncInstances(
 	Instances are merged ("m"), so values and overrides set on existing
 	instances are kept. Instances of removed assets are left for review.
 	"""
-	folders = buildInstances(toRows(execQuery("assets/list", {})), kinds)
+	folders = buildInstances(toRows(namedQuery("assets/list")), kinds)
 	for folder, tags in sorted(folders.items()):
 		configure("[{}]Assets/{}".format(provider, folder), tags, "m")
 	count = sum(len(tags) for tags in folders.values())

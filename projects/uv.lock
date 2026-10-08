@@ -1,6 +1,10 @@
 version = 1
 revision = 3
 requires-python = ">=3.12"
+conflicts = [[
+    { package = "ignition-projects", group = "ignition81" },
+    { package = "ignition-projects", group = "ignition83" },
+]]
 
 [[package]]
 name = "colorama"
@@ -112,6 +116,19 @@ wheels = [
 
 [[package]]
 name = "ignition-api-stubs"
+version = "8.1.55"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "java-api-stubs" },
+    { name = "types-enum34" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/c0/8f/737051faa8944bdda0db0f7cde92f64d0a3c68a3b2109dee66b2f7c65587/ignition_api_stubs-8.1.55.tar.gz", hash = "sha256:f94c9e11f5cb4cb72a383a9f2914c1b89c293bfb056caf44b0aa070feb58be1f", size = 82340, upload-time = "2026-09-17T20:11:55.507Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c0/cd/e85bac99ae9e42557819478644b50477e092f7cc8aca5d8e42d4d507be8c/ignition_api_stubs-8.1.55-py3-none-any.whl", hash = "sha256:f830f80d27a760437708b480b2f3ce9ac26f69b59bdef931a9bf8a27d3816f5b", size = 126076, upload-time = "2026-09-17T20:11:54.377Z" },
+]
+
+[[package]]
+name = "ignition-api-stubs"
 version = "8.3.9.post1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
@@ -130,23 +147,29 @@ source = { virtual = "." }
 
 [package.dev-dependencies]
 dev = [
-    { name = "ignition-api-stubs" },
     { name = "pyright" },
     { name = "pytest" },
     { name = "pytest-cov" },
     { name = "ruff" },
+]
+ignition81 = [
+    { name = "ignition-api-stubs", version = "8.1.55", source = { registry = "https://pypi.org/simple" } },
+]
+ignition83 = [
+    { name = "ignition-api-stubs", version = "8.3.9.post1", source = { registry = "https://pypi.org/simple" } },
 ]
 
 [package.metadata]
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "ignition-api-stubs", specifier = "==8.3.9.post1" },
     { name = "pyright", specifier = ">=1.1.400" },
     { name = "pytest", specifier = ">=8.4" },
     { name = "pytest-cov", specifier = ">=6.2" },
     { name = "ruff", specifier = ">=0.12" },
 ]
+ignition81 = [{ name = "ignition-api-stubs", specifier = "==8.1.55" }]
+ignition83 = [{ name = "ignition-api-stubs", specifier = "==8.3.9.post1" }]
 
 [[package]]
 name = "iniconfig"
@@ -220,7 +243,7 @@ name = "pytest"
 version = "9.1.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama", marker = "sys_platform == 'win32'" },
+    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'group-17-ignition-projects-ignition81' and extra == 'group-17-ignition-projects-ignition83')" },
     { name = "iniconfig" },
     { name = "packaging" },
     { name = "pluggy" },
