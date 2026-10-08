@@ -30,3 +30,15 @@ output "database" {
   }
   sensitive = true
 }
+
+output "api_token" {
+  description = "API key (name:secret) the config stage authenticates with; null on 8.1"
+  value       = module.gateway.api_token
+  sensitive   = true
+}
+
+output "demo_users_password" {
+  description = "Password of the seeded demo users on 8.1 (operator, engineer)"
+  value       = random_password.demo_users.result
+  sensitive   = true
+}

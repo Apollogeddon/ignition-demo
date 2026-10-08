@@ -36,3 +36,9 @@ output "admin_password" {
   value       = local.admin_password
   sensitive   = true
 }
+
+output "api_token" {
+  description = "API key (name:secret) for the ignition provider; null on 8.1"
+  value       = local.api_token
+  sensitive   = true
+}

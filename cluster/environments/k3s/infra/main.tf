@@ -3,9 +3,14 @@
 
 locals {
   gateway_name = "ignition"
-  # 8.1 has no REST API: its gateway creates the demo connection on startup
-  # (8.3 gets it from ../config)
-  legacy_gateway = startswith(var.image_tag, "8.1")
+  # the image tag starts with its Ignition version (8.3.10-main, 8.1.55-main)
+  ignition_version = startswith(var.image_tag, "8.1") ? "8.1" : "8.3"
+}
+
+# 8.1: the password of the demo users the seed creates
+resource "random_password" "demo_users" {
+  length  = 20
+  special = false
 }
 
 module "platform" {
@@ -31,13 +36,15 @@ module "gateway" {
   image_tag          = var.image_tag
   image_pull_policy  = var.image_pull_policy
   image_pull_secrets = module.platform.image_pull_secrets
-  startup_datasources = local.legacy_gateway ? {
-    demo = {
-      url      = "jdbc:postgresql://${module.platform.db_host}:${module.platform.db_port}/${module.platform.db_name}"
-      user     = module.platform.db_user
-      password = module.platform.db_password
-    }
-  } : {}
+  ignition_version   = local.ignition_version
+  # 8.1: variables of the seed spec (gateway/seed/seed.json); 8.3 is
+  # configured by ../config through the REST API instead
+  seed_environment = {
+    GATEWAY_DB_DEMO_URL      = "jdbc:postgresql://${module.platform.db_host}:${module.platform.db_port}/${module.platform.db_name}"
+    GATEWAY_DB_DEMO_USER     = module.platform.db_user
+    GATEWAY_DB_DEMO_PASSWORD = module.platform.db_password
+    DEMO_USERS_PASSWORD      = random_password.demo_users.result
+  }
   redundancy = var.redundancy
   issuer     = { name = var.issuer_name }
   ingress = {
