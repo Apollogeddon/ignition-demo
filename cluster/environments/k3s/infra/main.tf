@@ -3,6 +3,9 @@
 
 locals {
   gateway_name = "ignition"
+  # 8.1 has no REST API: its gateway creates the demo connection on startup
+  # (8.3 gets it from ../config)
+  legacy_gateway = startswith(var.image_tag, "8.1")
 }
 
 module "platform" {
@@ -28,8 +31,15 @@ module "gateway" {
   image_tag          = var.image_tag
   image_pull_policy  = var.image_pull_policy
   image_pull_secrets = module.platform.image_pull_secrets
-  redundancy         = var.redundancy
-  issuer             = { name = var.issuer_name }
+  startup_datasources = local.legacy_gateway ? {
+    demo = {
+      url      = "jdbc:postgresql://${module.platform.db_host}:${module.platform.db_port}/${module.platform.db_name}"
+      user     = module.platform.db_user
+      password = module.platform.db_password
+    }
+  } : {}
+  redundancy = var.redundancy
+  issuer     = { name = var.issuer_name }
   ingress = {
     host       = var.hostname
     class_name = "traefik"
