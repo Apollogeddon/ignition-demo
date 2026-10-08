@@ -1,37 +1,6 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.5.15/schema.json",
-  "formatter": {
-    "enabled": true,
-    "indentStyle": "space",
-    "indentWidth": 2,
-    "lineEnding": "lf",
-    "lineWidth": 120
-  },
-  "linter": {
-    "enabled": true,
-    "rules": {
-      "preset": "recommended"
-    }
-  },
-  "assist": {
-    "actions": {
-      "source": {
-        "organizeImports": "on"
-      }
-    }
-  },
-  "javascript": {
-    "formatter": {
-      "quoteStyle": "double",
-      "trailingCommas": "all",
-      "semicolons": "always"
-    }
-  },
-  "vcs": {
-    "enabled": true,
-    "clientKind": "git",
-    "useIgnoreFile": true
-  },
+  "$schema": "node_modules/@biomejs/biome/configuration_schema.json",
+  "extends": ["node_modules/@apollogeddon/forgejs/configs/biome.json"],
   "files": {
     "includes": ["**", "!**/node_modules", "!**/dist", "!**/.astro"]
   },
