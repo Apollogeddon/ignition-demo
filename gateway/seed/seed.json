@@ -1,0 +1,112 @@
+{
+  "$comment": "Ignition 8.1 gateway configuration, applied by the startup event (library.seed): each item is created if missing. ${NAME} reads an environment variable, ${NAME:-default} with a default. 8.3 ignores this file; OpenTofu configures it through the REST API.",
+  "securityLevels": {
+    "Site": {
+      "description": "Site-specific levels used by the project's views and scripts",
+      "children": [
+        {
+          "name": "Operate",
+          "description": "Acknowledge alarms and operate equipment",
+          "children": []
+        },
+        {
+          "name": "Configure",
+          "description": "Change setpoints and asset configuration",
+          "children": []
+        }
+      ]
+    }
+  },
+  "databases": {
+    "demo": {
+      "driver": "PostgreSQL",
+      "description": "Demo application database",
+      "url": "${GATEWAY_DB_DEMO_URL}",
+      "user": "${GATEWAY_DB_DEMO_USER}",
+      "password": "${GATEWAY_DB_DEMO_PASSWORD}"
+    }
+  },
+  "userSources": {
+    "demo": {
+      "type": "INTERNAL",
+      "profile": {
+        "Description": "Demo operators and engineers"
+      },
+      "roles": ["Operator", "Engineer", "Administrator"],
+      "users": [
+        {
+          "name": "operator",
+          "password": "${DEMO_USERS_PASSWORD}",
+          "roles": ["Operator"]
+        },
+        {
+          "name": "engineer",
+          "password": "${DEMO_USERS_PASSWORD}",
+          "roles": ["Operator", "Engineer"]
+        }
+      ]
+    }
+  },
+  "identityProviders": {
+    "demo": {
+      "description": "Sign-in for the demo user source",
+      "userSource": "demo"
+    }
+  },
+  "alarmJournals": {
+    "demo": {
+      "type": "DATASOURCE",
+      "profile": {
+        "Description": "Alarm history in the demo database"
+      },
+      "settings": {
+        "Datasource": "demo",
+        "TableName": "alarm_events",
+        "DataTableName": "alarm_event_data",
+        "MinPriority": "Low"
+      }
+    }
+  },
+  "auditProfiles": {
+    "logins": {
+      "type": "DATASOURCE",
+      "profile": {
+        "Description": "Gateway logins and configuration changes",
+        "Retention": 90
+      },
+      "settings": {
+        "Datasource": "demo",
+        "TableName": "audit_events",
+        "AutoCreate": true,
+        "PruneEnabled": true
+      }
+    }
+  },
+  "emailProfiles": {
+    "demo": {
+      "type": "smtp.classic",
+      "profile": {
+        "Description": "Outgoing mail for alarm notifications"
+      },
+      "settings": {
+        "Hostname": "${SMTP_HOST:-localhost}",
+        "Port": 25
+      }
+    }
+  },
+  "alarmNotificationProfiles": {
+    "email": {
+      "type": "EmailNotificationProfileType",
+      "profile": {
+        "Description": "Alarm notifications by email"
+      },
+      "settings": {
+        "UseSMTPProfile": true,
+        "EmailProfile": "demo"
+      }
+    }
+  },
+  "gateway": {
+    "auditProfile": "logins"
+  }
+}
