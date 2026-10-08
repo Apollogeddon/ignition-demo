@@ -1,5 +1,5 @@
 ---
-title: Gateway Image
+title: Gateway image
 description: Ignition with the projects baked in, built once and run everywhere.
 ---
 
@@ -14,11 +14,21 @@ docker build -f gateway/Dockerfile -t ignition-gateway:dev .
 docker build -f gateway/Dockerfile --build-arg IGNITION_VERSION=8.1.55 -t ignition-gateway:8.1 .
 ```
 
-`IGNITION_VERSION` selects the base image; any 8.1 or 8.3 tag works. CI builds the image for 8.1.55 and 8.3.10 on every pull request, runs `gateway/tests/smoke.sh` against each (the projects load, the startup event imports the UDTs, the icon library and web files are served) and publishes them to GHCR from `main` and `v*` tags, as `<ignition version>-<branch, sha-<commit> or release>`, e.g. `8.3.10-main`.
+`IGNITION_VERSION` selects the base image (default `8.3.10`); any 8.1 or 8.3 tag works.
+
+## Published images
+
+CI builds the image for Ignition 8.1.55 and 8.3.10 and runs `gateway/tests/smoke.sh` against each: the asset installer ran, the projects load and Perspective serves them, the startup event imports the UDTs, and the icon library and web files are served. On pushes to `main` it publishes the images to `ghcr.io/apollogeddon/ignition-gateway`. Every tag starts with the Ignition version:
+
+| Tag | Published |
+| --- | --- |
+| `<ignition version>-main`, e.g. `8.3.10-main` | Every push to `main` |
+| `<ignition version>-sha-<commit>` | Every push to `main`, with the full commit SHA |
+| `<ignition version>-<release version>`, e.g. `8.3.10-1.0.0` | Each release |
 
 ## Gateway arguments
 
-The gateway must be started with these arguments, which point it at the baked-in projects. The `gateway` OpenTofu module and `develop/docker-compose.yml` set them:
+Start the gateway with these arguments, which point it at the baked-in projects. The `gateway` OpenTofu module and `develop/docker-compose.yml` set them; the develop stack rescans every 10 seconds instead of 60:
 
 ```text
 -- -Dignition.projects.dir=/usr/local/bin/ignition/assets/projects -Dignition.projects.scanFrequency=60
