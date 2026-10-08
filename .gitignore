@@ -17,11 +17,11 @@ dist/
 .tofurc.local
 
 # Local stack
-local/.env
-local/data/
+develop/.env
+develop/data/
 
 # Built gateway image context
 gateway/projects/
 
 # Lock files belong to root modules (environments) only
-deploy/modules/**/.terraform.lock.hcl
+cluster/modules/**/.terraform.lock.hcl

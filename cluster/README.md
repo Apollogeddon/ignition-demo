@@ -1,4 +1,4 @@
-# Deploy
+# Cluster
 
 OpenTofu modules and one root module per environment.
 
@@ -51,7 +51,7 @@ With a registry instead, push the image there and set `image_repository` and
 ### 2. Infra
 
 ```sh
-cd deploy/environments/k3s/infra
+cd cluster/environments/k3s/infra
 cp k3s.example.tfvars terraform.tfvars   # set image_tag and hostname
 tofu init
 tofu apply
@@ -78,7 +78,7 @@ The provider authenticates with a gateway API key that has read and write
 access (create one in the gateway web UI's API key settings):
 
 ```sh
-cd deploy/environments/k3s/config
+cd cluster/environments/k3s/config
 export IGNITION_TOKEN='<name>:<secret>'
 tofu apply
 ```
