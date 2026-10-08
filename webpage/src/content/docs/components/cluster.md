@@ -9,7 +9,7 @@ description: OpenTofu modules that deploy and configure the gateway on Kubernete
 | --- | --- |
 | `modules/platform` | The namespace (restricted Pod Security) and the demo PostgreSQL database, initialised from `db/init` |
 | `modules/gateway` | The [ignition-failover](https://apollogeddon.github.io/ignition-helm/) chart running the gateway image |
-| `modules/gateway-config` | Gateway resources through the REST API: the database connection and alarm journal |
+| `modules/gateway-config` | Gateway resources through the REST API (8.3): the database connection and alarm journal |
 
 Each environment is applied in two stages, because the Ignition provider can only connect once the gateway is running:
 
@@ -28,6 +28,10 @@ Each environment is applied in two stages, because the Ignition provider can onl
 | `emptyDir` size limits | A runaway log cannot fill the node |
 | NetworkPolicy, with the ingress controller allowed in | Only the namespace and the ingress controller reach the gateway |
 | `-Dignition.projects.dir` | Projects come from the image (see [Gateway Image](../gateway-image/)) |
+| A generated API key (8.3) | The `config` stage authenticates with it from the first start; nobody creates a key by hand |
+| The seed environment (8.1) | The gateway seeds its own configuration (connection, users, journal, audit, ...) on start |
+
+`ignition_version` (`8.1` or `8.3`) chooses between the last two; the k3s environment takes it from the image tag (`8.3.10-main`, `8.1.55-main`).
 
 ## Deploying to k3s
 
@@ -70,10 +74,12 @@ provider_installation {
 }
 ```
 
-The provider authenticates with a gateway API key that has read and write access (create one in the gateway web UI's API key settings):
+The provider authenticates with the API key the `infra` stage generated and the gateway installed for itself, read from the `infra` state (set `IGNITION_TOKEN` or `ignition_token` to use another):
 
 ```sh
 cd cluster/environments/k3s/config
-export IGNITION_TOKEN='<name>:<secret>'
+tofu init
 tofu apply
 ```
+
+On 8.1 there is no `config` stage to run: the gateway seeded itself on start. The seeded users' password is `tofu output -raw demo_users_password` in `infra`.

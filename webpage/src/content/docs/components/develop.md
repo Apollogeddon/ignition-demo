@@ -26,6 +26,8 @@ docker compose -f develop/docker-compose.yml up -d --build
 | `IGNITION_VERSION` | `8.3.10` | Any 8.1 or 8.3 image tag; rebuild with `up -d --build` after changing it |
 | `IGNITION_ADMIN_PASSWORD` | `change-me` | Gateway admin password |
 | `DB_PASSWORD` | `change-me` | Database password for the `demo` user |
+| `DEMO_USERS_PASSWORD` | `change-me` | 8.1: password of the seeded `operator` and `engineer` users |
+| `GATEWAY_API_TOKEN` | empty | 8.3: API key for `develop/config`, as `<name>:<secret>` (see `.env.example` for generating one); empty installs none |
 | `GATEWAY_HTTP_PORT` / `GATEWAY_HTTPS_PORT` | `8088` / `8043` | Host ports for the gateway |
 | `DB_PORT` | `5432` | Host port for the database |
 | `GATEWAY_MEMORY_MB` | `1024` | Gateway JVM heap |
@@ -36,17 +38,17 @@ docker compose -f develop/docker-compose.yml up -d --build
 2. Run the checks: `uv run pytest`, ruff and pyright (see [Projects](../projects/#checks)).
 3. Commit. The resource sanitiser strips the Designer's noise from `resource.json` files as they are staged.
 
-## Gateway configuration (8.3)
+## Gateway configuration
 
-`develop/config/` applies the cluster's `gateway-config` module to this gateway, so it gets the same database connection and alarm journal as a deployed one:
+**8.3.** `develop/config/` applies the cluster's `gateway-config` module to this gateway, so it gets the same configuration as a deployed one. It authenticates with the key from `GATEWAY_API_TOKEN`, which the gateway installs for itself on start:
 
 ```sh
 cd develop/config
-export IGNITION_TOKEN='<name>:<secret>'      # an API key created in the gateway
+export IGNITION_TOKEN="$GATEWAY_API_TOKEN"     # from develop/.env
 tofu init && tofu apply -var db_password="$DB_PASSWORD"
 ```
 
-On 8.1 there is no REST API; create the `demo` database connection in the gateway web UI (PostgreSQL, `jdbc:postgresql://database:5432/demo`).
+**8.1.** There is no REST API; the gateway seeds itself from `gateway/seed/seed.json` on start (see [Gateway Image](../gateway-image/#81-the-seed)). The seed folder is mounted live, so an edit to the spec is applied the next time the project restarts its scripts.
 
 ## Reset
 
