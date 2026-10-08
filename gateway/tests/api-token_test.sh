@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# check() evals each condition later, so the single quotes are deliberate and the
+# variables they name are used
+# shellcheck disable=SC2016,SC2034
 # Tests for api-token.sh: the token hash and the files it writes.
 set -euo pipefail
 script="$(cd "$(dirname "$0")/.." && pwd)/api-token.sh"
@@ -41,4 +44,5 @@ check "no variable, nothing written" '[ ! -e "$h/data/config/resources/external/
 h="${work}/bad"; home "$h" 8.3.10; run "$h" "no-colon"
 check "a malformed variable is reported, nothing written" 'grep -q "must be <name>:<secret>" "$h/out.txt" && [ ! -e "$h/data/config/resources/external/ignition" ]'
 
-[ "${failures}" -eq 0 ] && echo "all passed" || { echo "${failures} failed"; exit 1; }
+if [ "${failures}" -ne 0 ]; then echo "${failures} failed"; exit 1; fi
+echo "all passed"

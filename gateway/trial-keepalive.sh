@@ -34,7 +34,7 @@ reset_83() {
 }
 
 reset_81() {
-  local jar loc oidc state nonce authn t1 t2 t3 t4 url i
+  local jar loc oidc state nonce authn t1 t2 t3 t4 url
   jar=$(mktemp)
   hop() { curl -s -o /dev/null -b "${jar}" -c "${jar}" -w '%{redirect_url}' "$1"; }
   loc=$(hop "${base}/web/status/licenses"); t1=$(query "${loc}" token)
@@ -46,7 +46,7 @@ reset_81() {
   t4=$(curl -s -b "${jar}" -c "${jar}" -H 'content-type: application/json' -d "{\"token\":\"${t3}\"}" \
     "${base}/idp/default/authn/next-challenge" | field token)
   url="${base}/idp/default/oidc/auth?app=gateway&response_type=code&client_id=ignition&redirect_uri=%2Fdata%2Ffederate%2Fcallback%2Fignition&scope=openid&state=${state}&nonce=${nonce}&token=${t4}"
-  for i in 1 2 3 4 5 6; do
+  for _ in 1 2 3 4 5 6; do
     [ -n "${url}" ] || break
     case "${url}" in /*) url="${base}${url}" ;; esac
     url=$(hop "${url}")
