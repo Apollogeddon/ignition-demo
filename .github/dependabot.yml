@@ -1,19 +1,10 @@
 version: 2
 
-registries:
-  # @apollogeddon/forgejs lives on GitHub Packages, which needs a token even to read
-  github-packages:
-    type: npm-registry
-    url: https://npm.pkg.github.com
-    token: ${{ secrets.FORGEJS_PACKAGES_TOKEN }}
-
 updates:
   - package-ecosystem: "npm"
     directories:
       - "/"
       - "/webpage"
-    registries:
-      - github-packages
     # Weekly and grouped: one pull request, so one CI run, for the week's updates.
     schedule:
       interval: "weekly"
