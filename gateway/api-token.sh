@@ -36,7 +36,7 @@ hash_token() {
   b64=$(printf '%s' "$1" | tr '_-' '/+')
   while [ $(( ${#b64} % 4 )) -ne 0 ]; do b64="${b64}="; done
   hex=$(printf '%s' "${b64}" | base64 -d | sha256sum | cut -c1-64)
-  for ((i = 0; i < 64; i += 2)); do printf "\\x${hex:i:2}"; done | base64 -w0 | tr '+/' '-_' | tr -d '='
+  for ((i = 0; i < 64; i += 2)); do printf '%b' "\\x${hex:i:2}"; done | base64 -w0 | tr '+/' '-_' | tr -d '='
 }
 
 grant() {

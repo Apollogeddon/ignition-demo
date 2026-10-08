@@ -43,7 +43,7 @@ Once per clone, enable the resource sanitiser and install the commit hooks:
 
 ```sh
 scripts/setup-git.sh
-npm ci   # lefthook: commit messages must follow Conventional Commits
+npm ci   # lefthook: shellcheck on staged scripts, and commit messages must follow Conventional Commits
 ```
 
 `npm ci` installs `@apollogeddon/forgejs` from GitHub Packages, which needs a GitHub token with `read:packages` in your user `~/.npmrc`:

@@ -40,6 +40,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
+      - name: shellcheck
+        run: git ls-files -z '*.sh' | xargs -0 shellcheck
       - name: Sanitiser tests
         run: uv run --no-project --with pytest pytest -q scripts/tests
       - name: Project resources are sanitised

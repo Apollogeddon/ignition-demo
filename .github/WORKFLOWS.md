@@ -23,6 +23,7 @@ The `projects` job checks the project scripts, once per Ignition API (8.1 and 8.
 
 The `resources` job checks the repository tooling and the project resources:
 
+- **shellcheck**: Lints every shell script in the repository.
 - **Sanitiser Tests**: Unit tests for the resource sanitiser.
 - **Sanitised Resources**: Fails if a committed `resource.json` still carries the Designer's noise.
 - **Asset Installer Tests**: Tests the gateway image's asset installer.
