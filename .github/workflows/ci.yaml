@@ -46,6 +46,8 @@ jobs:
         run: git ls-files -z -- '*resource.json' | xargs -0 uv run --no-project scripts/sanitise.py --check
       - name: Asset installer tests
         run: bash gateway/tests/install-assets_test.sh
+      - name: API key bootstrap tests
+        run: bash gateway/tests/api-token_test.sh
       - name: 8.1 gateway events match the event script files
         run: |
           scripts/generate-event-scripts.sh
