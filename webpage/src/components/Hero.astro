@@ -82,6 +82,13 @@ docker compose -f develop/docker-compose.yml up -d --build
     height: auto;
     margin-bottom: 2rem;
     filter: drop-shadow(0 0 30px rgba(var(--sl-color-accent-rgb), 0.3));
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-15px); }
+    100% { transform: translateY(0px); }
   }
 
   h1 {
@@ -210,6 +217,12 @@ docker compose -f develop/docker-compose.yml up -d --build
     border-radius: 50%;
     filter: blur(100px);
     opacity: 0.15;
+    animation: pulse-glow 8s ease-in-out infinite alternate;
+  }
+
+  @keyframes pulse-glow {
+    0% { transform: scale(1); opacity: 0.15; }
+    100% { transform: scale(1.1); opacity: 0.25; }
   }
 
   .glow-1 {
@@ -225,6 +238,17 @@ docker compose -f develop/docker-compose.yml up -d --build
   }
 
   :root[data-theme='light'] .glow {
-    opacity: 0.05;
+    animation: pulse-glow-light 8s ease-in-out infinite alternate;
+  }
+
+  @keyframes pulse-glow-light {
+    0% { transform: scale(1); opacity: 0.05; }
+    100% { transform: scale(1.1); opacity: 0.12; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-logo,
+    .glow {
+      animation: none;
+    }
   }
 </style>
