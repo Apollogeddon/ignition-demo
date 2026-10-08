@@ -37,6 +37,7 @@ source = ["library/src/ignition/script-python", "project/src/ignition/script-pyt
 
 [tool.pyright]
 include = ["library", "project", "conftest.py"]
+exclude = ["*/src/ignition/startup", "*/src/ignition/update", "*/src/ignition/shutdown", "**/.venv*"]
 extraPaths = ["library/src/ignition/script-python", "project/src/ignition/script-python"]
 typeCheckingMode = "standard"
 # the stubs have no runtime source; the gateway provides it
@@ -66,4 +67,7 @@ ignore = [
 # F401: typing names are used only in type comments, which ruff does not read
 # G010, TRY400: the gateway logger has warn() and no exception()
 "*/src/**" = ["UP", "FA", "ANN", "F401", "G001", "G010", "RUF001", "TRY400"]
+# gateway event scripts (8.3 format): Ignition supplies the project packages
+# and expects these exact function definitions
+"*/src/ignition/{startup,update,shutdown}/*.py" = ["D100", "D103", "F821", "N802", "INP001"]
 "*/tests/**" = ["S101", "ANN", "D", "PLR2004", "TC003"]
