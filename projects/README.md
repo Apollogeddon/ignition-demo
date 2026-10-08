@@ -1,7 +1,6 @@
 # Projects
 
-Each folder is one Ignition project; `src/` holds exactly the files the gateway
-and the Designer read and write.
+Each folder is one Ignition project; `src/` holds exactly the files the gateway and the Designer read and write.
 
 | Project | Role |
 | --- | --- |
@@ -10,14 +9,10 @@ and the Designer read and write.
 
 ## Script conventions
 
-Gateway scripts run on Jython 2.7, while the tooling here runs them under
-Python 3.12 with the [Ignition API stubs](https://pypi.org/project/ignition-api-stubs/):
+Gateway scripts run on Jython 2.7, while the tooling here runs them under Python 3.12 with the [Ignition API stubs](https://pypi.org/project/ignition-api-stubs/):
 
-- Every importable script folder has an `__init__.py` re-exporting its
-  `code.py` (`from .code import *`), and its `resource.json` lists both files.
-  Ignition imports the package through it the same way CPython does.
-- Types use comments, not annotations, and type-only imports sit under
-  `MYPY = False` / `if MYPY:` so the gateway never runs them:
+- Every importable script folder has an `__init__.py` re-exporting its `code.py` (`from .code import *`), and its `resource.json` lists both files. Ignition imports the package through it the same way CPython does.
+- Types use comments, not annotations, and type-only imports sit under `MYPY = False` / `if MYPY:` so the gateway never runs them:
 
   ```python
   MYPY = False
@@ -31,9 +26,7 @@ Python 3.12 with the [Ignition API stubs](https://pypi.org/project/ignition-api-
   	# type: (...) -> List[Dict[str, Any]]
   ```
 
-- Import gateway functions directly (`from system.db import execQuery`) and
-  name loggers `demo.<project>.<module>`. Log routine progress at DEBUG and
-  keep INFO for events worth noticing.
+- Import gateway functions directly (`from system.db import execQuery`) and name loggers `demo.<project>.<module>`. Log routine progress at DEBUG and keep INFO for events worth noticing.
 - Strings use `.format()` (no f-strings in Jython 2.7).
 
 ## Checks
@@ -46,12 +39,8 @@ uv run pyright
 uv run pytest
 ```
 
-`conftest.py` registers mocks for the `system.*` modules, so scripts import
-under pytest exactly as they do in the gateway.
+`conftest.py` registers mocks for the `system.*` modules, so scripts import under pytest exactly as they do in the gateway.
 
 ## Editing in the Designer
 
-Start the develop stack (`develop/`), which mounts `src/` of each project into the
-gateway, and edit in the Designer. Changes land straight in these folders;
-`scripts/setup-git.sh` makes git strip the Designer's noise from
-`resource.json` files when they are staged.
+Start the develop stack (`develop/`), which mounts `src/` of each project into the gateway, and edit in the Designer. Changes land straight in these folders; `scripts/setup-git.sh` makes git strip the Designer's noise from `resource.json` files when they are staged.
