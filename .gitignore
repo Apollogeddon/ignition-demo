@@ -28,3 +28,6 @@ cluster/modules/**/.terraform.lock.hcl
 
 # Repository tooling (commitlint, lefthook)
 node_modules/
+
+# npm registry config: CI generates it (setup-node registry-url/scope); locally use your user ~/.npmrc
+.npmrc
