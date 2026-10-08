@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# check() evals each condition later, so the single quotes are deliberate and the
+# variables they name are used
+# shellcheck disable=SC2016,SC2034
 # Tests for install-assets.sh against fake Ignition homes for 8.1 and 8.3.
 set -euo pipefail
 script="$(cd "$(dirname "$0")/.." && pwd)/install-assets.sh"
@@ -55,4 +58,5 @@ check "empty data volume skipped" 'grep -q "data volume is empty" "$h/out.txt" &
 h="${work}/unknown"; home "$h" 7.9.21; run "$h"
 check "unknown version skipped" 'grep -q "unknown Ignition version" "$h/out.txt" && [ ! -e "$h/data/certificates" ]'
 
-[ "${failures}" -eq 0 ] && echo "all passed" || { echo "${failures} failed"; exit 1; }
+if [ "${failures}" -ne 0 ]; then echo "${failures} failed"; exit 1; fi
+echo "all passed"

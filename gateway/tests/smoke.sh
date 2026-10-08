@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# check() evals each condition later, so the single quotes are deliberate
+# shellcheck disable=SC2016
 # Start a gateway image and check what the image is responsible for: the
 # projects load from assets/projects, the icon library and web files are
 # served, and the asset installer ran. Works with docker or podman.
