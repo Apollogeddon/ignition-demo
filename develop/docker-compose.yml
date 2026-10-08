@@ -33,6 +33,9 @@ services:
       GATEWAY_DB_DEMO_USER: demo
       GATEWAY_DB_DEMO_PASSWORD: ${DB_PASSWORD:?set it in develop/.env}
       DEMO_USERS_PASSWORD: ${DEMO_USERS_PASSWORD:?set it in develop/.env}
+      # 8.3 only: the API key develop/config authenticates with (installed by
+      # gateway/api-token.sh; empty installs none)
+      GATEWAY_API_TOKEN: ${GATEWAY_API_TOKEN:-}
     command:
       - -n
       - ignition-develop

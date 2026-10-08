@@ -5,7 +5,7 @@ variable "gateway_url" {
 }
 
 variable "ignition_token" {
-  description = "Gateway API key (name:secret) with read and write access; or set IGNITION_TOKEN"
+  description = "GATEWAY_API_TOKEN from develop/.env (name:secret); or set IGNITION_TOKEN"
   type        = string
   default     = null
   sensitive   = true
