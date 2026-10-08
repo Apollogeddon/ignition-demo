@@ -1,7 +1,11 @@
 # Only the gateway's inputs go into the build context
 *
 !gateway/modules/
+!gateway/assets/
+!gateway/install-assets.sh
+!gateway/entrypoint.sh
 !projects/library/src/
 !projects/project/src/
 **/__pycache__
 **/*.pyc
+**/.gitkeep
