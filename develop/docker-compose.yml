@@ -26,6 +26,11 @@ services:
       IGNITION_EDITION: standard
       GATEWAY_ADMIN_USERNAME: admin
       GATEWAY_ADMIN_PASSWORD: ${IGNITION_ADMIN_PASSWORD:?set it in develop/.env}
+      # 8.1 only: the startup event creates the demo connection from these
+      # (8.3 gets it from develop/config through the REST API)
+      GATEWAY_DB_DEMO_URL: jdbc:postgresql://database:5432/demo
+      GATEWAY_DB_DEMO_USER: demo
+      GATEWAY_DB_DEMO_PASSWORD: ${DB_PASSWORD:?set it in develop/.env}
     command:
       - -n
       - ignition-develop
