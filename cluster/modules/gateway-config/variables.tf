@@ -25,3 +25,32 @@ variable "alarm_journal" {
   })
   default = {}
 }
+
+variable "user_source" {
+  description = "Internal user source (and an identity provider using it) for the project's users; null for none"
+  type = object({
+    name        = optional(string, "demo")
+    description = optional(string, "Demo operators and engineers")
+  })
+  default = {}
+}
+
+variable "audit_profile" {
+  description = "Audit profile in the demo database (logins and configuration changes); null for none"
+  type = object({
+    name           = optional(string, "logins")
+    table          = optional(string, "audit_events")
+    retention_days = optional(number, 90)
+  })
+  default = {}
+}
+
+variable "smtp" {
+  description = "Outgoing mail for alarm notifications (an SMTP profile and an email notification profile); null for none"
+  type = object({
+    name     = optional(string, "demo")
+    hostname = optional(string, "localhost")
+    port     = optional(number, 25)
+  })
+  default = {}
+}
