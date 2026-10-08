@@ -66,8 +66,12 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 # F401: typing names are used only in type comments, which ruff does not read
 # G010, TRY400: the gateway logger has warn() and no exception()
-"*/src/**" = ["UP", "FA", "ANN", "F401", "G001", "G010", "RUF001", "TRY400"]
+# PTH, RUF005: Jython 2.7 has no pathlib or [*a, b] unpacking
+# PLC0415: deferred imports keep version-specific modules off the other version
+"*/src/**" = ["UP", "FA", "ANN", "F401", "G001", "G010", "PLC0415", "PTH", "RUF001", "RUF005", "TRY400"]
+# the 8.1 adapter: its methods are documented by library.seed's sections
+"*/src/ignition/script-python/library/gateway81/code.py" = ["D102", "D107"]
 # gateway event scripts (8.3 format): Ignition supplies the project packages
 # and expects these exact function definitions
 "*/src/ignition/{startup,update,shutdown}/*.py" = ["D100", "D103", "F821", "N802", "INP001"]
-"*/tests/**" = ["S101", "ANN", "D", "FBT001", "PLR2004", "TC003"]
+"*/tests/**" = ["S101", "ANN", "D", "EM101", "FBT001", "PLR2004", "TC003", "TRY003"]
