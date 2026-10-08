@@ -29,12 +29,12 @@ locals {
         "-Dignition.projects.dir=${local.projects_dir}",
         "-Dignition.projects.scanFrequency=60",
       ]
-      secrets = {
+      secrets = merge({
         GATEWAY_ADMIN_USERNAME         = "admin"
         GATEWAY_ADMIN_PASSWORD         = local.admin_password
         IGNITION_GAN_KEYSTORE_PASSWORD = random_password.keystore["gan"].result
         IGNITION_WEB_KEYSTORE_PASSWORD = random_password.keystore["web"].result
-      }
+      }, local.datasource_env)
       redundancy = { enabled = var.redundancy }
       # user traffic only ever reaches the Active gateway
       activeRouting = { enabled = var.redundancy }
@@ -82,6 +82,15 @@ resource "random_password" "keystore" {
 }
 
 locals {
+  # read by library.config on 8.1 (see projects/library)
+  datasource_env = merge([
+    for name, db in var.startup_datasources : {
+      "GATEWAY_DB_${upper(name)}_URL"      = db.url
+      "GATEWAY_DB_${upper(name)}_USER"     = db.user
+      "GATEWAY_DB_${upper(name)}_PASSWORD" = db.password
+      "GATEWAY_DB_${upper(name)}_DRIVER"   = db.driver
+    }
+  ]...)
   admin_password = coalesce(var.admin_password, try(random_password.admin[0].result, null))
 }
 

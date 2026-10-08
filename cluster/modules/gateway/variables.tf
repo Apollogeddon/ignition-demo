@@ -81,3 +81,19 @@ variable "values" {
   type        = any
   default     = {}
 }
+
+variable "startup_datasources" {
+  description = <<-EOT
+    Database connections the gateway creates on startup when missing, keyed by
+    connection name. For Ignition 8.1, which has no REST API for the
+    gateway-config module; leave empty on 8.3 so OpenTofu stays their only owner.
+  EOT
+  type = map(object({
+    url      = string
+    user     = string
+    password = string
+    driver   = optional(string, "PostgreSQL")
+  }))
+  default   = {}
+  sensitive = true
+}
