@@ -5,6 +5,8 @@
 !gateway/seed/
 !gateway/install-assets.sh
 !gateway/entrypoint.sh
+!gateway/api-token.sh
+!gateway/api_token_grant.py
 !projects/library/src/
 !projects/project/src/
 **/__pycache__
