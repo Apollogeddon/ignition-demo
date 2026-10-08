@@ -7,7 +7,6 @@ on:
   pull_request:
     branches:
       - main
-  workflow_call:
   workflow_dispatch:
 
 permissions:
@@ -19,22 +18,14 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
-  # forgejs's checks: Gitleaks over the repository, OSV-Scanner, Biome and the type check
-  quality:
-    uses: apollogeddon/forgejs/.github/workflows/quality.yml@main
-    permissions:
-      contents: read
-      packages: read
-      # Gitleaks comments on the pull request when it finds a secret
-      pull-requests: write
-    with:
-      working_directory: webpage
-      node_version: "22"
-
   markdown:
     name: Markdown
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      contents: read
+      # the root tooling installs @apollogeddon/forgejs from GitHub Packages
+      packages: read
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -47,58 +38,32 @@ jobs:
           node-version-file: webpage/.nvmrc
           cache: "npm"
           cache-dependency-path: package-lock.json
+          registry-url: "https://npm.pkg.github.com"
+          scope: "@apollogeddon"
 
       - name: Install dependencies
         run: npm ci --ignore-scripts
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Lint markdown
         run: npx markdownlint-cli2 "**/*.{md,mdx}"
 
-  build:
-    needs: [quality, markdown]
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-        with:
-          persist-credentials: false
-
-      - name: Setup Node
-        uses: actions/setup-node@v6
-        with:
-          node-version-file: webpage/.nvmrc
-          cache: "npm"
-          cache-dependency-path: webpage/package-lock.json
-
-      - name: Install dependencies
-        run: cd webpage && npm ci
-
-      - name: Build site
-        run: cd webpage && npm run build
-
-      - name: Upload artifact
-        if: github.event_name != 'pull_request'
-        uses: actions/upload-pages-artifact@v4
-        with:
-          path: webpage/dist
-          retention-days: 1
-
-  deploy:
-    needs: build
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
+  # forgejs's website pipeline: Gitleaks, OSV-Scanner, Biome, the type check, the build,
+  # OSV security patches on main, and on main the GitHub Pages deploy.
+  website:
+    needs: [markdown]
+    uses: apollogeddon/forgejs/.github/workflows/website.yml@main
+    # GitHub checks every called job's permissions, including the ones these inputs skip
     permissions:
+      contents: write
+      packages: read
       pages: write
       id-token: write
-    concurrency:
-      group: pages
-      cancel-in-progress: false
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      pull-requests: write
+    with:
+      working_directory: webpage
+      node_version: "22"
+      run_tests: false
+      enable_versioning: false
+      auto_merge: false
