@@ -3,22 +3,22 @@
   <a href="https://apollogeddon.github.io/ignition-demo">
     <img src="webpage/public/favicon.png" alt="Logo" width="100" height="100">
   </a>
-  <h3 align="center">Ignition Demo</h3>
+  <h3 align="center">Ignition Demo Stack</h3>
   <p align="center">
-    A reference setup for running Inductive Automation's Ignition as code.
+    A template for running Ignition as code: the gateway image, its configuration and its projects all come from one repository.
     <br />
-    <a href="https://apollogeddon.github.io/ignition-demo"><strong>Explore the docs »</strong></a>
+    <a href="https://apollogeddon.github.io/ignition-demo"><strong>Read the docs</strong></a>
     <br />
     <br />
-    <a href="https://github.com/apollogeddon/ignition-demo/issues">Report Bug</a>
+    <a href="https://github.com/apollogeddon/ignition-demo/issues">Report a bug</a>
     ·
-    <a href="https://github.com/apollogeddon/ignition-demo/issues">Request Feature</a>
+    <a href="https://github.com/apollogeddon/ignition-demo/issues">Request a feature</a>
   </p>
 </div>
 
 ## Overview
 
-Ignition Demo is a reference repository for teams that want to run Ignition 8.1 or 8.3 as code. The gateway, its configuration and its projects all come from this repository, so every environment is built the same way. It brings together the [Ignition Helm charts](https://github.com/apollogeddon/ignition-helm) and the [Ignition Terraform provider](https://github.com/apollogeddon/ignition-tfpl).
+Ignition Demo Stack is a template for teams that want to run Ignition 8.1 or 8.3 as code. The gateway, its configuration and its projects all come from this repository, so every environment is built the same way. It brings together the [Ignition Helm charts](https://github.com/apollogeddon/ignition-helm) and the [Ignition Terraform provider](https://github.com/apollogeddon/ignition-tfpl).
 
 ## Features
 
@@ -29,7 +29,7 @@ Ignition Demo is a reference repository for teams that want to run Ignition 8.1 
 - **Gateway resources as code.** On 8.3, `cluster/`'s `resources` module creates the running gateway's resources through its REST API with the Ignition provider: database connections, alarm journals, user sources and more. On 8.1, the gateway seeds the same resources itself on start.
 - **One owner per setting.** The image, the chart and OpenTofu each own a distinct set of settings, so nothing is managed from two places.
 
-## Prerequisites
+## Requirements
 
 - Docker or Podman with Compose, for the local develop stack
 - [uv](https://docs.astral.sh/uv/), for the script checks and the resource sanitiser

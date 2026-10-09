@@ -1,11 +1,12 @@
 ---
 title: Getting started
+order: 1
 description: Clone the repository, run a local gateway and make your first change.
 ---
 
 This guide is for anyone trying the demo for the first time. It gets a gateway running on your machine with the demo projects loaded, then walks through one change from the Designer to a commit.
 
-## Prerequisites
+## Requirements
 
 - Docker or Podman with Compose
 - [uv](https://docs.astral.sh/uv/), for the script checks and the resource sanitiser

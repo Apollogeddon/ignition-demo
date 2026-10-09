@@ -19,7 +19,7 @@
   --sl-border-radius: 8px;
 
   /* Shared Palette (Standard) */
-  --sl-color-accent-secondary: #c4b5fd; /* Violet accent for the demo */
+  --sl-color-accent-secondary: #fde047; /* Yellow accent for the demo */
 }
 
 /* Dark Mode Variables (Default) */
@@ -34,10 +34,10 @@
   --sl-color-hairline: #27272a;
 
   /* Accent */
-  --sl-color-accent-low: #1e1033;
-  --sl-color-accent: #8b5cf6;
-  --sl-color-accent-rgb: 139, 92, 246;
-  --sl-color-accent-high: #ede9fe;
+  --sl-color-accent-low: #422006;
+  --sl-color-accent: #eab308;
+  --sl-color-accent-rgb: 234, 179, 8;
+  --sl-color-accent-high: #fef9c3;
 
   /* Semantic Text Colors */
   --sl-color-white: #ffffff;
@@ -68,10 +68,12 @@
   --sl-color-bg-sidebar: #ffffff;
   --sl-color-hairline: #e5e7eb;
 
-  --sl-color-accent-low: #f5f3ff;
-  --sl-color-accent: #7c3aed;
-  --sl-color-accent-rgb: 124, 58, 237;
-  --sl-color-accent-high: #4c1d95;
+  --sl-color-accent-low: #fefce8;
+  --sl-color-accent: #a16207;
+  --sl-color-accent-rgb: 161, 98, 7;
+  --sl-color-accent-high: #713f12;
+  /* the shared secondary is too pale for the heading gradient on white */
+  --sl-color-accent-secondary: #eab308;
 
   --sl-color-text: #111827;
   --sl-color-text-muted: #4b5563;
@@ -153,25 +155,6 @@ h6 {
   border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-/* Card Styling */
-.card {
-  border: 1px solid var(--sl-color-hairline);
-  background: rgba(255, 255, 255, 0.02);
-  border-radius: 12px;
-  transition: all 0.3s ease;
-}
-
-:root[data-theme="light"] .card {
-  background: #ffffff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-}
-
-.card:hover {
-  transform: translateY(-4px);
-  border-color: var(--sl-color-accent);
-  box-shadow: 0 12px 24px -8px rgba(var(--sl-color-accent-rgb), 0.15);
-}
-
 /* Sidebar Active State */
 [aria-current="page"],
 .sidebar-link.active {
@@ -221,6 +204,15 @@ h6 {
 
 .prose li {
   margin-bottom: 0.5rem;
+}
+
+.prose a {
+  color: var(--sl-color-accent);
+  text-underline-offset: 2px;
+}
+
+.prose a:hover {
+  color: var(--sl-color-accent-high);
 }
 
 .prose code:not(pre code) {

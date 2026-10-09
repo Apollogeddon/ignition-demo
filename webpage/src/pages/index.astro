@@ -5,12 +5,12 @@ import FeatureGrid from "../components/FeatureGrid.astro";
 import Hero from "../components/Hero.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 
-const base = import.meta.env.BASE_URL;
+const year = new Date().getFullYear();
 ---
 
-<BaseLayout title="Ignition Demo" description="A best-practice template for running Inductive Automation Ignition as code.">
+<BaseLayout title="Ignition Demo Stack · Ignition as code, end to end" description="A template for running Ignition as code: the gateway image, its configuration and its projects all come from one repository.">
   <Hero 
-    tagline="A best-practice template for running Ignition as code: the gateway, its configuration and its projects all come from one repository."
+    tagline="A template for running Ignition as code: the gateway image, its configuration and its projects all come from one repository."
     logo={logoImage}
   />
   
@@ -20,8 +20,8 @@ const base = import.meta.env.BASE_URL;
   
   <footer class="custom-footer">
     <div class="footer-content">
-      <p>Released under the MIT License.</p>
-      <p>Built with Astro.</p>
+      <p>© {year} Apollogeddon. Released under the MIT License.</p>
+      <p>Ignition is a trademark of Inductive Automation.</p>
     </div>
   </footer>
 </BaseLayout>

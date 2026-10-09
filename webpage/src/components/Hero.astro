@@ -4,7 +4,7 @@ import { Image } from "astro:assets";
 const { tagline, logo } = Astro.props;
 const base = import.meta.env.BASE_URL;
 
-const providerCode = `cp develop/.env.example develop/.env
+const quickStartCode = `cp develop/.env.example develop/.env
 docker compose -f develop/docker-compose.yml up -d --build
 # Gateway: http://localhost:8088`;
 ---
@@ -17,12 +17,12 @@ docker compose -f develop/docker-compose.yml up -d --build
 
   <div class="content">
     {logo && <Image src={logo} alt="Ignition Logo" class="hero-logo" width={120} height={120} />}
-    <h1>Ignition <span class="text-gradient">Demo</span></h1>
+    <h1>Ignition <span class="text-gradient">Demo Stack</span></h1>
     <p class="tagline">{tagline}</p>
 
     <div class="actions">
       <a href={`${base}/docs/guides/getting-started/`} class="btn btn-primary">
-        Get Started
+        Get started
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-7-7 7 7-7 7"/></svg>
       </a>
       <a href="https://github.com/apollogeddon/ignition-demo" class="btn btn-secondary">
@@ -35,10 +35,10 @@ docker compose -f develop/docker-compose.yml up -d --build
         <span class="dot"></span>
         <span class="dot"></span>
         <span class="dot"></span>
-        <span class="label">Local Gateway</span>
+        <span class="label">Quick start</span>
       </div>
-      <pre><code>{providerCode}</code></pre>
-      <button class="copy-btn" id="copy-btn" data-code={providerCode} aria-label="Copy to clipboard">
+      <pre><code>{quickStartCode}</code></pre>
+      <button class="copy-btn" id="copy-btn" data-code={quickStartCode} aria-label="Copy to clipboard">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
       </button>
     </div>

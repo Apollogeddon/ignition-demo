@@ -1,5 +1,6 @@
 ---
 title: Development workflow
+order: 3
 description: The edit, check, commit and ship loop.
 ---
 
