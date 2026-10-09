@@ -4,7 +4,7 @@ terraform {
     ignition = {
       # not on a registry: see cluster/README.md for installing it from its network mirror
       source  = "apollogeddon/ignition"
-      version = "~> 1.1"
+      version = "~> 1.2"
     }
   }
 }

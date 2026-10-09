@@ -83,7 +83,7 @@ provider_installation {
 }
 ```
 
-`tofu init` then installs the provider for your platform. The configurations require `~> 1.1`. To use a provider built from source instead, see the provider's [installation guide](https://apollogeddon.github.io/ignition-tfpl/docs/guides/installation/).
+`tofu init` then installs the provider for your platform. The configurations require `~> 1.2`. To use a provider built from source instead, see the provider's [installation guide](https://apollogeddon.github.io/ignition-tfpl/docs/guides/installation/).
 
 The provider authenticates with the API key the `infra` stage generated, which the gateway installed for itself. `config` reads it from the `infra` state; set the `ignition_token` variable to use another:
 
