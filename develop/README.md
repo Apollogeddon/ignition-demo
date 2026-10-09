@@ -8,7 +8,7 @@ docker compose -f develop/docker-compose.yml up -d --build
 ```
 
 - Gateway: <http://localhost:8088> (`admin` / `IGNITION_ADMIN_PASSWORD`); open the Designer from there.
-- Database: `localhost:5432`, database and user `demo` (`DB_PASSWORD`), initialised from `db/init` the first time the volume is created.
+- Database: `localhost:5432`, database and user `demo` (`DB_PASSWORD`), initialised from `database/init` the first time the volume is created.
 - Ignition 8.1 or 8.3: set `IGNITION_VERSION` in `.env` to any 8.1 or 8.3 image tag and rebuild with `up -d --build`. The projects, scripts and UDTs work on both.
 
 ## The loop
@@ -19,7 +19,7 @@ docker compose -f develop/docker-compose.yml up -d --build
 
 ## Gateway configuration
 
-On 8.3, `config/` applies the cluster's `gateway-config` module to this gateway. It authenticates with `GATEWAY_API_TOKEN` from `.env` (`.env.example` shows how to generate one), which the gateway installs for itself on start:
+On 8.3, `config/` applies the cluster's `resources` module to this gateway. It authenticates with `GATEWAY_API_TOKEN` from `.env` (`.env.example` shows how to generate one), which the gateway installs for itself on start:
 
 ```sh
 set -a; . develop/.env; set +a     # load GATEWAY_API_TOKEN and DB_PASSWORD

@@ -15,7 +15,7 @@ docker compose -f develop/docker-compose.yml up -d --build
 | Service | Address | Notes |
 | --- | --- | --- |
 | Gateway | <http://localhost:8088> | `admin` / `IGNITION_ADMIN_PASSWORD`; open the Designer from here |
-| Database | `localhost:5432` | database and user `demo`; initialised from `db/init` the first time the volume is created |
+| Database | `localhost:5432` | database and user `demo`; initialised from `database/init` the first time the volume is created |
 
 ## Settings
 
@@ -38,9 +38,9 @@ docker compose -f develop/docker-compose.yml up -d --build
 2. Run the checks in `projects/`: ruff, basedpyright, `poe compat` and pytest (see [Projects](../projects/#checks)).
 3. Commit. The resource sanitiser strips the Designer's noise from `resource.json` files as they are staged.
 
-## Gateway configuration
+## Gateway resources
 
-**8.3.** `develop/config/` applies the cluster's `gateway-config` module to this gateway, so it gets the same configuration as a deployed one. It authenticates with the key from `GATEWAY_API_TOKEN`, which the gateway installs for itself on start:
+**8.3.** `develop/config/` applies the cluster's `resources` module to this gateway, so it gets the same resources as a deployed one. It authenticates with the key from `GATEWAY_API_TOKEN`, which the gateway installs for itself on start:
 
 ```sh
 set -a; . develop/.env; set +a     # load GATEWAY_API_TOKEN and DB_PASSWORD

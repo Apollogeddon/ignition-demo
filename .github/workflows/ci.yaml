@@ -146,7 +146,7 @@ jobs:
           }
           CONFIG
           export TF_CLI_CONFIG_FILE="$RUNNER_TEMP/tofurc"
-          for dir in cluster/modules/gateway-config cluster/environments/k3s/config develop/config; do
+          for dir in cluster/modules/resources cluster/environments/k3s/config develop/config; do
             tofu -chdir="$dir" init -backend=false -input=false >/dev/null
             tofu -chdir="$dir" validate
           done

@@ -1,5 +1,5 @@
 # The platform the gateway runs on: its namespace and the demo PostgreSQL
-# database, initialised from db/init on first start.
+# database, initialised from database/init on first start.
 
 locals {
   namespace = var.create_namespace ? kubernetes_namespace_v1.this[0].metadata[0].name : var.namespace

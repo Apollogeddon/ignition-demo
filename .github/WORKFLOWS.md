@@ -44,7 +44,7 @@ The `resources` job checks the repository tooling and the project resources:
 The `tofu` job checks the infrastructure code:
 
 - **Format**: runs `tofu fmt -check` over `cluster/` and `develop/`.
-- **Validate**: validates the `platform`, `gateway` and `gateway-config` modules, the k3s `infra` and `config` stages, and `develop/config`. The config stages install the Ignition provider from its network mirror.
+- **Validate**: validates the `platform`, `gateway` and `resources` modules, the k3s `infra` and `config` stages, and `develop/config`. The config stages install the Ignition provider from its network mirror.
 - **Trivy**: scans the OpenTofu code, the Compose file and the Dockerfile for misconfigurations, failing on high or critical ones. `.trivyignore` lists the accepted findings, each with its reason.
 
 ## Gateway image

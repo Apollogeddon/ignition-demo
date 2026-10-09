@@ -9,6 +9,6 @@ The demo application's PostgreSQL schema and seed data, shared by every environm
 | `init/01-schema.sql` | The `area` and `asset` tables |
 | `init/02-seed.sql` | Example areas and assets |
 
-The gateway reaches the database through the `demo` connection, which the `gateway-config` OpenTofu module creates on 8.3 and the seed (`gateway/seed/seed.json`) creates on 8.1. The `project` project's named queries use that connection.
+The gateway reaches the database through the `demo` connection, which the `resources` OpenTofu module creates on 8.3 and the seed (`gateway/seed/seed.json`) creates on 8.1. The `project` project's named queries use that connection.
 
 The init scripts only run when the database volume is first created. To reload them locally, reset the develop stack with `docker compose -f develop/docker-compose.yml down -v`.

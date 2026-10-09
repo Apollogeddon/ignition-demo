@@ -83,7 +83,7 @@ variable "values" {
 }
 
 variable "ignition_version" {
-  description = "Ignition major.minor of the image (8.1 or 8.3): 8.3 gets an API key for gateway-config, 8.1 a seed environment"
+  description = "Ignition major.minor of the image (8.1 or 8.3): 8.3 gets an API key for the resources module, 8.1 a seed environment"
   type        = string
   default     = "8.3"
   validation {
@@ -102,7 +102,7 @@ variable "seed_environment" {
   description = <<-EOT
     Environment variables for the gateway's seed spec (gateway/seed/seed.json),
     which the 8.1 startup event applies: connection URLs, users' passwords and
-    so on. Ignored on 8.3, where gateway-config configures the gateway.
+    so on. Ignored on 8.3, where the resources module configures the gateway.
   EOT
   type        = map(string)
   default     = {}

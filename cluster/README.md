@@ -4,9 +4,9 @@ OpenTofu modules that deploy the gateway image to Kubernetes and configure the r
 
 | Module | What it manages |
 | --- | --- |
-| `modules/platform` | The namespace (restricted Pod Security) and the demo PostgreSQL database, initialised from `db/init` |
+| `modules/platform` | The namespace (restricted Pod Security) and the demo PostgreSQL database, initialised from `database/init` |
 | `modules/gateway` | The [ignition-failover](https://github.com/apollogeddon/ignition-helm) Helm chart running the gateway image |
-| `modules/gateway-config` | Gateway resources through the REST API (8.3): the database connection, alarm journal, user source and identity provider, login audit profile, and SMTP and email notification profiles |
+| `modules/resources` | Gateway resources through the REST API (8.3): the database connection, alarm journal, user source and identity provider, login audit profile, and SMTP and email notification profiles |
 
 Each environment is applied in two stages, because the Ignition provider can only connect once the gateway is running:
 
