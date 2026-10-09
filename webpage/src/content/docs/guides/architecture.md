@@ -1,5 +1,6 @@
 ---
 title: Architecture
+order: 2
 description: How the gateway image, the Helm chart and OpenTofu divide the work.
 ---
 

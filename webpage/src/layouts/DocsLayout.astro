@@ -10,7 +10,7 @@ interface Props {
 const { title, description } = Astro.props;
 ---
 
-<BaseLayout title={title} description={description}>
+<BaseLayout title={`${title} · Ignition Demo Stack`} description={description}>
 	<div class="docs-container">
 		<aside class="sidebar-wrapper">
 			<Sidebar />

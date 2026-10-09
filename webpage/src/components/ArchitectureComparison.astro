@@ -4,7 +4,7 @@ const base = import.meta.env.BASE_URL;
 const models = [
   {
     name: "Develop",
-    tagline: "Edit Locally",
+    tagline: "Edit locally",
     description:
       "A gateway and database in Docker Compose, built from the same gateway image, with the project folders mounted live so Designer edits land straight in the repository.",
     stats: [
@@ -12,13 +12,13 @@ const models = [
       { label: "Projects", value: "Live" },
       { label: "Ignition", value: "8.1 / 8.3" },
     ],
-    features: ["Designer Edits Saved", "Same Image", "Quick Reset"],
+    features: ["Designer edits saved", "Same image", "Quick reset"],
     link: `${base}/docs/components/develop/`,
     icon: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`,
   },
   {
     name: "Cluster",
-    tagline: "Deploy Everywhere",
+    tagline: "Deploy everywhere",
     description:
       "OpenTofu installs the gateway image on Kubernetes as a redundant pair, then configures the running gateway through its REST API. Every environment is built the same way.",
     stats: [
@@ -26,7 +26,7 @@ const models = [
       { label: "Projects", value: "Baked In" },
       { label: "Gateways", value: "Redundant" },
     ],
-    features: ["Active Routing", "Rollback by Tag", "Configuration as Code"],
+    features: ["Active routing", "Rollback by tag", "Configuration as code"],
     link: `${base}/docs/components/cluster/`,
     icon: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>`,
   },
@@ -35,8 +35,8 @@ const models = [
 
 <section class="comparison-section">
   <div class="header">
-    <h2>One image, <span class="text-gradient">two environments</span></h2>
-    <p>Develop against a local gateway, then deploy the same image to the cluster.</p>
+    <h2>Choose your <span class="text-gradient">environment</span></h2>
+    <p>Develop against a local gateway, then deploy the same image to a cluster.</p>
   </div>
 
   <div class="comparison-grid">
@@ -71,7 +71,7 @@ const models = [
         </ul>
 
         <a href={model.link} class="btn-more">
-          View Sources
+          Read the docs
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-7-7 7 7-7 7"/></svg>
         </a>
       </div>
