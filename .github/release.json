@@ -11,5 +11,6 @@
       "type": "sentence-case"
     }
   ],
-  "bootstrap-sha": "943a1092ff8a8e4855e7c4a9bdcb9a18a138f725"
+  "bootstrap-sha": "1ecf1c3d511045b49ab10e368bd3ef3206c75364",
+  "last-release-sha": "5383645aec7ca3519f520e08c0de4c8ee42d4224"
 }
