@@ -69,12 +69,12 @@ tofu output -raw admin_password
 
 ### 3. Config
 
-The Ignition provider is not published to a registry. Its docs site serves every release as a [provider network mirror](https://apollogeddon.github.io/ignition-tfpr/docs/guides/installation/), so point OpenTofu at it once in your CLI configuration (`~/.tofurc`, or the file named by `TF_CLI_CONFIG_FILE`):
+The Ignition provider is not published to a registry. Its docs site serves every release as a [provider network mirror](https://apollogeddon.github.io/ignition-tofu/docs/guides/installation/), so point OpenTofu at it once in your CLI configuration (`~/.tofurc`, or the file named by `TF_CLI_CONFIG_FILE`):
 
 ```hcl
 provider_installation {
   network_mirror {
-    url     = "https://apollogeddon.github.io/ignition-tfpr/providers/"
+    url     = "https://apollogeddon.github.io/ignition-tofu/providers/"
     include = ["registry.opentofu.org/apollogeddon/ignition"]
   }
   direct {
@@ -83,7 +83,7 @@ provider_installation {
 }
 ```
 
-`tofu init` then installs the provider for your platform. The configurations require `~> 1.2`. To use a provider built from source instead, see the provider's [installation guide](https://apollogeddon.github.io/ignition-tfpr/docs/guides/installation/).
+`tofu init` then installs the provider for your platform. The configurations require `~> 1.2`. To use a provider built from source instead, see the provider's [installation guide](https://apollogeddon.github.io/ignition-tofu/docs/guides/installation/).
 
 The provider authenticates with the API key the `infra` stage generated, which the gateway installed for itself. `config` reads it from the `infra` state; set the `ignition_token` variable to use another:
 

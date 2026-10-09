@@ -137,7 +137,7 @@ jobs:
           cat >"$RUNNER_TEMP/tofurc" <<'CONFIG'
           provider_installation {
             network_mirror {
-              url     = "https://apollogeddon.github.io/ignition-tfpr/providers/"
+              url     = "https://apollogeddon.github.io/ignition-tofu/providers/"
               include = ["registry.opentofu.org/apollogeddon/ignition"]
             }
             direct {

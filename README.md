@@ -18,7 +18,7 @@
 
 ## Overview
 
-Ignition Demo Stack is a template for teams that want to run Ignition 8.1 or 8.3 as code. The gateway, its configuration and its projects all come from this repository, so every environment is built the same way. It brings together the [Ignition Helm charts](https://github.com/apollogeddon/ignition-helm) and the [Ignition Terraform provider](https://github.com/apollogeddon/ignition-tfpr).
+Ignition Demo Stack is a template for teams that want to run Ignition 8.1 or 8.3 as code. The gateway, its configuration and its projects all come from this repository, so every environment is built the same way. It brings together the [Ignition Helm charts](https://github.com/apollogeddon/ignition-helm) and the [Ignition Terraform provider](https://github.com/apollogeddon/ignition-tofu).
 
 ## Features
 
