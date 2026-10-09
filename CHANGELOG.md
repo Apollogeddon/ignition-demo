@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/Apollogeddon/ignition-demo/compare/v1.0.0...v1.1.0) (2026-10-09)
+
+
+### Features
+
+* **tofu:** Require ignition provider ~&gt; 1.1 and install it from a release ([bd7b3f7](https://github.com/Apollogeddon/ignition-demo/commit/bd7b3f75ae1d65c01c7e79fe88e218bdd0c0bc1e))
+
 ## 1.0.0 (2026-10-08)
 
 
