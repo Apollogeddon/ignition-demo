@@ -34,7 +34,7 @@ cp develop/.env.example develop/.env        # then set the passwords
 docker compose -f develop/docker-compose.yml up -d --build
 ```
 
-This builds the gateway image from `gateway/Dockerfile`, the same image every environment runs, and starts it with a PostgreSQL database initialised from `db/init`.
+This builds the gateway image from `gateway/Dockerfile`, the same image every environment runs, and starts it with a PostgreSQL database initialised from `database/init`.
 
 | Service | Address | Login |
 | --- | --- | --- |

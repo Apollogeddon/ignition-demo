@@ -29,7 +29,7 @@ flowchart LR
 | --- | --- |
 | The gateway image | Project contents: views, scripts, named queries, UDT definitions |
 | The Helm chart | Redundancy, the Gateway Network, certificates, Pod Security |
-| OpenTofu (`gateway-config`) | Gateway resources: database connections, alarm journals, providers, users |
+| OpenTofu (`resources`) | Gateway resources: database connections, alarm journals, providers, users |
 
 Projects are deliberately **not** managed through the REST API. The image is their single source, so a gateway never drifts from the tag it runs.
 
@@ -57,8 +57,8 @@ Each environment is applied in two stages, because the Ignition provider can onl
 | `projects/library/` | An inheritable project: shared scripts, styles, views and UDT definitions |
 | `projects/project/` | The application project; inherits from `library` |
 | `gateway/` | The gateway image: Ignition plus the projects |
-| `cluster/modules/` | OpenTofu modules: `platform`, `gateway`, `gateway-config` |
+| `cluster/modules/` | OpenTofu modules: `platform`, `gateway`, `resources` |
 | `cluster/environments/` | One root module per environment (`k3s` is the reference) |
-| `db/` | The application's schema and seed data |
+| `database/` | The application's schema and seed data |
 | `develop/` | Docker Compose for local development, with the projects mounted live |
 | `scripts/` | Repository tooling: the resource sanitiser and git setup |

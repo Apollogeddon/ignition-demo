@@ -90,7 +90,7 @@ How a gateway gets its configuration depends on its version, and every input is 
 | `emailProfiles`, `alarmNotificationProfiles` | SMTP profiles and the Alarm Notification module's profiles |
 | `gateway` | System settings, e.g. the gateway's audit profile (applied when they differ) |
 
-8.3 ignores the seed; there the `gateway-config` OpenTofu module configures the gateway through its REST API instead (see [Cluster](../cluster/)).
+8.3 ignores the seed; there the `resources` OpenTofu module configures the gateway through its REST API instead (see [Cluster](../cluster/)).
 
 ## Trial keepalive
 
