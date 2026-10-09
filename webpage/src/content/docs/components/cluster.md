@@ -69,17 +69,20 @@ tofu output -raw admin_password
 
 ### 3. Config
 
-The Ignition provider is not published to a registry yet. Build it from [ignition-tfpl](https://github.com/apollogeddon/ignition-tfpl) and point OpenTofu at it with a CLI configuration file:
+The Ignition provider is not published to a registry yet. Each [ignition-tfpl release](https://github.com/apollogeddon/ignition-tfpl/releases) has a zip for each platform in the layout the registries use, so install one into a local filesystem mirror, which OpenTofu searches before any registry:
 
-```hcl
-# ~/.tofurc (or a file named by TF_CLI_CONFIG_FILE)
-provider_installation {
-  dev_overrides {
-    "apollogeddon/ignition" = "/path/to/folder/with/terraform-provider-ignition"
-  }
-  direct {}
-}
+```sh
+VERSION=1.1.0
+PLATFORM=linux_amd64 # for example darwin_arm64 or windows_amd64
+MIRROR="$HOME/.terraform.d/plugins/registry.opentofu.org/apollogeddon/ignition"
+
+mkdir -p "$MIRROR"
+curl -fsSLO --output-dir "$MIRROR" "https://github.com/apollogeddon/ignition-tfpl/releases/download/v${VERSION}/terraform-provider-ignition_${VERSION}_${PLATFORM}.zip"
+curl -fsSLO --output-dir "$MIRROR" "https://github.com/apollogeddon/ignition-tfpl/releases/download/v${VERSION}/terraform-provider-ignition_${VERSION}_SHA256SUMS"
+(cd "$MIRROR" && sha256sum --check --ignore-missing "terraform-provider-ignition_${VERSION}_SHA256SUMS")
 ```
+
+The configurations require `~> 1.1`. To use a provider built from source instead, see the provider's [installation guide](https://apollogeddon.github.io/ignition-tfpl/docs/guides/installation/).
 
 The provider authenticates with the API key the `infra` stage generated, which the gateway installed for itself. `config` reads it from the `infra` state; set the `ignition_token` variable to use another:
 
