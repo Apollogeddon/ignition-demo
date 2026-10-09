@@ -1,6 +1,6 @@
 """Seed an Ignition 8.1 gateway's configuration from a spec file.
 
-8.3 is configured through its REST API (OpenTofu, cluster/modules/gateway-config);
+8.3 is configured through its REST API (OpenTofu, cluster/modules/resources);
 8.1 has no such API, so the startup event applies a spec instead: the
 gateway/seed/seed.json shipped in the image. Each item is created only if it
 is missing, so a fresh gateway is seeded and later changes made in the

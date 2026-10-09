@@ -17,7 +17,7 @@ module "platform" {
   source = "../../../modules/platform"
 
   namespace   = var.namespace
-  db_init_dir = "${path.root}/../../../../db/init"
+  db_init_dir = "${path.root}/../../../../database/init"
   # the gateway's pods, by the chart's name label
   db_client_labels = { "app.kubernetes.io/name" = local.gateway_name }
   registry = var.ghcr_token == null ? null : {

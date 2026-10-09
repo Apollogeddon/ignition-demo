@@ -35,7 +35,7 @@ cp develop/.env.example develop/.env        # then set the passwords
 docker compose -f develop/docker-compose.yml up -d --build
 ```
 
-This builds the gateway image from `gateway/Dockerfile`, the same image every environment runs, and starts it with a PostgreSQL database initialised from `db/init`.
+This builds the gateway image from `gateway/Dockerfile`, the same image every environment runs, and starts it with a PostgreSQL database initialised from `database/init`.
 
 | Service | Address | Login |
 | --- | --- | --- |
@@ -44,9 +44,9 @@ This builds the gateway image from `gateway/Dockerfile`, the same image every en
 
 > **Tip:** set `IGNITION_VERSION` in `develop/.env` to any 8.1 or 8.3 image tag, then rebuild with `up -d --build`. The projects, scripts and UDTs work on both. The default is 8.3.10.
 
-## 3. Configure the gateway (8.3)
+## 3. Create the gateway resources (8.3)
 
-On Ignition 8.3, apply the same gateway configuration the cluster uses, so the local gateway gets the `demo` database connection, alarm journal and the rest.
+On Ignition 8.3, apply the same `resources` module the cluster uses, so the local gateway gets the `demo` database connection, alarm journal and the rest.
 
 1. Set `GATEWAY_API_TOKEN` in `develop/.env` (`.env.example` shows how to generate one) and restart the stack with `up -d`. The gateway installs the key for itself on start.
 2. Point OpenTofu at the Ignition provider's network mirror: see [Cluster](../../components/cluster/#3-config).

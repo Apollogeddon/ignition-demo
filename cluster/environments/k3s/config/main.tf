@@ -8,8 +8,14 @@ data "terraform_remote_state" "infra" {
   }
 }
 
-module "gateway_config" {
-  source = "../../../modules/gateway-config"
+module "resources" {
+  source = "../../../modules/resources"
 
   database = data.terraform_remote_state.infra.outputs.database
+}
+
+# the module was called gateway_config: move existing state instead of recreating it
+moved {
+  from = module.gateway_config
+  to   = module.resources
 }

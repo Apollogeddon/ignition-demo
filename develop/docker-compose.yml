@@ -75,7 +75,7 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD:?set it in develop/.env}
     volumes:
       - database-data:/var/lib/postgresql/data
-      - ../db/init:/docker-entrypoint-initdb.d:ro
+      - ../database/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U demo -d demo"]
       interval: 5s

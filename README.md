@@ -26,7 +26,7 @@ Ignition Demo Stack is a template for teams that want to run Ignition 8.1 or 8.3
 - **Tested scripts.** Project scripts are formatted, linted, type-checked, checked for Jython 2.7 compatibility and unit tested under Python 3.12 against the Ignition API stubs, for both 8.1 and 8.3.
 - **Immutable gateway image.** `gateway/` bakes the projects into the image, so shipping a project means shipping a new image tag, and both gateways in a redundant pair run the same code.
 - **Platform as code.** `cluster/` uses OpenTofu to install the `ignition-failover` Helm chart with redundancy, TLS and active routing, plus its database.
-- **Gateway configuration as code.** On 8.3, `cluster/` configures the running gateway through its REST API with the Ignition provider: database connections, alarm journals, user sources and more. On 8.1, the gateway seeds the same configuration itself on start.
+- **Gateway resources as code.** On 8.3, `cluster/`'s `resources` module creates the running gateway's resources through its REST API with the Ignition provider: database connections, alarm journals, user sources and more. On 8.1, the gateway seeds the same resources itself on start.
 - **One owner per setting.** The image, the chart and OpenTofu each own a distinct set of settings, so nothing is managed from two places.
 
 ## Requirements
@@ -96,8 +96,8 @@ Each environment is applied in two stages: `infra` (the platform and the gateway
 | `projects/library/` | An inheritable project: shared scripts, styles, views and UDT definitions |
 | `projects/project/` | The application project; inherits from `library` |
 | `gateway/` | The gateway image: Ignition plus the projects |
-| `db/` | The demo database's schema and seed data |
-| `cluster/modules/` | OpenTofu modules: `platform`, `gateway`, `gateway-config` |
+| `database/` | The demo database's schema and seed data |
+| `cluster/modules/` | OpenTofu modules: `platform`, `gateway`, `resources` |
 | `cluster/environments/` | One root module per environment (`k3s` is the reference) |
 | `develop/` | Docker Compose for local development, with the projects mounted live |
 | `scripts/` | Repository tooling: the resource sanitiser, git setup and the 8.1 event script generator |
@@ -109,7 +109,7 @@ Each environment is applied in two stages: `infra` (the platform and the gateway
 | --- | --- |
 | The gateway image | Project contents: views, scripts, named queries, UDT definitions |
 | The Helm chart | Redundancy, the Gateway Network, certificates, Pod Security |
-| OpenTofu (`gateway-config`) | Gateway resources: connections, providers, users, alarming |
+| OpenTofu (`resources`) | Gateway resources: connections, providers, users, alarming |
 
 Projects are deliberately not managed through the REST API. The image is their single source, so a gateway never drifts from the tag it runs.
 

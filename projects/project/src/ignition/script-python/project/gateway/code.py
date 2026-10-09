@@ -56,7 +56,7 @@ def syncWhenReady(
 			syncInstances()
 		except (Exception, Throwable) as e:  # noqa: BLE001
 			if attempt == attempts:
-				# on 8.3, expected until gateway-config creates the connection
+				# on 8.3, expected until the resources module creates the connection
 				LOGGER.warn("Asset instances not synchronised: {}".format(e))
 				LOGGER.debug(traceback.format_exc())
 				return False
