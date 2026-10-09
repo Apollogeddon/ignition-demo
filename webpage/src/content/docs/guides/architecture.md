@@ -22,7 +22,7 @@ flowchart LR
 
 1. **The gateway image** bakes the projects from `projects/` into Ignition.
 2. **OpenTofu** installs the [ignition-failover](https://apollogeddon.github.io/ignition-helm/) Helm chart, which runs that image as a redundant pair, plus the database.
-3. **OpenTofu** then creates the running gateway's resources through its REST API with the [Ignition provider](https://apollogeddon.github.io/ignition-tfpl/) (the `resources` module).
+3. **OpenTofu** then creates the running gateway's resources through its REST API with the [Ignition provider](https://apollogeddon.github.io/ignition-tofu/) (the `resources` module).
 
 ## Who owns what
 
