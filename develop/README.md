@@ -28,7 +28,7 @@ export IGNITION_TOKEN="$GATEWAY_API_TOKEN"
 tofu init && tofu apply -var db_password="$DB_PASSWORD"
 ```
 
-The Ignition provider isn't on a registry yet; see [`cluster/README.md`](../cluster/README.md#3-config) for installing it.
+The Ignition provider isn't on a registry; see [`cluster/README.md`](../cluster/README.md#3-config) for installing it from its network mirror.
 
 On 8.1 there is no REST API; the gateway seeds itself from `gateway/seed/seed.json` on start (mounted live from the repository).
 

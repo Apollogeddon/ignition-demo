@@ -49,7 +49,7 @@ export IGNITION_TOKEN="$GATEWAY_API_TOKEN"
 tofu init && tofu apply -var db_password="$DB_PASSWORD"
 ```
 
-The Ignition provider isn't on a registry yet; see [Cluster](../cluster/#3-config) for installing it.
+The Ignition provider isn't on a registry; see [Cluster](../cluster/#3-config) for installing it from its network mirror.
 
 **8.1.** There is no REST API; the gateway seeds itself from `gateway/seed/seed.json` on start (see [Gateway image](../gateway-image/#81-the-seed)). The seed folder is mounted live, so an edit to the spec is applied the next time the project restarts its scripts.
 
