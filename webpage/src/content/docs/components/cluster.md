@@ -69,20 +69,21 @@ tofu output -raw admin_password
 
 ### 3. Config
 
-The Ignition provider is not published to a registry yet. Each [ignition-tfpl release](https://github.com/apollogeddon/ignition-tfpl/releases) has a zip for each platform in the layout the registries use, so install one into a local filesystem mirror, which OpenTofu searches before any registry:
+The Ignition provider is not published to a registry. Its docs site serves every release as a [provider network mirror](https://apollogeddon.github.io/ignition-tfpl/docs/guides/installation/), so point OpenTofu at it once in your CLI configuration (`~/.tofurc`, or the file named by `TF_CLI_CONFIG_FILE`):
 
-```sh
-VERSION=1.1.0
-PLATFORM=linux_amd64 # for example darwin_arm64 or windows_amd64
-MIRROR="$HOME/.terraform.d/plugins/registry.opentofu.org/apollogeddon/ignition"
-
-mkdir -p "$MIRROR"
-curl -fsSLO --output-dir "$MIRROR" "https://github.com/apollogeddon/ignition-tfpl/releases/download/v${VERSION}/terraform-provider-ignition_${VERSION}_${PLATFORM}.zip"
-curl -fsSLO --output-dir "$MIRROR" "https://github.com/apollogeddon/ignition-tfpl/releases/download/v${VERSION}/terraform-provider-ignition_${VERSION}_SHA256SUMS"
-(cd "$MIRROR" && sha256sum --check --ignore-missing "terraform-provider-ignition_${VERSION}_SHA256SUMS")
+```hcl
+provider_installation {
+  network_mirror {
+    url     = "https://apollogeddon.github.io/ignition-tfpl/providers/"
+    include = ["registry.opentofu.org/apollogeddon/ignition"]
+  }
+  direct {
+    exclude = ["registry.opentofu.org/apollogeddon/ignition"]
+  }
+}
 ```
 
-The configurations require `~> 1.1`. To use a provider built from source instead, see the provider's [installation guide](https://apollogeddon.github.io/ignition-tfpl/docs/guides/installation/).
+`tofu init` then installs the provider for your platform. The configurations require `~> 1.1`. To use a provider built from source instead, see the provider's [installation guide](https://apollogeddon.github.io/ignition-tfpl/docs/guides/installation/).
 
 The provider authenticates with the API key the `infra` stage generated, which the gateway installed for itself. `config` reads it from the `infra` state; set the `ignition_token` variable to use another:
 

@@ -48,7 +48,7 @@ This builds the gateway image from `gateway/Dockerfile`, the same image every en
 On Ignition 8.3, apply the same gateway configuration the cluster uses, so the local gateway gets the `demo` database connection, alarm journal and the rest.
 
 1. Set `GATEWAY_API_TOKEN` in `develop/.env` (`.env.example` shows how to generate one) and restart the stack with `up -d`. The gateway installs the key for itself on start.
-2. Install the Ignition provider, which isn't on a registry yet: see [Cluster](../../components/cluster/#3-config).
+2. Point OpenTofu at the Ignition provider's network mirror: see [Cluster](../../components/cluster/#3-config).
 3. Apply the configuration:
 
    ```sh
