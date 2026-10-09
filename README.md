@@ -26,7 +26,7 @@ Ignition Demo is a reference repository for teams that want to run Ignition 8.1 
 - **Tested scripts.** Project scripts are formatted, linted, type-checked, checked for Jython 2.7 compatibility and unit tested under Python 3.12 against the Ignition API stubs, for both 8.1 and 8.3.
 - **Immutable gateway image.** `gateway/` bakes the projects into the image, so shipping a project means shipping a new image tag, and both gateways in a redundant pair run the same code.
 - **Platform as code.** `cluster/` uses OpenTofu to install the `ignition-failover` Helm chart with redundancy, TLS and active routing, plus its database.
-- **Gateway configuration as code.** On 8.3, `cluster/` configures the running gateway through its REST API with the Ignition provider: database connections, alarm journals, user sources and more. On 8.1, the gateway seeds the same configuration itself on start.
+- **Gateway resources as code.** On 8.3, `cluster/`'s `resources` module creates the running gateway's resources through its REST API with the Ignition provider: database connections, alarm journals, user sources and more. On 8.1, the gateway seeds the same resources itself on start.
 - **One owner per setting.** The image, the chart and OpenTofu each own a distinct set of settings, so nothing is managed from two places.
 
 ## Prerequisites
