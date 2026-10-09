@@ -130,6 +130,26 @@ jobs:
             tofu -chdir="$dir" init -backend=false -input=false >/dev/null
             tofu -chdir="$dir" validate
           done
+      # The Ignition provider is on no registry: the config stages install it from the
+      # network mirror its docs site serves, as cluster/README.md tells users to
+      - name: Validate the config stages
+        run: |
+          cat >"$RUNNER_TEMP/tofurc" <<'CONFIG'
+          provider_installation {
+            network_mirror {
+              url     = "https://apollogeddon.github.io/ignition-tfpl/providers/"
+              include = ["registry.opentofu.org/apollogeddon/ignition"]
+            }
+            direct {
+              exclude = ["registry.opentofu.org/apollogeddon/ignition"]
+            }
+          }
+          CONFIG
+          export TF_CLI_CONFIG_FILE="$RUNNER_TEMP/tofurc"
+          for dir in cluster/modules/gateway-config cluster/environments/k3s/config develop/config; do
+            tofu -chdir="$dir" init -backend=false -input=false >/dev/null
+            tofu -chdir="$dir" validate
+          done
       # misconfigurations in the OpenTofu code, the compose file and the Dockerfile
       - name: Trivy config scan
         uses: aquasecurity/trivy-action@v0.36.0
