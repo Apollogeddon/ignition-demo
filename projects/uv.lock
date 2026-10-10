@@ -348,8 +348,8 @@ wheels = [
 
 [[package]]
 name = "forgepy"
-version = "0.5.0"
-source = { git = "https://github.com/apollogeddon/forgepy#8c6afea50d66040e6506b2b997a7bba8b2801e38" }
+version = "0.7.0"
+source = { git = "https://github.com/apollogeddon/forgepy#7e2ed47caefe5c39ed8755aa88ed97e3befa7e82" }
 dependencies = [
     { name = "tomlkit" },
 ]
