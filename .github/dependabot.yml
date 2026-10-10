@@ -64,8 +64,9 @@ updates:
         patterns: ["*"]
     commit-message:
       prefix: "chore(ci)"
-    # CI deliberately tracks forgejs's reusable workflows at @main.
+    # CI deliberately tracks the forge reusable workflows at @main.
     ignore:
       - dependency-name: "apollogeddon/forgejs"
+      - dependency-name: "apollogeddon/forgepy"
     cooldown:
       default-days: 3

@@ -173,12 +173,25 @@ jobs:
     outputs:
       release_created: ${{ steps.release.outputs.release_created }}
       version: ${{ steps.release.outputs.version }}
+      # the release pull request release-please opened or updated, if any
+      pr_number: ${{ steps.release.outputs.pr && fromJSON(steps.release.outputs.pr).number || '' }}
     steps:
       - id: release
         uses: googleapis/release-please-action@v5
         with:
           config-file: .github/release.json
           manifest-file: .github/.release.json
+
+  # a pull request opened with the workflow token starts no workflow, so the release
+  # pull request asks for its review here
+  review-release:
+    needs: version
+    if: needs.version.outputs.pr_number != ''
+    uses: apollogeddon/forgepy/.github/workflows/review.yml@main
+    with:
+      pull_request: ${{ needs.version.outputs.pr_number }}
+    permissions:
+      pull-requests: write
 
   image:
     name: Gateway image (Ignition ${{ matrix.ignition }})
@@ -250,6 +263,13 @@ jobs:
       packages: read
       pages: write
       id-token: write
+      pull-requests: write
+
+  # CODEOWNERS doesn't request a review on a bot's pull request, so Dependabot's asks here
+  review:
+    if: github.event_name == 'pull_request' && github.event.pull_request.user.login == 'dependabot[bot]'
+    uses: apollogeddon/forgepy/.github/workflows/review.yml@main
+    permissions:
       pull-requests: write
 
   # last, so a Dependabot pull request merges only once every check above has passed
