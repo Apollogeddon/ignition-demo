@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/Apollogeddon/ignition-demo/compare/v1.1.0...v1.1.1) (2026-10-10)
+
+
+### Bug Fixes
+
+* **deps:** Override katex to a patched version ([#20](https://github.com/Apollogeddon/ignition-demo/issues/20)) ([b280938](https://github.com/Apollogeddon/ignition-demo/commit/b280938f27b5f42be3f0ca4ac19ae7d168b78451))
+
 ## [1.1.0](https://github.com/Apollogeddon/ignition-demo/compare/v1.0.0...v1.1.0) (2026-10-09)
 
 
