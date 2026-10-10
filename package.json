@@ -1,5 +1,6 @@
 {
   "name": "ignition-demo",
+  "description": "Template for running Ignition 8.1 or 8.3 as code, built on the Ignition Helm charts and Tofu provider",
   "private": true,
   "type": "module",
   "scripts": {
