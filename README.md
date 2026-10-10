@@ -10,9 +10,11 @@
     <a href="https://apollogeddon.github.io/ignition-demo"><strong>Read the docs</strong></a>
     <br />
     <br />
-    <a href="https://github.com/apollogeddon/ignition-demo/issues">Report a bug</a>
-    ·
-    <a href="https://github.com/apollogeddon/ignition-demo/issues">Request a feature</a>
+    <a href="https://apollogeddon.github.io/ignition-demo/docs/guides/getting-started/">Getting started</a>
+    &middot;
+    <a href="https://apollogeddon.github.io/ignition-demo/docs/guides/architecture/">Architecture</a>
+    &middot;
+    <a href="https://apollogeddon.github.io/ignition-demo/docs/guides/workflow/">Development workflow</a>
   </p>
 </div>
 
