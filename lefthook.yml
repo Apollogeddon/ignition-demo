@@ -17,6 +17,9 @@ pre-commit:
       root: projects/
       glob: "*/src/**/*.py"
       run: uv run poe compat
+    projects-sync-check:
+      root: projects/
+      run: uv run poe sync-check
     shellcheck:
       glob: "*.sh"
       # CI runs shellcheck on every script, so the hook doesn't insist it's installed
