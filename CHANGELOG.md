@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.3](https://github.com/Apollogeddon/ignition-demo/compare/v1.1.2...v1.1.3) (2026-10-10)
+
+
+### Bug Fixes
+
+* **deps:** Bump @apollogeddon/forgejs ([#28](https://github.com/Apollogeddon/ignition-demo/issues/28)) ([837b058](https://github.com/Apollogeddon/ignition-demo/commit/837b058de31ad20767e9a683f54a84fbab90dc8d))
+
 ## [1.1.2](https://github.com/Apollogeddon/ignition-demo/compare/v1.1.1...v1.1.2) (2026-10-10)
 
 
