@@ -43,7 +43,13 @@ locals {
         requests = { cpu = "500m", memory = "${var.memory_mb + 512}Mi" }
         limits   = { cpu = "2", memory = "${var.memory_mb * 2}Mi" }
       }
-      startupProbe = { enabled = true }
+      # the chart's health checks, stated so a chart default can't drop them:
+      # readiness waits for the gateway to be running (and, with active routing,
+      # a Backup in sync), liveness restarts a gateway that stops answering, and
+      # the startup probe holds both off through a slow first start
+      readinessProbe = { enabled = true }
+      livenessProbe  = { enabled = true }
+      startupProbe   = { enabled = true }
       networkPolicy = {
         enabled = true
         extraIngress = var.ingress == null ? [] : [{
@@ -109,4 +115,29 @@ resource "helm_release" "gateway" {
   # a redundant pair commissions, syncs and only then reports Ready
   timeout = 1200
   wait    = true
+}
+
+# The chart's NetworkPolicy covers the gateways. Its other pods (the
+# active-routing labeller and the certificate-renewal CronJob) only call out,
+# to the Kubernetes API and the gateways, so nothing may connect to them.
+resource "kubernetes_network_policy_v1" "helpers" {
+  metadata {
+    name      = "${var.name}-helpers"
+    namespace = var.namespace
+    labels = {
+      "app.kubernetes.io/part-of"    = "ignition"
+      "app.kubernetes.io/managed-by" = "opentofu"
+    }
+  }
+  spec {
+    pod_selector {
+      match_labels = { "app.kubernetes.io/instance" = var.name }
+      match_expressions {
+        key      = "app.kubernetes.io/name"
+        operator = "NotIn"
+        values   = [var.name]
+      }
+    }
+    policy_types = ["Ingress"]
+  }
 }
