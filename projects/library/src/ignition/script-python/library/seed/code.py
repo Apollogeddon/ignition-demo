@@ -64,6 +64,25 @@ class MissingVariable(Exception):  # noqa: N818
 	"""A ${NAME} placeholder has no value and no default."""
 
 
+class GatewayConfig(object):
+	"""A gateway's configuration store: all that apply needs of a gateway version.
+
+	Gateway81 (library.gateway81) is the 8.1 implementation, and the only code
+	that reaches the gateway's internals. 8.3 has none: OpenTofu configures it
+	through its REST API, so storeFor selects no store there.
+	"""
+
+	def existing(self, section):
+		# type: (str) -> List[str]
+		"""Return the names already configured in a section."""
+		raise NotImplementedError
+
+	def create(self, section, name, item):
+		# type: (str, str, Dict[str, Any]) -> Optional[bool]
+		"""Create one item of a section; False when there was nothing to change."""
+		raise NotImplementedError
+
+
 def resolve(
 	value,  # type: Any
 	getenv,  # type: Callable[[str], Optional[str]]
@@ -108,14 +127,14 @@ def loadSpec(
 
 def apply(
 	spec,  # type: Dict[str, Any]
-	gateway,  # type: Any
+	gateway,  # type: GatewayConfig
 	log,  # type: Any
 	getenv=os.getenv,  # type: Callable[[str], Optional[str]]
 ):
 	# type: (...) -> Dict[str, List[str]]
 	"""Create every item of the spec the gateway does not have yet.
 
-	gateway is an adapter (Gateway81 on a real gateway). Returns the names
+	gateway is the store storeFor selected. Returns the names
 	created, skipped (missing variables) and failed, as "section/name".
 	"""
 	result = {"created": [], "skipped": [], "failed": []}  # type: Dict[str, List[str]]
@@ -154,6 +173,22 @@ def apply(
 	return result
 
 
+def storeFor(
+	version,  # type: Any
+):
+	# type: (...) -> Optional[Callable[[], GatewayConfig]]
+	"""Return what makes the configuration store for a gateway version, or None.
+
+	None from 8.3 on, as OpenTofu configures those through the REST API. The
+	store is made only once there is a spec to apply.
+	"""
+	if (version.getMajor(), version.getMinor()) >= (8, 3):
+		return None
+	from library.gateway81 import Gateway81
+
+	return Gateway81
+
+
 def applyFile(
 	path=SPEC_FILE,  # type: str
 ):
@@ -162,14 +197,12 @@ def applyFile(
 	from system.util import getLogger, getVersion
 
 	log = getLogger(LOGGER_NAME)
-	version = getVersion()
-	if (version.getMajor(), version.getMinor()) >= (8, 3):
+	store = storeFor(getVersion())
+	if store is None:
 		log.debug("Gateway configured through its REST API; seed not applied")
 		return None
 	spec = loadSpec(path)
 	if not spec:
 		log.debug("No seed spec at {}".format(path))
 		return None
-	from library.gateway81 import Gateway81
-
-	return apply(spec, Gateway81(), log)
+	return apply(spec, store(), log)

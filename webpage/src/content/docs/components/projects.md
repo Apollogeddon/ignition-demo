@@ -104,8 +104,8 @@ uv run --no-project scripts/sanitise.py --fix FILE...     # rewrite in place
 | `library.format` | Display formatting |
 | `library.log` | Consistently named loggers |
 | `library.udts` | UDT definitions kept as files: import and export |
-| `library.seed` | Applies the 8.1 seed spec (`gateway/seed/seed.json`) |
-| `library.gateway81` | The 8.1 configuration store `library.seed` writes through |
+| `library.seed` | Applies the 8.1 seed spec (`gateway/seed/seed.json`) through a `GatewayConfig` store, which it picks once from the gateway version (none on 8.3) |
+| `library.gateway81` | `GatewayConfig` for 8.1: the only module that touches the gateway's internal persistence layer |
 
 ## Gateway events
 

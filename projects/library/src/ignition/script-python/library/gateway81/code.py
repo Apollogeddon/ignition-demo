@@ -3,8 +3,9 @@
 8.1 has no configuration API, so this uses the gateway's own persistence
 layer, the one its web UI saves through: each profile (user source, journal,
 audit profile, ...) is a record of a type its manager registers, plus a
-settings record for that type. Only library.seed calls this, and only on 8.1;
-8.3 is configured through its REST API instead.
+settings record for that type. It implements library.seed's GatewayConfig,
+and every use of the gateway's internals is confined to this module; seed
+selects it on 8.1 only, as 8.3 is configured through its REST API instead.
 """
 # pyright: reportMissingImports=false, reportAttributeAccessIssue=false, reportMissingModuleSource=false
 
@@ -13,6 +14,7 @@ import time
 
 import java.lang
 from com.inductiveautomation.ignition.gateway import IgnitionGateway
+from library.seed import GatewayConfig
 from simpleorm.dataset import SQuery
 from system.db import addDatasource, getConnections
 from system.user import addRole, addUser, getNewUser, getRoles, getUsers
@@ -88,8 +90,8 @@ IDP_TEMPLATE = {
 }
 
 
-class Gateway81(object):
-	"""library.seed's adapter for an 8.1 gateway (existing / create per section)."""
+class Gateway81(GatewayConfig):
+	"""library.seed's configuration store for an 8.1 gateway."""
 
 	def __init__(self):
 		# type: () -> None
@@ -191,7 +193,7 @@ class Gateway81(object):
 			self.pi.save(profile)
 		return profile
 
-	# -- library.seed adapter ----------------------------------------------
+	# -- GatewayConfig -----------------------------------------------------
 	def existing(self, section):
 		# type: (str) -> List[str]
 		"""Return the names already configured in a section."""
