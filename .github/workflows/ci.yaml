@@ -159,38 +159,16 @@ jobs:
           exit-code: '1'
           severity: 'CRITICAL,HIGH'
 
-  # On main, after the checks: opens or updates the release pull request, and creates
-  # the release when it merges. The image job publishes that release's images, as a
-  # tag created with GITHUB_TOKEN doesn't start a workflow.
+  # On main, after the checks: forgepy's release-please job opens or updates the release
+  # pull request, asks for its review (a pull request opened with the workflow token starts
+  # no workflow), and creates the release when it merges. The image job publishes that
+  # release's images, as a tag created with GITHUB_TOKEN doesn't start a workflow.
   version:
     needs: [projects, resources, tofu]
     if: ${{ !failure() && !cancelled() && github.event_name == 'push' }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
+    uses: apollogeddon/forgepy/.github/workflows/version.yml@main
     permissions:
       contents: write
-      pull-requests: write
-    outputs:
-      release_created: ${{ steps.release.outputs.release_created }}
-      version: ${{ steps.release.outputs.version }}
-      # the release pull request release-please opened or updated, if any
-      pr_number: ${{ steps.release.outputs.pr && fromJSON(steps.release.outputs.pr).number || '' }}
-    steps:
-      - id: release
-        uses: googleapis/release-please-action@v5
-        with:
-          config-file: .github/release.json
-          manifest-file: .github/.release.json
-
-  # a pull request opened with the workflow token starts no workflow, so the release
-  # pull request asks for its review here
-  review-release:
-    needs: version
-    if: needs.version.outputs.pr_number != ''
-    uses: apollogeddon/forgepy/.github/workflows/review.yml@main
-    with:
-      pull_request: ${{ needs.version.outputs.pr_number }}
-    permissions:
       pull-requests: write
 
   image:
@@ -208,7 +186,7 @@ jobs:
     env:
       # pull requests only build and test; main publishes to GHCR
       PUBLISH: ${{ github.event_name == 'push' }}
-      RELEASE: ${{ needs.version.outputs.release_created == 'true' }}
+      RELEASE: ${{ needs.version.outputs.new_release_published == 'true' }}
     steps:
       - uses: actions/checkout@v7
       - uses: docker/setup-buildx-action@v4
@@ -254,23 +232,52 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha,scope=${{ matrix.ignition }}
 
-  # pull requests only: on main, webpage.yaml runs on its own push trigger
+  # every Markdown file in the repository; no shared workflow lints Markdown
+  markdown:
+    name: Markdown
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      # the root tooling installs @apollogeddon/forgejs from GitHub Packages
+      packages: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: webpage/.nvmrc
+          cache: "npm"
+          cache-dependency-path: package-lock.json
+          registry-url: "https://npm.pkg.github.com"
+          scope: "@apollogeddon"
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Lint markdown
+        run: npx markdownlint-cli2 "**/*.{md,mdx}"
+
+  # forgejs's website pipeline: Gitleaks over the whole repository (so it isn't path
+  # filtered), OSV-Scanner, Biome, the type check and the build; on main, OSV security
+  # patches and the GitHub Pages deploy. It also asks for a review of Dependabot's pull
+  # requests, as CODEOWNERS doesn't on a bot's.
   webpage:
-    if: github.event_name == 'pull_request'
-    uses: ./.github/workflows/webpage.yaml
+    needs: [markdown]
+    uses: apollogeddon/forgejs/.github/workflows/website.yml@main
+    # GitHub checks every called job's permissions, including the ones these inputs skip
     permissions:
       contents: write
       packages: read
       pages: write
       id-token: write
       pull-requests: write
-
-  # CODEOWNERS doesn't request a review on a bot's pull request, so Dependabot's asks here
-  review:
-    if: github.event_name == 'pull_request' && github.event.pull_request.user.login == 'dependabot[bot]'
-    uses: apollogeddon/forgepy/.github/workflows/review.yml@main
-    permissions:
-      pull-requests: write
+    with:
+      working_directory: webpage
+      run_tests: false
+      enable_versioning: false
+      auto_merge: false
 
   # last, so a Dependabot pull request merges only once every check above has passed
   auto-merge:

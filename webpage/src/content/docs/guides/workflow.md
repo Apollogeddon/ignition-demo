@@ -52,7 +52,7 @@ CI runs on every pull request and every push to `main`. On a pull request, each 
 | OpenTofu and config scan | `tofu fmt`, `tofu validate` for the modules and the `infra` stage, and a Trivy misconfiguration scan |
 | Gateway image | builds and smoke-tests the image for 8.1.55 and 8.3.10; on `main`, publishes it to GHCR |
 | Markdown | markdownlint over every Markdown file |
-| Website | forgejs's `website.yml`: Gitleaks over the repository, OSV-Scanner, Biome, the type check and the build; on `main`, deploys this site to GitHub Pages |
+| Webpage | forgejs's `website.yml`: Gitleaks over the repository, OSV-Scanner, Biome, the type check and the build; on `main`, deploys this site to GitHub Pages |
 
 On `main`, release-please keeps a release pull request open with the next version and changelog, generated from the Conventional Commits. Merging it creates the release, and the same run publishes the release's images.
 
