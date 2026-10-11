@@ -53,7 +53,7 @@ The `image` job builds the gateway image once per Ignition version (8.1.55 and 8
 
 - **Build**: builds `gateway/Dockerfile` with the projects baked in.
 - **Smoke test**: starts the image and checks that the asset installer ran, the projects load, Perspective serves them, the startup event imports the UDTs, and the icon library and web files are served.
-- **Publish**: on pushes to `main`, publishes the image to `ghcr.io/apollogeddon/ignition-gateway`.
+- **Publish**: on pushes to `main`, publishes the image to `ghcr.io/apollogeddon/ignition-gateway`, with an SPDX SBOM and SLSA provenance (`mode=max`) attached as BuildKit attestations. When the run creates a release, it also records the release's image by digest for the release artifacts.
 
 Every tag starts with the Ignition version:
 
@@ -67,7 +67,12 @@ Every tag starts with the Ignition version:
 
 release-please (`.github/release.json`) versions the repository from Conventional Commits. It keeps a release pull request open with the next version and the `CHANGELOG.md` entry, and creates the GitHub release and its `v<version>` tag when that pull request merges.
 
-The image job publishes the release's images in the same run, because a tag that release-please creates with `GITHUB_TOKEN` doesn't start a workflow of its own.
+The release is created as a draft, with its tag created straight away (`draft` and `force-tag-creation`), because the repository's releases are immutable once published and can't take files afterwards. In the same run, as a tag that release-please creates with `GITHUB_TOKEN` doesn't start a workflow of its own:
+
+1. The image job publishes the release's images and records each one by digest.
+2. The **Release artifacts** job runs `scripts/release-artifacts.sh` on the release's tag. It builds a zip of each Ignition project (a git archive of `projects/<project>/src`, dated with the commit, so the same commit gives the same bytes), `images-<version>.txt` with the images by digest, and `SHA256SUMS`. It attaches them to the draft and then publishes it.
+
+If an image fails, the release stays a draft. Re-running the failed jobs attaches the files and publishes it.
 
 ## Documentation site
 
