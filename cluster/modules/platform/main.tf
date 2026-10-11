@@ -98,11 +98,28 @@ resource "kubernetes_stateful_set_v1" "db" {
             name           = "postgres"
             container_port = 5432
           }
+          # a first start runs the init scripts and restarts the server: the
+          # startup probe gives it time, then liveness restarts a hung server
+          startup_probe {
+            exec {
+              command = ["sh", "-c", "pg_isready -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\""]
+            }
+            period_seconds    = 5
+            failure_threshold = 60
+          }
           readiness_probe {
             exec {
               command = ["sh", "-c", "pg_isready -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\""]
             }
             period_seconds = 5
+          }
+          liveness_probe {
+            exec {
+              command = ["sh", "-c", "pg_isready -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\""]
+            }
+            period_seconds    = 10
+            timeout_seconds   = 5
+            failure_threshold = 6
           }
           resources {
             requests = { cpu = "100m", memory = "256Mi" }
