@@ -1,11 +1,8 @@
 """Formatting helpers shared by every project."""
 
-# built at run time: a u"" literal would not survive the formatter, and Jython
+# decoded at run time: a u"" literal would not survive the formatter, and Jython
 # 2.7 needs unicode here, not a byte string
-try:
-	EM_DASH = unichr(0x2014)  # type: ignore[name-defined]
-except NameError:
-	EM_DASH = chr(0x2014)
+EM_DASH = b"\xe2\x80\x94".decode("utf-8")
 
 MYPY = False
 if MYPY:

@@ -7,7 +7,6 @@ settings record for that type. It implements library.seed's GatewayConfig,
 and every use of the gateway's internals is confined to this module; seed
 selects it on 8.1 only, as 8.3 is configured through its REST API instead.
 """
-# pyright: reportMissingImports=false, reportAttributeAccessIssue=false, reportMissingModuleSource=false
 
 import json
 import time
@@ -101,9 +100,10 @@ class Gateway81(GatewayConfig):
 	# -- records ---------------------------------------------------------
 	def recordClass(self, name):
 		# type: (str) -> Any
+		# java-api-stubs has neither Class.forName nor ClassNotFoundException
 		try:
-			return java.lang.Class.forName(name)
-		except java.lang.ClassNotFoundException:
+			return java.lang.Class.forName(name)  # pyright: ignore[reportAttributeAccessIssue]
+		except java.lang.ClassNotFoundException:  # pyright: ignore[reportAttributeAccessIssue]
 			return self.ctx.getModuleManager().resolveClass(name)
 
 	def meta(self, name):
@@ -253,7 +253,7 @@ class Gateway81(GatewayConfig):
 			try:
 				getRoles(source)
 				break
-			except (Exception, java.lang.Throwable):  # noqa: BLE001
+			except (Exception, java.lang.Throwable):  # noqa: BLE001 - raises anything until started
 				time.sleep(0.5)
 		for role in item.get("roles") or []:
 			if role not in getRoles(source):
@@ -313,6 +313,7 @@ class Gateway81(GatewayConfig):
 		"""
 		properties = self.recordClass(SYSTEM_PROPERTIES)
 		manager = self.ctx.getSystemPropertiesManager()
+		notifyListeners = True
 		changed = False
 		for key, value in sorted(item.items()):
 			if key not in SYSTEM_SETTINGS:
@@ -320,7 +321,6 @@ class Gateway81(GatewayConfig):
 				raise ValueError(msg)
 			prop = properties.getField(SYSTEM_SETTINGS[key]).get(None)
 			if manager.getPropertyValue(prop) != value:
-				# True: notify the listeners
-				manager.setPropertyValue(prop, value, True)  # noqa: FBT003
+				manager.setPropertyValue(prop, value, notifyListeners)
 				changed = True
 		return changed

@@ -3,6 +3,7 @@
 import json
 import sys
 from pathlib import Path
+from typing import Any
 from unittest.mock import MagicMock, call
 
 import pytest
@@ -13,7 +14,9 @@ UDT_DIRS = sorted(p for p in PROJECTS.glob("*/src/udts") if (p / "index.json").i
 
 
 def module(name: str) -> MagicMock:
-	return sys.modules[name]  # type: ignore[return-value]
+	found = sys.modules[name]
+	assert isinstance(found, MagicMock), name
+	return found
 
 
 def test_definitions_map_entries_to_files_and_folders() -> None:
@@ -65,12 +68,12 @@ def test_export_all_writes_normalised_files() -> None:
 	file.writeFile.assert_called_once_with(path, '{\n    "name": "pump",\n    "tags": []\n}\n')
 
 
-def type_ids(tags: list[dict[str, object]]) -> set[str]:
+def type_ids(tags: list[dict[str, Any]]) -> set[str]:
 	found: set[str] = set()
 	for tag in tags:
 		if tag.get("tagType") == "UdtInstance":
 			found.add(str(tag["typeId"]))
-		found |= type_ids(tag.get("tags", []))  # type: ignore[arg-type]
+		found |= type_ids(tag.get("tags", []))
 	return found
 
 

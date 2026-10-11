@@ -1,7 +1,7 @@
 """Tests for project.assets."""
 
+import inspect
 import json
-import sys
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -54,8 +54,8 @@ def test_build_instances_groups_by_area_and_skips_unknown_kinds() -> None:
 	}
 
 
-def test_sync_instances_merges_each_area_folder() -> None:
-	tag: MagicMock = sys.modules["system.tag"]  # type: ignore[assignment]
+def test_sync_instances_merges_each_area_folder(system: dict[str, MagicMock]) -> None:
+	tag = system["system.tag"]
 	with patch("project.assets.code.toRows", return_value=ROWS):
 		assert syncInstances("plant") == 3
 	paths = [c.args[0] for c in tag.configure.call_args_list]
@@ -68,4 +68,5 @@ def test_default_kinds_match_the_library_udts() -> None:
 		Path(__file__).resolve().parents[2].joinpath("library/src/udts/index.json").read_text()
 	)
 	equipment = sorted(e.split("/")[1] for e in index if e.startswith("equipment/"))
-	assert sorted(syncInstances.__defaults__[1]) == equipment  # type: ignore[index]
+	kinds = inspect.signature(syncInstances).parameters["kinds"].default
+	assert sorted(kinds) == equipment
