@@ -221,6 +221,7 @@ jobs:
             type=ref,event=branch
             type=raw,value=${{ needs.version.outputs.version }},enable=${{ env.RELEASE }}
       - name: Publish
+        id: publish
         if: env.PUBLISH == 'true'
         uses: docker/build-push-action@v7
         with:
@@ -234,6 +235,52 @@ jobs:
           # an SPDX SBOM and SLSA provenance, attached to the image in GHCR
           sbom: true
           provenance: mode=max
+      # the release's image by digest, for the release's images file
+      - name: Record the release image
+        if: env.RELEASE == 'true' && env.PUBLISH == 'true'
+        env:
+          IMAGE: ghcr.io/${{ github.repository_owner }}/ignition-gateway:${{ matrix.ignition }}-${{ needs.version.outputs.version }}
+          DIGEST: ${{ steps.publish.outputs.digest }}
+        run: echo "${IMAGE}@${DIGEST}" > "$RUNNER_TEMP/image.txt"
+      - uses: actions/upload-artifact@v7
+        if: env.RELEASE == 'true' && env.PUBLISH == 'true'
+        with:
+          name: release-image-${{ matrix.ignition }}
+          path: ${{ runner.temp }}/image.txt
+          retention-days: 1
+
+  # release-please creates the release as a draft (.github/release.json), as a
+  # published release is immutable: this job attaches the project exports, the
+  # images by digest and their checksums, then publishes it. A release whose images
+  # failed stays a draft.
+  release-artifacts:
+    name: Release artifacts
+    needs: [version, image]
+    if: ${{ !failure() && !cancelled() && needs.version.outputs.new_release_published == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+      TAG: ${{ needs.version.outputs.tag_name }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.version.outputs.tag_name }}
+          persist-credentials: false
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: release-image-*
+          path: ${{ runner.temp }}/images
+      - name: Build the artifacts
+        run: scripts/release-artifacts.sh "$VERSION" "$RUNNER_TEMP/release" "$RUNNER_TEMP"/images/*/image.txt
+      - name: Attach them and publish the release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload "$TAG" "$RUNNER_TEMP"/release/* --repo "$GITHUB_REPOSITORY" --clobber
+          gh release edit "$TAG" --draft=false --repo "$GITHUB_REPOSITORY"
 
   # every Markdown file in the repository; no shared workflow lints Markdown
   markdown:

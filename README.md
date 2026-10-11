@@ -89,6 +89,18 @@ CI publishes the gateway image to `ghcr.io/apollogeddon/ignition-gateway` for Ig
 
 Each image carries an SPDX SBOM and SLSA provenance, which `docker buildx imagetools inspect <image> --format '{{ json .SBOM }}'` (or `.Provenance`) shows.
 
+## Release artifacts
+
+Each [GitHub release](https://github.com/Apollogeddon/ignition-demo/releases) carries, beside its images:
+
+| File | Contents |
+| --- | --- |
+| `ignition-library-<version>.zip`, `ignition-project-<version>.zip` | Each Ignition project as of the release, for a gateway's project import (import `library` first, as `project` inherits from it) |
+| `images-<version>.txt` | The release's gateway images, pinned by digest |
+| `SHA256SUMS` | Checksums of the files above: `sha256sum -c SHA256SUMS` |
+
+The projects are the same files the release's images run.
+
 ## Deploy
 
 Each environment is applied in two stages: `infra` (the platform and the gateway), then `config` (the gateway's configuration). See [`cluster/`](cluster/README.md) for the k3s reference environment.
