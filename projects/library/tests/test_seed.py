@@ -1,5 +1,6 @@
 """Tests for library.seed and the repository's seed spec."""
 
+import importlib
 import json
 import sys
 from pathlib import Path
@@ -7,12 +8,21 @@ from typing import Any
 from unittest.mock import MagicMock
 
 import pytest
-from library.seed.code import SECTIONS, MissingVariable, apply, applyFile, loadSpec, resolve
+from library.seed.code import (
+	SECTIONS,
+	GatewayConfig,
+	MissingVariable,
+	apply,
+	applyFile,
+	loadSpec,
+	resolve,
+	storeFor,
+)
 
 SPEC = Path(__file__).resolve().parents[3] / "gateway" / "seed" / "seed.json"
 
 
-class FakeGateway:
+class FakeGateway(GatewayConfig):
 	"""Records what library.seed creates; existing names per section."""
 
 	def __init__(self, existing: dict[str, list[str]] | None = None, fail: str = "") -> None:
@@ -136,6 +146,62 @@ def test_apply_file_uses_the_8_1_gateway(monkeypatch: pytest.MonkeyPatch) -> Non
 	assert [s for s, _, _ in fake.created] == [
 		s for s in SECTIONS if s in json.loads(SPEC.read_text())
 	]
+
+
+def version(major: int, minor: int) -> MagicMock:
+	found = MagicMock()
+	found.getMajor.return_value = major
+	found.getMinor.return_value = minor
+	return found
+
+
+@pytest.mark.parametrize(("major", "minor"), [(8, 3), (8, 4), (9, 0)])
+def test_no_store_from_8_3(major: int, minor: int) -> None:
+	assert storeFor(version(major, minor)) is None
+
+
+def test_the_8_1_store_is_gateway81(monkeypatch: pytest.MonkeyPatch) -> None:
+	adapter = MagicMock()
+	monkeypatch.setitem(sys.modules, "library.gateway81", adapter)
+	assert storeFor(version(8, 1)) is adapter.Gateway81
+	adapter.Gateway81.assert_not_called()
+
+
+def test_apply_file_makes_no_store_without_a_spec(
+	monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+	util: MagicMock = sys.modules["system.util"]  # type: ignore[assignment]
+	util.getVersion.return_value = version(8, 1)
+	adapter = MagicMock()
+	monkeypatch.setitem(sys.modules, "library.gateway81", adapter)
+	assert applyFile(str(tmp_path / "none.json")) is None
+	adapter.Gateway81.assert_not_called()
+
+
+def test_gateway_config_methods_are_abstract() -> None:
+	store = GatewayConfig()
+	with pytest.raises(NotImplementedError):
+		store.existing("databases")
+	with pytest.raises(NotImplementedError):
+		store.create("databases", "demo", {})
+
+
+def test_gateway81_implements_the_whole_interface(monkeypatch: pytest.MonkeyPatch) -> None:
+	# the gateway's own classes exist only on the gateway
+	for name in (
+		"com",
+		"com.inductiveautomation",
+		"com.inductiveautomation.ignition",
+		"com.inductiveautomation.ignition.gateway",
+		"simpleorm",
+		"simpleorm.dataset",
+	):
+		monkeypatch.setitem(sys.modules, name, MagicMock(name=name))
+	monkeypatch.delitem(sys.modules, "library.gateway81.code", raising=False)
+	gateway81 = importlib.import_module("library.gateway81.code")
+	assert issubclass(gateway81.Gateway81, GatewayConfig)
+	for method in ("existing", "create"):
+		assert getattr(gateway81.Gateway81, method) is not getattr(GatewayConfig, method), method
 
 
 def test_repository_spec_items_reference_items_it_defines() -> None:
