@@ -51,16 +51,14 @@ SECTIONS = (
 	"gateway",
 )
 
-# Jython 2.7 reads JSON strings as unicode; CPython has only str
-try:
-	STRING_TYPES = (str, unicode)  # type: ignore[name-defined]
-except NameError:
-	STRING_TYPES = (str,)
+# Jython 2.7 reads JSON strings as unicode, which decoding bytes gives there;
+# on CPython it gives str again
+STRING_TYPES = (str, type(b"".decode("ascii")))
 
 PLACEHOLDER = re.compile(r"\$\{([A-Za-z_][A-Za-z0-9_]*)(?::-([^}]*))?\}")
 
 
-class MissingVariable(Exception):  # noqa: N818
+class MissingVariableError(Exception):
 	"""A ${NAME} placeholder has no value and no default."""
 
 
@@ -104,7 +102,7 @@ def resolve(
 			return found
 		if default is not None:
 			return default
-		raise MissingVariable(name)
+		raise MissingVariableError(name)
 
 	return PLACEHOLDER.sub(replace, value)
 
@@ -150,7 +148,7 @@ def apply(
 				continue
 			try:
 				item = resolve(items[name], getenv)
-			except MissingVariable as e:
+			except MissingVariableError as e:
 				log.warn("Seed: {} skipped, ${{{}}} is not set".format(key, e.args[0]))
 				result["skipped"].append(key)
 				continue
@@ -160,7 +158,7 @@ def apply(
 					continue
 				result["created"].append(key)
 				log.debug("Seed: {} created".format(key))
-			except (Exception, Throwable) as e:  # noqa: BLE001
+			except (Exception, Throwable) as e:  # noqa: BLE001 - one failure mustn't stop the rest
 				log.error("Seed: {} failed: {}".format(key, e))
 				result["failed"].append(key)
 	if result["created"] or result["failed"]:

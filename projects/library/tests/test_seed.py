@@ -11,7 +11,7 @@ import pytest
 from library.seed.code import (
 	SECTIONS,
 	GatewayConfig,
-	MissingVariable,
+	MissingVariableError,
 	apply,
 	applyFile,
 	loadSpec,
@@ -25,9 +25,15 @@ SPEC = Path(__file__).resolve().parents[3] / "gateway" / "seed" / "seed.json"
 class FakeGateway(GatewayConfig):
 	"""Records what library.seed creates; existing names per section."""
 
-	def __init__(self, existing: dict[str, list[str]] | None = None, fail: str = "") -> None:
+	def __init__(
+		self,
+		existing: dict[str, list[str]] | None = None,
+		fail: str = "",
+		current: dict[str, Any] | None = None,
+	) -> None:
 		self.names = existing or {}
 		self.fail = fail
+		self.current = current
 		self.created: list[tuple[str, str, dict[str, Any]]] = []
 
 	def existing(self, section: str) -> list[str]:
@@ -36,7 +42,7 @@ class FakeGateway(GatewayConfig):
 	def create(self, section: str, name: str, item: dict[str, Any]) -> bool | None:
 		if f"{section}/{name}" == self.fail:
 			raise RuntimeError("no such driver")
-		if section == "gateway" and item == self.names.get("gateway-current"):
+		if section == "gateway" and item == self.current:
 			return False
 		self.created.append((section, name, item))
 		return None
@@ -61,7 +67,7 @@ def test_resolve_prefers_the_environment_over_the_default() -> None:
 
 
 def test_resolve_raises_for_a_missing_variable() -> None:
-	with pytest.raises(MissingVariable, match="SECRET"):
+	with pytest.raises(MissingVariableError, match="SECRET"):
 		resolve({"a": ["${SECRET}"]}, env())
 
 
@@ -122,17 +128,15 @@ def test_load_spec_of_a_missing_file_is_empty(tmp_path: Path) -> None:
 	assert loadSpec(str(tmp_path / "none.json")) == {}
 
 
-def test_apply_file_does_nothing_on_8_3() -> None:
-	util: MagicMock = sys.modules["system.util"]  # type: ignore[assignment]
-	util.getVersion.return_value.getMajor.return_value = 8
-	util.getVersion.return_value.getMinor.return_value = 3
+def test_apply_file_does_nothing_on_8_3(system_util: MagicMock) -> None:
+	system_util.getVersion.return_value = version(8, 3)
 	assert applyFile(str(SPEC)) is None
 
 
-def test_apply_file_uses_the_8_1_gateway(monkeypatch: pytest.MonkeyPatch) -> None:
-	util: MagicMock = sys.modules["system.util"]  # type: ignore[assignment]
-	util.getVersion.return_value.getMajor.return_value = 8
-	util.getVersion.return_value.getMinor.return_value = 1
+def test_apply_file_uses_the_8_1_gateway(
+	monkeypatch: pytest.MonkeyPatch, system_util: MagicMock
+) -> None:
+	system_util.getVersion.return_value = version(8, 1)
 	fake = FakeGateway()
 	adapter = MagicMock(Gateway81=lambda: fake)
 	monkeypatch.setitem(sys.modules, "library.gateway81", adapter)
@@ -168,10 +172,9 @@ def test_the_8_1_store_is_gateway81(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 def test_apply_file_makes_no_store_without_a_spec(
-	monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+	monkeypatch: pytest.MonkeyPatch, tmp_path: Path, system_util: MagicMock
 ) -> None:
-	util: MagicMock = sys.modules["system.util"]  # type: ignore[assignment]
-	util.getVersion.return_value = version(8, 1)
+	system_util.getVersion.return_value = version(8, 1)
 	adapter = MagicMock()
 	monkeypatch.setitem(sys.modules, "library.gateway81", adapter)
 	assert applyFile(str(tmp_path / "none.json")) is None
@@ -222,7 +225,7 @@ def test_repository_spec_items_reference_items_it_defines() -> None:
 
 def test_unchanged_gateway_settings_are_not_reported() -> None:
 	log = MagicMock()
-	gateway = FakeGateway({"gateway-current": {"auditProfile": "logins"}})  # type: ignore[dict-item]
+	gateway = FakeGateway(current={"auditProfile": "logins"})
 	result = apply({"gateway": {"auditProfile": "logins"}}, gateway, log, env())
 	assert result["created"] == []
 	log.info.assert_not_called()

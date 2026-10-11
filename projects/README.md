@@ -66,7 +66,7 @@ The same checks are available as [poe](https://poethepoet.natn.io/) tasks (`uv r
 The tooling comes from [forgepy](https://github.com/apollogeddon/forgepy)'s `--jython` setup:
 
 - `ruff.toml` extends forgepy's managed Jython base in `.forgepy/ruff-jython.toml`, selects every rule, and turns off the ones that don't fit Jython scripts or Ignition's naming conventions. Scripts are indented with tabs, as the Designer writes them; the tests target Python 3.12.
-- `pyrightconfig.json` extends `.forgepy/pyrightconfig.json`, adds the script folders to the import path, and defines `MYPY` as true so basedpyright reads the type-only imports.
+- `pyrightconfig.json` extends `.forgepy/pyrightconfig.json`, adds the script folders to the import path, and defines `MYPY` as true so basedpyright reads the type-only imports. Its `stubPath`, `stubs/`, types the gateway internals `library.gateway81` uses that the Ignition API stubs leave out.
 - `uv run forgepy sync` refreshes the files in `.forgepy/`.
 - `conftest.py` registers mocks for the `system.*` modules, so scripts import under pytest exactly as they do in the gateway.
 

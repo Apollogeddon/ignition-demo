@@ -24,11 +24,15 @@ ignore = [
 # PLC0415: deferred imports keep version-specific modules off the other version
 # PERF203: a try in a loop costs nothing extra on Jython's JVM
 "*/src/**" = ["UP", "PTH", "RUF005", "F401", "FA", "ANN", "G001", "G010", "PERF203", "PLC0415", "RUF001", "TRY400"]
+# each script package re-exports its code.py, as Ignition imports it through the package
+"*/src/ignition/script-python/**/__init__.py" = ["F403"]
 # the 8.1 adapter: its methods are documented by library.seed's sections
 "*/src/ignition/script-python/library/gateway81/code.py" = ["D102", "D107"]
 # gateway event scripts (8.3 format): Ignition supplies the project packages
 # and expects these exact function definitions
 "*/src/ignition/{startup,update,shutdown}/*.py" = ["D100", "D103", "F821", "N802", "INP001"]
+# the gateway's records and managers are Java objects the scripts use dynamically
+"stubs/**" = ["ANN401"]
 "*/tests/**" = ["S101", "ANN", "D", "EM101", "FBT001", "PLR2004", "TC003", "TRY003"]
 
 # the tests run on CPython 3

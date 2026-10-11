@@ -36,7 +36,7 @@ def onStartup():
 	"""
 	try:
 		applyFile()
-	except (Exception, Throwable) as e:  # noqa: BLE001
+	except (Exception, Throwable) as e:  # noqa: BLE001 - startup carries on without the seed
 		LOGGER.error("Gateway seed not applied: {}".format(e))
 		LOGGER.debug(traceback.format_exc())
 	for project in UDT_PROJECTS:
@@ -54,7 +54,7 @@ def syncWhenReady(
 	for attempt in range(1, attempts + 1):
 		try:
 			syncInstances()
-		except (Exception, Throwable) as e:  # noqa: BLE001
+		except (Exception, Throwable) as e:  # noqa: BLE001 - retried, then logged
 			if attempt == attempts:
 				# on 8.3, expected until the resources module creates the connection
 				LOGGER.warn("Asset instances not synchronised: {}".format(e))
@@ -69,7 +69,7 @@ def syncWhenReady(
 
 def onUpdate(
 	actor,  # type: Any
-	resources,  # type: Any  # noqa: ARG001 - Ignition passes it
+	_resources,  # type: Any
 ):
 	# type: (...) -> None
 	"""Write the UDT definitions back to the project files after a project save.
@@ -82,5 +82,5 @@ def onUpdate(
 	for project in UDT_PROJECTS:
 		try:
 			exportAll(project)
-		except (Exception, Throwable) as e:  # noqa: BLE001
+		except (Exception, Throwable) as e:  # noqa: BLE001 - the save must not fail on it
 			LOGGER.warn("UDT export for {} failed: {}".format(project, e))

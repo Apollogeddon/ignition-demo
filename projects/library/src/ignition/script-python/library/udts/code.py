@@ -116,7 +116,7 @@ def importAll(
 		try:
 			importTags(path, base, "o")
 			LOGGER.debug("[{}] imported {} into {}".format(project, entry, base))
-		except (Exception, Throwable) as e:  # noqa: BLE001
+		except (Exception, Throwable) as e:  # noqa: BLE001 - one failure mustn't stop the rest
 			failed += 1
 			LOGGER.error(
 				"[{}] import of {} failed: {}\n{}".format(project, entry, e, traceback.format_exc())

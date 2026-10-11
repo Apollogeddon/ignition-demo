@@ -12,8 +12,7 @@ from unittest.mock import MagicMock
 import pytest
 
 # Jython 2.7 names the scripts may use
-builtins.unicode = str  # type: ignore[attr-defined]
-builtins.basestring = str  # type: ignore[attr-defined]
+builtins.__dict__.update(unicode=str, basestring=str)
 
 SYSTEM_MODULES = (
 	"system",
@@ -30,7 +29,7 @@ MOCKS = {name: MagicMock(name=name) for name in SYSTEM_MODULES}
 sys.modules.update(MOCKS)
 
 
-class Throwable(Exception):  # noqa: N818
+class Throwable(Exception):  # noqa: N818 - named after java.lang.Throwable
 	"""Stand-in for java.lang.Throwable, so except (Exception, Throwable) works."""
 
 
@@ -44,6 +43,12 @@ def _reset_system() -> None:
 	"""Forget calls and return values from earlier tests."""
 	for mock in MOCKS.values():
 		mock.reset_mock(return_value=True, side_effect=True)
+
+
+@pytest.fixture
+def system() -> dict[str, MagicMock]:
+	"""Return the mocked system.* modules by name."""
+	return MOCKS
 
 
 @pytest.fixture
