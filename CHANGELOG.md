@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.2.0](https://github.com/Apollogeddon/ignition-demo/compare/v1.1.3...v1.2.0) (2026-10-11)
+
+
+### Features
+
+* **cluster:** Give the database startup and liveness probes beside its readiness probe ([c0de8ae](https://github.com/Apollogeddon/ignition-demo/commit/c0de8ae896a01a27aaaad22183925ff695a5956f))
+* **cluster:** Probe every workload and close the chart's helper pods to ingress ([5ea2cf7](https://github.com/Apollogeddon/ignition-demo/commit/5ea2cf74a83b5e762b0b534520ebd44c23f5b9c4))
+* **cluster:** State the gateway's probes and close the chart's helper pods to ingress ([953f238](https://github.com/Apollogeddon/ignition-demo/commit/953f2380fd538c6a9b8966fc609192abc6cea741))
+
+
+### Bug Fixes
+
+* **deps:** Override smol-toml to 1.9 past markdownlint-cli2's exact pin ([#39](https://github.com/Apollogeddon/ignition-demo/issues/39)) ([0430fa9](https://github.com/Apollogeddon/ignition-demo/commit/0430fa9aa9bb3a5bfbe0c256ae39fc41b540b781))
+* **webpage:** Meet WCAG 2.2 AA and check the site's links and accessibility in CI ([#38](https://github.com/Apollogeddon/ignition-demo/issues/38)) ([c50cc83](https://github.com/Apollogeddon/ignition-demo/commit/c50cc83754d6b9dc2ee8f685ca82105e11f4b16e))
+
 ## [1.1.3](https://github.com/Apollogeddon/ignition-demo/compare/v1.1.2...v1.1.3) (2026-10-10)
 
 
