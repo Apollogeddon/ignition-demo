@@ -8,10 +8,10 @@ The [`ci.yaml`](./workflows/ci.yaml) workflow runs on every pull request, every 
 
 1. **Changes**: on a pull request, works out which checks the change needs. Each check runs only when its own files, or `ci.yaml`, changed. A push to `main` or a manual run checks everything.
 2. **Projects**, **Resources and scripts**, and **OpenTofu and config scan** run in parallel.
-3. **Version**: on a push to `main`, after those checks, opens or updates release-please's release pull request, and creates the release when it merges.
+3. **Version**: on a push to `main`, after those checks, runs [forgepy](https://github.com/apollogeddon/forgepy)'s `version.yml`: it opens or updates release-please's release pull request, asks for its review, and creates the release when it merges.
 4. **Gateway image**: after the project and resource checks pass. On `main` it publishes the image, with the release's version when Version created one.
-5. **Webpage**: on a pull request, the documentation site's checks and build ([below](#documentation-site)).
-6. **Auto-merge**: on a pull request, merges a Dependabot pull request through [forgepy](https://github.com/apollogeddon/forgepy)'s `merge.yml`, once every job above has passed or been skipped.
+5. **Markdown** and **Webpage**: the documentation site's checks and build, and on `main` its deploy ([below](#documentation-site)). These run on every pull request and push, whatever changed.
+6. **Auto-merge**: on a pull request, merges a Dependabot pull request through forgepy's `merge.yml`, once every job above has passed or been skipped.
 
 A new push to a pull request cancels its previous run. Runs on `main` are never cancelled, so a release is never created without its images.
 
@@ -71,7 +71,7 @@ The image job publishes the release's images in the same run, because a tag that
 
 ## Documentation site
 
-The [`webpage.yaml`](./workflows/webpage.yaml) workflow checks and deploys the [Astro](https://astro.build/) documentation site in `webpage/`. It runs on pushes to `main` and on manual dispatch, and `ci.yaml` calls it on pull requests:
+Two jobs in `ci.yaml` check and deploy the [Astro](https://astro.build/) documentation site in `webpage/`. They aren't path filtered, as Gitleaks scans the whole repository here:
 
 - **Markdown**: lints every Markdown file in the repository with `markdownlint-cli2`.
-- **Website**: calls [forgejs](https://github.com/apollogeddon/forgejs)'s reusable `website.yml`: Gitleaks over the whole repository, OSV-Scanner on the site's dependencies, Biome, the type check and the build. These run on pull requests too, so a broken site fails the pull request. On `main` it also commits any OSV security patches and deploys the site to GitHub Pages.
+- **Webpage**: calls [forgejs](https://github.com/apollogeddon/forgejs)'s reusable `website.yml`: Gitleaks over the whole repository, OSV-Scanner on the site's dependencies, Biome, the type check and the build, so a broken site fails the pull request. It also asks for a review of Dependabot's pull requests, which CODEOWNERS doesn't request on a bot's. On `main` it commits any OSV security patches and deploys the site to GitHub Pages.
