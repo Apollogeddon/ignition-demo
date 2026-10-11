@@ -328,6 +328,11 @@ jobs:
       run_tests: false
       enable_versioning: false
       auto_merge: false
+      # the built site, served under its GitHub Pages path: its internal links, and every page
+      # in the sitemap against WCAG 2.2 A and AA with axe
+      base_path: /ignition-demo/
+      check_links: true
+      check_accessibility: true
 
   # last, so a Dependabot pull request merges only once every check above has passed
   auto-merge:
