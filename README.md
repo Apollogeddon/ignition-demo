@@ -87,6 +87,8 @@ CI publishes the gateway image to `ghcr.io/apollogeddon/ignition-gateway` for Ig
 | `<ignition version>-sha-<commit>` | On every push to `main`, for the full commit SHA |
 | `<ignition version>-<release version>` | For each release, e.g. `8.3.10-1.0.0` |
 
+Each image carries an SPDX SBOM and SLSA provenance, which `docker buildx imagetools inspect <image> --format '{{ json .SBOM }}'` (or `.Provenance`) shows.
+
 ## Deploy
 
 Each environment is applied in two stages: `infra` (the platform and the gateway), then `config` (the gateway's configuration). See [`cluster/`](cluster/README.md) for the k3s reference environment.

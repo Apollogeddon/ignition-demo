@@ -231,6 +231,9 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha,scope=${{ matrix.ignition }}
+          # an SPDX SBOM and SLSA provenance, attached to the image in GHCR
+          sbom: true
+          provenance: mode=max
 
   # every Markdown file in the repository; no shared workflow lints Markdown
   markdown:

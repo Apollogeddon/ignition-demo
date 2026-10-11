@@ -53,7 +53,7 @@ The `image` job builds the gateway image once per Ignition version (8.1.55 and 8
 
 - **Build**: builds `gateway/Dockerfile` with the projects baked in.
 - **Smoke test**: starts the image and checks that the asset installer ran, the projects load, Perspective serves them, the startup event imports the UDTs, and the icon library and web files are served.
-- **Publish**: on pushes to `main`, publishes the image to `ghcr.io/apollogeddon/ignition-gateway`.
+- **Publish**: on pushes to `main`, publishes the image to `ghcr.io/apollogeddon/ignition-gateway`, with an SPDX SBOM and SLSA provenance (`mode=max`) attached as BuildKit attestations.
 
 Every tag starts with the Ignition version:
 
