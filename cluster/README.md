@@ -4,7 +4,7 @@ OpenTofu modules that deploy the gateway image to Kubernetes and configure the r
 
 | Module | What it manages |
 | --- | --- |
-| `modules/platform` | The namespace (restricted Pod Security) and the demo PostgreSQL database, initialised from `database/init` |
+| `modules/platform` | The namespace (restricted Pod Security) and the demo PostgreSQL database, initialised from `database/init`, with startup, readiness and liveness probes, resource limits and a NetworkPolicy that only lets the gateways in |
 | `modules/gateway` | The [ignition-failover](https://github.com/apollogeddon/ignition-helm) Helm chart running the gateway image |
 | `modules/resources` | Gateway resources through the REST API (8.3): the database connection, alarm journal, user source and identity provider, login audit profile, and SMTP and email notification profiles |
 
@@ -20,10 +20,12 @@ Each environment is applied in two stages, because the Ignition provider can onl
 | Redundancy with `activeRouting` | Users only ever reach the Active gateway; rolling updates wait for the Backup to sync |
 | `restartOnRenewal` | A running gateway does not re-read renewed certificates; restart the pair, Backup first |
 | Soft pod anti-affinity | Master and Backup on different nodes when there are several |
-| `startupProbe` | Slow starts (e.g. a redundant state transfer) without a lax liveness probe |
+| Readiness, liveness and startup probes | Readiness holds traffic until the gateway runs, liveness restarts one that stops answering, and the startup probe covers slow starts (e.g. a redundant state transfer) without a lax liveness probe |
+| Resource requests and limits | Sized from `memory_mb` for the gateway; the chart's own for its init containers, labeller and CronJobs |
 | Generated admin and keystore passwords | No chart defaults in a deployed gateway |
 | `emptyDir` size limits | A runaway log cannot fill the node |
 | NetworkPolicy, with the ingress controller allowed in | Only the namespace and the ingress controller reach the gateway |
+| A deny-all NetworkPolicy for the chart's other pods | The active-routing labeller and certificate-renewal job only call out, so nothing may connect to them |
 | `-Dignition.projects.dir` | Projects come from the image (see [`gateway/`](../gateway/README.md)) |
 | A generated API key (8.3) | The `config` stage authenticates with it from the first start; nobody creates a key by hand |
 | The seed environment (8.1) | The gateway seeds its own configuration (connection, users, journal, audit and so on) on start |
