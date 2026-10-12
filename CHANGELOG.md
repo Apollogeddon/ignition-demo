@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.2](https://github.com/Apollogeddon/ignition-demo/compare/v1.2.1...v1.2.2) (2026-10-12)
+
+
+### Bug Fixes
+
+* **develop:** Publish the gateway and database ports on 127.0.0.1 only ([#42](https://github.com/Apollogeddon/ignition-demo/issues/42)) ([489b252](https://github.com/Apollogeddon/ignition-demo/commit/489b252e691b86ef287371d59ffc61e6abbaf3fa))
+
 ## [1.2.1](https://github.com/Apollogeddon/ignition-demo/compare/v1.2.0...v1.2.1) (2026-10-12)
 
 
