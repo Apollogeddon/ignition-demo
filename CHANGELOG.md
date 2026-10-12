@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.2.1](https://github.com/Apollogeddon/ignition-demo/compare/v1.2.0...v1.2.1) (2026-10-12)
+
+
+### Bug Fixes
+
+* **cluster:** Deploy ignition-failover 4.2.3, and pin the ignition provider to 1.2 patch releases ([f3f1368](https://github.com/Apollogeddon/ignition-demo/commit/f3f1368a521012efd4593a7973d1187a47f0c5b9))
+* **cluster:** Deploy ignition-failover 4.2.3, which redoes an interrupted data volume seed ([381b54c](https://github.com/Apollogeddon/ignition-demo/commit/381b54c8ab8ab46220159488ae20c144bcc152e3))
+* **cluster:** Take ignition provider patch releases from 1.2.2, with the shared module stating its minimum ([584889a](https://github.com/Apollogeddon/ignition-demo/commit/584889a120ddd6accd2f7d7f72362ac2882fa59c))
+
 ## [1.2.0](https://github.com/Apollogeddon/ignition-demo/compare/v1.1.3...v1.2.0) (2026-10-11)
 
 
