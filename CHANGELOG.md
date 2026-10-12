@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.2.3](https://github.com/Apollogeddon/ignition-demo/compare/v1.2.2...v1.2.3) (2026-10-12)
+
+
+### Bug Fixes
+
+* **cluster:** Deploy ignition-failover 4.2.5 and take ignition provider releases from 1.2.3 ([81184b8](https://github.com/Apollogeddon/ignition-demo/commit/81184b80fe3154381ac549e9fc8d70af27d95bb3))
+* **cluster:** Deploy ignition-failover 4.2.5, which bundles ignition-common 3.3.2 ([fc1280d](https://github.com/Apollogeddon/ignition-demo/commit/fc1280d1ccceb2295400bf10a0dff19509a9c60a))
+* **cluster:** Take ignition provider patch releases from 1.2.3, which shows cleared fields as drift ([17ed7e5](https://github.com/Apollogeddon/ignition-demo/commit/17ed7e5862348593c8b677c06b671c76ef639924))
+
 ## [1.2.2](https://github.com/Apollogeddon/ignition-demo/compare/v1.2.1...v1.2.2) (2026-10-12)
 
 
