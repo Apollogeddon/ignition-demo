@@ -1,5 +1,6 @@
 # Local development: the gateway image at the Ignition version of your choice,
 # with the library and project folders mounted live, plus the demo database.
+# Ports are published on 127.0.0.1 only.
 #
 #   cp develop/.env.example develop/.env      # then set the passwords
 #   docker compose -f develop/docker-compose.yml up -d --build
@@ -18,8 +19,8 @@ services:
     image: ignition-gateway:develop-${IGNITION_VERSION:-8.3.10}
     hostname: gateway
     ports:
-      - "${GATEWAY_HTTP_PORT:-8088}:8088"
-      - "${GATEWAY_HTTPS_PORT:-8043}:8043"
+      - "127.0.0.1:${GATEWAY_HTTP_PORT:-8088}:8088"
+      - "127.0.0.1:${GATEWAY_HTTPS_PORT:-8043}:8043"
     environment:
       ACCEPT_IGNITION_EULA: "Y"
       DISABLE_QUICKSTART: "true"
@@ -68,7 +69,7 @@ services:
     image: docker.io/library/postgres:17
     hostname: database
     ports:
-      - "${DB_PORT:-5432}:5432"
+      - "127.0.0.1:${DB_PORT:-5432}:5432"
     environment:
       POSTGRES_DB: demo
       POSTGRES_USER: demo

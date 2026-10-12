@@ -9,6 +9,7 @@ docker compose -f develop/docker-compose.yml up -d --build
 
 - Gateway: <http://localhost:8088> (`admin` / `IGNITION_ADMIN_PASSWORD`); open the Designer from there.
 - Database: `localhost:5432`, database and user `demo` (`DB_PASSWORD`), initialised from `database/init` the first time the volume is created.
+- Both publish their ports on 127.0.0.1 only, so the `change-me` passwords in `.env.example` aren't reachable from the network.
 - Ignition 8.1 or 8.3: set `IGNITION_VERSION` in `.env` to any 8.1 or 8.3 image tag and rebuild with `up -d --build`. The projects, scripts and UDTs work on both.
 
 ## The loop
