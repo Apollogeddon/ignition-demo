@@ -7,11 +7,16 @@
 #                            with (IGNITION_TOKEN); the secret is base64url
 #                            of 32 random bytes. Unset: nothing is done.
 #   GATEWAY_API_TOKEN_LEVEL  security level the key carries (default Api)
+#   GATEWAY_API_TOKEN_REQUIRE_TLS
+#                            true (default): the gateway takes the key over
+#                            HTTPS only (or behind a TLS proxy that sets
+#                            X-Forwarded-Proto); false also takes it over plain
+#                            HTTP, for a local gateway on loopback
 #
 # What it writes, and why where:
-#   external collection   the key (its hash only) and a security level for it;
-#                         rewritten on every start, so rotating the secret is
-#                         a redeploy
+#   external collection   the key (its hash only), rewritten on every start so
+#                         rotating the secret is a redeploy, and its security
+#                         level, added to any levels already defined there
 #   core collection       the level's read and write grants, merged into the
 #                         gateway's security properties (core shadows external
 #                         for those, and the gateway only creates core when it
@@ -25,6 +30,7 @@ set -euo pipefail
 home="${IGNITION_HOME:-/usr/local/bin/ignition}"
 resources="${home}/data/config/resources"
 level="${GATEWAY_API_TOKEN_LEVEL:-Api}"
+require_tls="${GATEWAY_API_TOKEN_REQUIRE_TLS:-true}"
 java="${home}/lib/runtime/jre/bin/java"
 [ -x "${java}" ] || java="${home}/lib/runtime/jre-nix/bin/java"
 
@@ -39,10 +45,15 @@ hash_token() {
   for ((i = 0; i < 64; i += 2)); do printf '%b' "\\x${hex:i:2}"; done | base64 -w0 | tr '+/' '-_' | tr -d '='
 }
 
-grant() {
+jython() {
   "${java}" -Dpython.import.site=false -cp "${home}/lib/core/common/*" \
-    org.python.util.jython -S "${home}/assets/api_token_grant.py" "${resources}/core" "${level}" 2>/dev/null
+    org.python.util.jython -S "${home}/assets/api_token_grant.py" "$@" 2>/dev/null
 }
+
+grant() { jython "${resources}/core" "${level}"; }
+
+# names become a directory and JSON strings, so only plain ones are taken
+plain() { [[ $1 =~ ^[A-Za-z0-9_.-]+$ && $1 != . && $1 != .. ]]; }
 
 write_external() {
   local name=$1 hash=$2 dir
@@ -51,7 +62,7 @@ write_external() {
   cat > "${dir}/config.json" <<EOF
 {
   "profile": {
-    "secureChannelRequired": false,
+    "secureChannelRequired": ${require_tls},
     "securityLevels": [
       {
         "children": [],
@@ -72,6 +83,14 @@ write_external() {
 EOF
   printf '{\n  "attributes": {\n    "enabled": true\n  },\n  "files": [\n    "config.json"\n  ],\n  "overridable": true,\n  "restricted": false,\n  "scope": "A",\n  "version": 1\n}\n' > "${dir}/resource.json"
   dir="${resources}/external/ignition/security-levels"
+  # levels defined there already are kept: only a missing one is added
+  if [ -f "${dir}/config.json" ]; then
+    grep -qF "\"name\": \"${level}\"" "${dir}/config.json" && return 0
+    local status=0
+    jython --define "${dir}/config.json" "${level}" || status=$?
+    [ "${status}" -eq 0 ] || log "WARNING: could not add security level ${level} to ${dir}/config.json"
+    return 0
+  fi
   mkdir -p "${dir}"
   cat > "${dir}/config.json" <<EOF
 {
@@ -133,6 +152,14 @@ main() {
   case "${GATEWAY_API_TOKEN}" in
     *:*) name=${GATEWAY_API_TOKEN%%:*}; secret=${GATEWAY_API_TOKEN#*:} ;;
     *) log "WARNING: GATEWAY_API_TOKEN must be <name>:<secret>; no API key installed"; return 0 ;;
+  esac
+  if ! plain "${name}" || ! plain "${level}"; then
+    log "WARNING: the key name and GATEWAY_API_TOKEN_LEVEL may only hold letters, digits, '.', '_' and '-'; no API key installed"
+    return 0
+  fi
+  case "${require_tls}" in
+    true | false) ;;
+    *) log "WARNING: GATEWAY_API_TOKEN_REQUIRE_TLS must be true or false; no API key installed"; return 0 ;;
   esac
   if [ ! -d "${resources}/external" ]; then
     log "WARNING: no external config collection; no API key installed"

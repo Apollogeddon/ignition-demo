@@ -4,6 +4,7 @@ Run by api-token.sh with the image's Jython and Gson (there is no Python
 standard library on that path, so Java APIs only):
 
     api_token_grant.py <core collection dir> <level>
+    api_token_grant.py --define <security-levels config.json> <level>
 
 Adds <level> to security-properties' readPermissions and writePermissions,
 and to security-levels if the core collection has its own copy (it then
@@ -11,6 +12,9 @@ shadows the external one). Anything already there is kept: only a missing
 grant is added, so changes made in the gateway survive. Exits 0 when it
 changed a file, 3 when there was nothing to do, 2 when security-properties
 does not exist yet (the gateway has not commissioned).
+
+With --define, only adds <level> to that security-levels file, keeping the
+levels already in it: 0 when it changed it, 3 when the level was there.
 """
 import sys
 
@@ -43,6 +47,16 @@ def names(levels):
     return [levels.get(i).getAsJsonObject().get("name").getAsString() for i in range(levels.size())]
 
 
+def define(path, name):
+    tree = read(path).getAsJsonObject()
+    levels = tree.getAsJsonArray("securityLevels")
+    if name in names(levels):
+        return False
+    levels.add(level(name))
+    write(path, tree)
+    return True
+
+
 def main(core, name):
     props = "%s/ignition/security-properties/config.json" % core
     if not File(props).isFile():
@@ -58,15 +72,12 @@ def main(core, name):
     if changed:
         write(props, config)
     defined = "%s/ignition/security-levels/config.json" % core
-    if File(defined).isFile():
-        tree = read(defined).getAsJsonObject()
-        levels = tree.getAsJsonArray("securityLevels")
-        if name not in names(levels):
-            levels.add(level(name))
-            write(defined, tree)
-            changed = True
+    if File(defined).isFile() and define(defined, name):
+        changed = True
     return 0 if changed else 3
 
 
 if __name__ == "__main__":
+    if sys.argv[1] == "--define":
+        sys.exit(0 if define(sys.argv[2], sys.argv[3]) else 3)
     sys.exit(main(sys.argv[1], sys.argv[2]))

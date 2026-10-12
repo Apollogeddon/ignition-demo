@@ -28,7 +28,9 @@ home() { # home <dir> <version>: a fake install with external and core collectio
   mkdir -p "$1/lib" "$1/data/config/resources/external" "$1/data/config/resources/core"
   echo "gateway.version=$2" > "$1/lib/install-info.txt"
 }
-run() { IGNITION_HOME="$1" GATEWAY_API_TOKEN="$2" bash "${script}" > "$1/out.txt" 2>&1 || true; }
+run() { # run <home> <token> [VAR=value ...]
+  env IGNITION_HOME="$1" GATEWAY_API_TOKEN="$2" "${@:3}" bash "${script}" > "$1/out.txt" 2>&1 || true
+}
 
 h="${work}/83"; home "$h" 8.3.10; run "$h" "iac:${secret}"
 tok="$h/data/config/resources/external/ignition/api-token/iac"
@@ -36,6 +38,30 @@ check "8.3 key written to the external collection" '[ -f "${tok}/config.json" ] 
 check "8.3 key stores the hash, not the secret" 'grep -q "\"tokenHash\": \"$(hash_token "${secret}")\"" "${tok}/config.json" && ! grep -q "${secret}" "${tok}/config.json"'
 check "8.3 key carries the Api level and a timestamp" 'grep -q "\"name\": \"Api\"" "${tok}/config.json" && grep -q "\"timestamp\"" "${tok}/config.json"'
 check "8.3 Api security level defined" 'grep -q "\"name\": \"Api\"" "$h/data/config/resources/external/ignition/security-levels/config.json"'
+check "8.3 key needs a secure channel by default" 'grep -q "\"secureChannelRequired\": true" "${tok}/config.json"'
+
+h="${work}/plain-http"; home "$h" 8.3.10; run "$h" "iac:${secret}" GATEWAY_API_TOKEN_REQUIRE_TLS=false
+check "GATEWAY_API_TOKEN_REQUIRE_TLS=false takes the key over plain HTTP" 'grep -q "\"secureChannelRequired\": false" "$h/data/config/resources/external/ignition/api-token/iac/config.json"'
+h="${work}/bad-tls"; home "$h" 8.3.10; run "$h" "iac:${secret}" GATEWAY_API_TOKEN_REQUIRE_TLS=yes
+check "a GATEWAY_API_TOKEN_REQUIRE_TLS other than true or false installs nothing" 'grep -q "must be true or false" "$h/out.txt" && [ ! -e "$h/data/config/resources/external/ignition" ]'
+
+for bad in "../../core/x" ".." "a b"; do
+  h="${work}/name"; rm -rf "$h"; home "$h" 8.3.10; run "$h" "${bad}:${secret}"
+  check "key name '${bad}' refused, nothing written" 'grep -q "may only hold" "$h/out.txt" && [ ! -e "$h/data/config/resources/external/ignition" ] && [ ! -e "$h/data/config/resources/core/x" ]'
+done
+h="${work}/level"; home "$h" 8.3.10; run "$h" "iac:${secret}" 'GATEWAY_API_TOKEN_LEVEL=Api", "x'
+check "a level that isn't a plain name is refused" 'grep -q "may only hold" "$h/out.txt" && [ ! -e "$h/data/config/resources/external/ignition" ]'
+
+# security levels someone else defined in the external collection are kept
+h="${work}/levels"; home "$h" 8.3.10
+levels="$h/data/config/resources/external/ignition/security-levels"
+mkdir -p "${levels}"
+printf '{"securityLevels": [{"children": [], "name": "Site"}, {"children": [], "name": "Api"}]}\n' > "${levels}/config.json"
+run "$h" "iac:${secret}"
+check "existing levels that hold the key's level are left as they are" 'grep -q "\"name\": \"Site\"" "${levels}/config.json"'
+printf '{"securityLevels": [{"children": [], "name": "Site"}]}\n' > "${levels}/config.json"
+run "$h" "iac:${secret}"
+check "existing levels without it are kept (the level is added with Jython)" 'grep -q "\"name\": \"Site\"" "${levels}/config.json"'
 
 h="${work}/81"; home "$h" 8.1.55; run "$h" "iac:${secret}"
 check "8.1 does nothing" '[ ! -e "$h/data/config/resources/external/ignition" ]'

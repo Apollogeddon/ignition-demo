@@ -89,8 +89,11 @@ resource "random_bytes" "api_token" {
 }
 
 locals {
-  api_token           = var.ignition_version == "8.3" ? "${var.api_token_name}:${replace(replace(replace(random_bytes.api_token[0].base64, "+", "-"), "/", "_"), "=", "")}" : null
-  gateway_environment = var.ignition_version == "8.3" ? { GATEWAY_API_TOKEN = local.api_token } : var.seed_environment
+  api_token = var.ignition_version == "8.3" ? "${var.api_token_name}:${replace(replace(replace(random_bytes.api_token[0].base64, "+", "-"), "/", "_"), "=", "")}" : null
+  gateway_environment = var.ignition_version == "8.3" ? {
+    GATEWAY_API_TOKEN             = local.api_token
+    GATEWAY_API_TOKEN_REQUIRE_TLS = tostring(var.api_token_require_tls)
+  } : var.seed_environment
 }
 
 resource "random_password" "keystore" {

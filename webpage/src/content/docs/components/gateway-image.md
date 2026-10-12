@@ -68,6 +68,7 @@ How a gateway gets its configuration depends on its version, and every input is 
 | --- | --- | --- |
 | `GATEWAY_API_TOKEN` | 8.3 | `<name>:<secret>` API key the Ignition provider authenticates with; the secret is base64url of 32 random bytes |
 | `GATEWAY_API_TOKEN_LEVEL` | 8.3 | Security level the key carries (default `Api`) |
+| `GATEWAY_API_TOKEN_REQUIRE_TLS` | 8.3 | `true` (default) takes the key over HTTPS only, or behind a TLS proxy; `false` also takes it over plain HTTP, for a gateway on loopback |
 | `GATEWAY_DB_DEMO_URL`, `_USER`, `_PASSWORD`, `DEMO_USERS_PASSWORD` | 8.1 | Values for the seed spec |
 | `GATEWAY_TRIAL_KEEPALIVE` | both | `true` keeps an unlicensed gateway's trial running (demo and trial environments only) |
 

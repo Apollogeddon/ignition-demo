@@ -96,6 +96,17 @@ variable "api_token_name" {
   description = "Name of the generated API key (8.3); OpenTofu's ignition provider authenticates with it"
   type        = string
   default     = "iac"
+
+  validation {
+    condition     = can(regex("^[A-Za-z0-9_.-]+$", var.api_token_name)) && !contains([".", ".."], var.api_token_name)
+    error_message = "api_token_name may only hold letters, digits, '.', '_' and '-'."
+  }
+}
+
+variable "api_token_require_tls" {
+  description = "Accept the API key over HTTPS only (8.3); the ingress's TLS counts, through its forwarded headers"
+  type        = bool
+  default     = true
 }
 
 variable "seed_environment" {
