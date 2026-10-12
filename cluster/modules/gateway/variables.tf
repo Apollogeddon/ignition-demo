@@ -12,7 +12,7 @@ variable "name" {
 variable "chart_version" {
   description = "ignition-failover chart version"
   type        = string
-  default     = "4.2.2"
+  default     = "4.2.3"
 }
 
 variable "image_repository" {
