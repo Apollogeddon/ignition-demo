@@ -4,9 +4,9 @@ This repository uses GitHub Actions to check the projects and the infrastructure
 
 ## CI orchestration
 
-The [`ci.yaml`](./workflows/ci.yaml) workflow runs on every pull request, every push to `main`, and on manual dispatch:
+The [`.index.yaml`](./workflows/.index.yaml) workflow runs on every pull request, every push to `main`, and on manual dispatch:
 
-1. **Changes**: on a pull request, works out which checks the change needs. Each check runs only when its own files, or `ci.yaml`, changed. A push to `main` or a manual run checks everything.
+1. **Changes**: on a pull request, works out which checks the change needs. Each check runs only when its own files, or `.index.yaml`, changed. A push to `main` or a manual run checks everything.
 2. **Projects**, **Resources and scripts**, and **OpenTofu and config scan** run in parallel.
 3. **Version**: on a push to `main`, after those checks, runs [forgepy](https://github.com/apollogeddon/forgepy)'s `version.yml`: it opens or updates release-please's release pull request, asks for its review, and creates the release when it merges.
 4. **Gateway image**: after the project and resource checks pass. On `main` it publishes the image, with the release's version when Version created one.
@@ -37,6 +37,7 @@ The `resources` job checks the repository tooling and the project resources:
 - **Sanitised resources**: fails if a committed `resource.json` still carries the Designer's noise.
 - **Asset installer tests**: tests the gateway image's asset installer.
 - **API key bootstrap tests**: tests the script that installs the 8.3 API key.
+- **Ignition versions**: `scripts/check-ignition-versions.sh` fails if a file names an Ignition release other than the ones pinned in `gateway/base/<line>/Dockerfile`. Dependabot moves those pins on to each line's patch releases, and this check then lists every other place the new release must go.
 - **Event scripts**: fails if the 8.1 gateway event scripts are out of date with their script files.
 
 ## OpenTofu and config scan
@@ -54,6 +55,7 @@ The `image` job builds the gateway image once per Ignition version (8.1.55 and 8
 - **Build**: builds `gateway/Dockerfile` with the projects baked in.
 - **Smoke test**: starts the image and checks that the asset installer ran, the projects load, Perspective serves them, the startup event imports the UDTs, and the icon library and web files are served.
 - **Publish**: on pushes to `main`, publishes the image to `ghcr.io/apollogeddon/ignition-gateway`, with an SPDX SBOM and SLSA provenance (`mode=max`) attached as BuildKit attestations. When the run creates a release, it also records the release's image by digest for the release artifacts.
+- **Smoke test the published image**: the publish step builds again from the build cache, so on `main` the smoke test runs again on the pushed image, by digest. If it fails, the job fails and a release stays a draft.
 
 Every tag starts with the Ignition version:
 
@@ -76,7 +78,7 @@ If an image fails, the release stays a draft. Re-running the failed jobs attache
 
 ## Documentation site
 
-Two jobs in `ci.yaml` check and deploy the [Astro](https://astro.build/) documentation site in `webpage/`. They aren't path filtered, as Gitleaks scans the whole repository here:
+Two jobs in `.index.yaml` check and deploy the [Astro](https://astro.build/) documentation site in `webpage/`. They aren't path filtered, as Gitleaks scans the whole repository here:
 
 - **Markdown**: lints every Markdown file in the repository with `markdownlint-cli2`.
 - **Webpage**: calls [forgejs](https://github.com/apollogeddon/forgejs)'s reusable `website.yml`: Gitleaks over the whole repository, OSV-Scanner on the site's dependencies, Biome, the type check and the build, then checks the built site's internal links with lychee and every page against WCAG 2.2 A and AA with axe, so a broken or inaccessible site fails the pull request. It also asks for a review of Dependabot's pull requests, which CODEOWNERS doesn't request on a bot's. On `main` it commits any OSV security patches and deploys the site to GitHub Pages.
