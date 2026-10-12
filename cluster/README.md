@@ -92,4 +92,13 @@ tofu init
 tofu apply
 ```
 
+The provider checks the gateway's certificate, and the API key it sends is a gateway administrator's, so keep the check on. The ingress certificate comes from your ClusterIssuer: if that's a private CA, give OpenTofu its certificate. On Linux, point `SSL_CERT_FILE` at a bundle that holds the system CAs and yours (on macOS and Windows, add the CA to the system's trust store):
+
+```sh
+cat /etc/ssl/certs/ca-certificates.crt my-ca.crt > ca-bundle.pem
+export SSL_CERT_FILE="$PWD/ca-bundle.pem"
+```
+
+On a throwaway local cluster you can skip the check instead with `allow_insecure_tls = true` in the stage's `terraform.tfvars`. Anyone who can intercept the connection then gets the key. The gateway also takes the key over HTTPS only, or through the ingress's TLS. For a gateway reached over plain HTTP, set the gateway module's `api_token_require_tls = false` (`develop/` does this, as its gateway is on loopback).
+
 On 8.1 there is no `config` stage to run: the gateway seeds itself on start from `gateway/seed/seed.json`. The seeded users' password is `tofu output -raw demo_users_password` in `infra`.
