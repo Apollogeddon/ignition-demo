@@ -82,7 +82,7 @@ provider_installation {
 }
 ```
 
-`tofu init` then installs the provider for your platform. The configurations take 1.2 patch releases from 1.2.2 (`~> 1.2.2`), and each stage's `.terraform.lock.hcl` fixes the exact build and its checksums: commit it, and move it on with `tofu init -upgrade`. The shared module only states the minimum it needs (`>= 1.2.2, < 2.0.0`). To use a provider built from source instead, see the provider's [installation guide](https://apollogeddon.github.io/ignition-tofu/docs/guides/installation/).
+`tofu init` then installs the provider for your platform. The configurations take 1.2 patch releases from 1.2.3 (`~> 1.2.3`), and each stage's `.terraform.lock.hcl` fixes the exact build and its checksums: commit it, and move it on with `tofu init -upgrade`. The shared module only states the minimum it needs (`>= 1.2.3, < 2.0.0`). To use a provider built from source instead, see the provider's [installation guide](https://apollogeddon.github.io/ignition-tofu/docs/guides/installation/).
 
 The provider authenticates with the API key the `infra` stage generated, which the gateway installed for itself. `config` reads it from the `infra` state; set the `ignition_token` variable to use another:
 
