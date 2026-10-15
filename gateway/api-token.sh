@@ -5,7 +5,8 @@
 #
 #   GATEWAY_API_TOKEN        <name>:<secret>, the key OpenTofu authenticates
 #                            with (IGNITION_TOKEN); the secret is base64url
-#                            of 32 random bytes. Unset: nothing is done.
+#                            of 32 random bytes. Unset: nothing is done, unless
+#                            GATEWAY_TRIAL_KEEPALIVE=true on 8.3, which fails the start
 #   GATEWAY_API_TOKEN_LEVEL  security level the key carries (default Api)
 #   GATEWAY_API_TOKEN_REQUIRE_TLS
 #                            true (default): the gateway takes the key over
