@@ -27,7 +27,10 @@
 # On the very first start core does not exist yet: a background step waits
 # for commissioning, adds the grants and restarts the gateway once.
 #
-# 8.1 has no REST API; there this does nothing.
+# With GATEWAY_TRIAL_KEEPALIVE=true it also fails the start when the keepalive
+# couldn't reset the trial: no usable key on 8.3, or no admin login on 8.1.
+#
+# 8.1 has no REST API; there it installs nothing.
 set -euo pipefail
 
 home="${IGNITION_HOME:-/usr/local/bin/ignition}"
@@ -145,36 +148,59 @@ after_commissioning() {
   log "WARNING: gateway did not commission within 30 minutes; API key grants not added"
 }
 
+# keepalive_needs_key: trial-keepalive.sh resets an 8.3 trial with this key
+keepalive_needs_key() { [ "${GATEWAY_TRIAL_KEEPALIVE:-false}" = true ]; }
+
+# not_installed <reason>: no key is installed. That's a warning, unless the trial keepalive
+# needs the key, when the start fails now rather than the keepalive at the trial's expiry.
+not_installed() {
+  if keepalive_needs_key; then
+    log "ERROR: GATEWAY_TRIAL_KEEPALIVE=true resets an 8.3 trial with the API key, but $1"
+    return 1
+  fi
+  log "WARNING: $1; no API key installed"
+}
+
 main() {
-  [ -n "${GATEWAY_API_TOKEN:-}" ] || return 0
   local version name secret
   version=$(sed -n 's/^gateway\.version=//p' "${home}/lib/install-info.txt" 2>/dev/null || true)
   case "${version}" in
-    8.1.*) return 0 ;;
+    8.1.*)
+      # the 8.1 keepalive signs in as the gateway admin instead
+      if keepalive_needs_key && { [ -z "${GATEWAY_ADMIN_USERNAME:-}" ] || [ -z "${GATEWAY_ADMIN_PASSWORD:-}" ]; }; then
+        log "ERROR: GATEWAY_TRIAL_KEEPALIVE=true resets an 8.1 trial by signing in as the gateway admin; set GATEWAY_ADMIN_USERNAME and GATEWAY_ADMIN_PASSWORD"
+        return 1
+      fi
+      return 0
+      ;;
   esac
+  if [ -z "${GATEWAY_API_TOKEN:-}" ]; then
+    keepalive_needs_key || return 0
+    not_installed "GATEWAY_API_TOKEN isn't set"
+    return
+  fi
   case "${GATEWAY_API_TOKEN}" in
     *:*) name=${GATEWAY_API_TOKEN%%:*}; secret=${GATEWAY_API_TOKEN#*:} ;;
-    *) log "WARNING: GATEWAY_API_TOKEN must be <name>:<secret>; no API key installed"; return 0 ;;
+    *) not_installed "GATEWAY_API_TOKEN must be <name>:<secret>"; return ;;
   esac
   if ! plain "${name}" || ! plain "${level}"; then
-    log "WARNING: the key name and GATEWAY_API_TOKEN_LEVEL may only hold letters, digits, '.', '_' and '-'; no API key installed"
-    return 0
+    not_installed "the key name and GATEWAY_API_TOKEN_LEVEL may only hold letters, digits, '.', '_' and '-'"
+    return
   fi
   case "${require_tls}" in
     true | false) ;;
-    *) log "WARNING: GATEWAY_API_TOKEN_REQUIRE_TLS must be true or false; no API key installed"; return 0 ;;
+    *) not_installed "GATEWAY_API_TOKEN_REQUIRE_TLS must be true or false"; return ;;
   esac
-  # trial-keepalive.sh resets an 8.3 trial with this key over GATEWAY_TRIAL_URL, plain HTTP
-  # on loopback unless set, which a key that needs TLS is refused on: fail the start rather
-  # than let the trial lapse two hours in
-  if [ "${GATEWAY_TRIAL_KEEPALIVE:-false}" = true ] && [ "${require_tls}" = true ] \
+  # the keepalive sends the key to GATEWAY_TRIAL_URL, plain HTTP on loopback unless set, which
+  # a key that needs TLS is refused on
+  if keepalive_needs_key && [ "${require_tls}" = true ] \
     && [[ ${GATEWAY_TRIAL_URL:-http://localhost:8088} != https://* ]]; then
     log "ERROR: GATEWAY_TRIAL_KEEPALIVE=true resets the trial with the API key over plain HTTP, which the key refuses; set GATEWAY_API_TOKEN_REQUIRE_TLS=false (a gateway on loopback or a private network) or an https:// GATEWAY_TRIAL_URL"
     return 1
   fi
   if [ ! -d "${resources}/external" ]; then
-    log "WARNING: no external config collection; no API key installed"
-    return 0
+    not_installed "there's no external config collection"
+    return
   fi
   write_external "${name}" "$(hash_token "${secret}")"
   if [ -d "${resources}/core" ]; then

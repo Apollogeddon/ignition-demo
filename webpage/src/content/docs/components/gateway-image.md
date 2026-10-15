@@ -70,7 +70,8 @@ How a gateway gets its configuration depends on its version, and every input is 
 | `GATEWAY_API_TOKEN_LEVEL` | 8.3 | Security level the key carries (default `Api`) |
 | `GATEWAY_API_TOKEN_REQUIRE_TLS` | 8.3 | `true` (default) takes the key over HTTPS only, or behind a TLS proxy; `false` also takes it over plain HTTP, for a gateway on loopback |
 | `GATEWAY_DB_DEMO_URL`, `_USER`, `_PASSWORD`, `DEMO_USERS_PASSWORD` | 8.1 | Values for the seed spec |
-| `GATEWAY_TRIAL_KEEPALIVE` | both | `true` keeps an unlicensed gateway's trial running (demo and trial environments only); on 8.3 it needs `GATEWAY_API_TOKEN_REQUIRE_TLS=false` or an `https://` `GATEWAY_TRIAL_URL` (see [Trial keepalive](#trial-keepalive)) |
+| `GATEWAY_TRIAL_KEEPALIVE` | both | `true` keeps an unlicensed gateway's trial running (demo and trial environments only). On 8.3 it resets the trial with the API key, so it needs `GATEWAY_API_TOKEN`, and either `GATEWAY_API_TOKEN_REQUIRE_TLS=false` or an `https://` `GATEWAY_TRIAL_URL`. On 8.1 it signs in as the gateway admin, so it needs `GATEWAY_ADMIN_USERNAME` and `GATEWAY_ADMIN_PASSWORD`. Without what it needs, the gateway doesn't start (see [Trial keepalive](#trial-keepalive)) |
+| `GATEWAY_TRIAL_URL` | both | Where the keepalive reaches the gateway (default `http://localhost:8088`) |
 
 ### 8.3: an API key from the start
 
@@ -97,4 +98,4 @@ How a gateway gets its configuration depends on its version, and every input is 
 
 With `GATEWAY_TRIAL_KEEPALIVE=true`, `gateway/trial-keepalive.sh` runs beside the gateway and resets its two-hour trial once it has expired (8.1 only accepts a reset then): with the API key on 8.3, by signing in as the gateway admin on 8.1. It sleeps until the predicted expiry, so it makes one call per trial period. Each gateway keeps its own trial clock, and each container runs its own keepalive, so a redundant pair is covered. Never enable it on a licensed gateway.
 
-On 8.3 the reset goes to `GATEWAY_TRIAL_URL` (default `http://localhost:8088`) with the API key, which by default the gateway takes over HTTPS only. So an 8.3 gateway with the keepalive on also needs `GATEWAY_API_TOKEN_REQUIRE_TLS=false`, or an `https://` `GATEWAY_TRIAL_URL` the gateway's certificate is trusted for; without either, `api-token.sh` stops the gateway from starting and says so, rather than letting the trial lapse.
+On 8.3 the reset goes to `GATEWAY_TRIAL_URL` (default `http://localhost:8088`) with the API key, which by default the gateway takes over HTTPS only. So an 8.3 gateway with the keepalive on needs `GATEWAY_API_TOKEN`, and either `GATEWAY_API_TOKEN_REQUIRE_TLS=false` or an `https://` `GATEWAY_TRIAL_URL` whose certificate is trusted. On 8.1 it needs `GATEWAY_ADMIN_USERNAME` and `GATEWAY_ADMIN_PASSWORD`. When any of these is missing, `api-token.sh` stops the gateway from starting and says what to set, rather than letting the trial lapse two hours in.

@@ -37,7 +37,7 @@ run() { # run <home> <token> [VAR=value ...]; the exit status goes to <home>/rc
 h="${work}/83"; home "$h" 8.3.10; run "$h" "iac:${secret}"
 tok="$h/data/config/resources/external/ignition/api-token/iac"
 check "8.3 key written to the external collection" '[ -f "${tok}/config.json" ] && [ -f "${tok}/resource.json" ]'
-check "8.3 key stores the hash, not the secret" 'grep -q "\"tokenHash\": \"$(hash_token "${secret}")\"" "${tok}/config.json" && ! grep -q "${secret}" "${tok}/config.json"'
+check "8.3 key stores the hash, not the secret" 'grep -q "\"tokenHash\": \"$(hash_token "${secret}")\"" "${tok}/config.json" && ! grep -qF -- "${secret}" "${tok}/config.json"'
 check "8.3 key carries the Api level and a timestamp" 'grep -q "\"name\": \"Api\"" "${tok}/config.json" && grep -q "\"timestamp\"" "${tok}/config.json"'
 check "8.3 Api security level defined" 'grep -q "\"name\": \"Api\"" "$h/data/config/resources/external/ignition/security-levels/config.json"'
 check "8.3 key needs a secure channel by default" 'grep -q "\"secureChannelRequired\": true" "${tok}/config.json"'
@@ -62,6 +62,14 @@ h="${work}/keepalive-http"; home "$h" 8.3.10; run "$h" "iac:${secret}" GATEWAY_T
 check "keepalive with the plain-HTTP opt-out starts" '[ "$(cat "$h/rc")" = 0 ] && [ -f "$h/data/config/resources/external/ignition/api-token/iac/config.json" ]'
 h="${work}/keepalive-https"; home "$h" 8.3.10; run "$h" "iac:${secret}" GATEWAY_TRIAL_KEEPALIVE=true GATEWAY_TRIAL_URL=https://gateway.example:8043
 check "keepalive over an https GATEWAY_TRIAL_URL starts" '[ "$(cat "$h/rc")" = 0 ]'
+h="${work}/keepalive-nokey"; home "$h" 8.3.10; run "$h" "" GATEWAY_TRIAL_KEEPALIVE=true GATEWAY_API_TOKEN_REQUIRE_TLS=false
+check "an 8.3 keepalive without an API key fails the start" '[ "$(cat "$h/rc")" != 0 ] && grep -q "GATEWAY_API_TOKEN isn.t set" "$h/out.txt"'
+h="${work}/keepalive-badkey"; home "$h" 8.3.10; run "$h" "no-colon" GATEWAY_TRIAL_KEEPALIVE=true GATEWAY_API_TOKEN_REQUIRE_TLS=false
+check "an 8.3 keepalive with a malformed key fails the start" '[ "$(cat "$h/rc")" != 0 ] && grep -q "ERROR: .*<name>:<secret>" "$h/out.txt"'
+h="${work}/keepalive-81"; home "$h" 8.1.55; run "$h" "" GATEWAY_TRIAL_KEEPALIVE=true
+check "an 8.1 keepalive without the admin login fails the start" '[ "$(cat "$h/rc")" != 0 ] && grep -q "GATEWAY_ADMIN_USERNAME and GATEWAY_ADMIN_PASSWORD" "$h/out.txt"'
+h="${work}/keepalive-81-admin"; home "$h" 8.1.55; run "$h" "" GATEWAY_TRIAL_KEEPALIVE=true GATEWAY_ADMIN_USERNAME=admin GATEWAY_ADMIN_PASSWORD=pw
+check "an 8.1 keepalive with the admin login starts" '[ "$(cat "$h/rc")" = 0 ]'
 h="${work}/no-keepalive"; home "$h" 8.3.10; run "$h" "iac:${secret}"
 check "without the keepalive the default starts" '[ "$(cat "$h/rc")" = 0 ]'
 
