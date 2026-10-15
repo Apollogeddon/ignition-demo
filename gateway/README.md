@@ -35,6 +35,6 @@ The flip side is that the deployed gateway's projects are read-only in practice:
 | `api-token.sh`, `api_token_grant.py` | Installs the 8.3 API key from `GATEWAY_API_TOKEN` and grants its security level access |
 | `modules/` | Third-party modules (`.modl`), copied into the image's `user-lib/modules/` |
 | `trial-keepalive.sh` | Keeps an unlicensed trial running when `GATEWAY_TRIAL_KEEPALIVE=true` |
-| `tests/` | The installer and API key tests, and the image smoke test (`tests/smoke.sh <image>`) |
+| `tests/` | The installer, API key and trial keepalive tests, and the image smoke test (`tests/smoke.sh <image>`) |
 
 The [Gateway Image](https://apollogeddon.github.io/ignition-demo/docs/components/gateway-image/) page describes each in full, including the environment variables the image reads.
