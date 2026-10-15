@@ -53,7 +53,7 @@ The `tofu` job checks the infrastructure code:
 The `image` job builds the gateway image once per Ignition version (8.1.55 and 8.3.10):
 
 - **Build**: builds `gateway/Dockerfile` with the projects baked in.
-- **Smoke test**: starts the image and checks that the asset installer ran, the projects load, Perspective serves them, the startup event imports the UDTs, and the icon library and web files are served.
+- **Smoke test**: starts the image and checks that the asset installer ran, the projects load, Perspective serves them, the startup event imports the UDTs, and the icon library and web files are served. On 8.3 it also starts two gateways with an API key and checks that the key is refused over plain HTTP, taken behind a TLS proxy (`X-Forwarded-Proto: https`, as Traefik sends), and taken over plain HTTP with `GATEWAY_API_TOKEN_REQUIRE_TLS=false`.
 - **Publish**: on pushes to `main`, publishes the image to `ghcr.io/apollogeddon/ignition-gateway`, with an SPDX SBOM and SLSA provenance (`mode=max`) attached as BuildKit attestations. When the run creates a release, it also records the release's image by digest for the release artifacts.
 - **Smoke test the published image**: the publish step builds again from the build cache, so on `main` the smoke test runs again on the pushed image, by digest. If it fails, the job fails and a release stays a draft.
 
