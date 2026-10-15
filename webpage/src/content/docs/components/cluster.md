@@ -100,6 +100,6 @@ cat /etc/ssl/certs/ca-certificates.crt my-ca.crt > ca-bundle.pem
 export SSL_CERT_FILE="$PWD/ca-bundle.pem"
 ```
 
-On a throwaway local cluster you can skip the check instead with `allow_insecure_tls = true` in the stage's `terraform.tfvars`. Anyone who can intercept the connection then gets the key. The gateway also takes the key over HTTPS only, or through the ingress's TLS. For a gateway reached over plain HTTP, set the gateway module's `api_token_require_tls = false` (`develop/` does this, as its gateway is on loopback).
+On a throwaway local cluster you can skip the check instead with `allow_insecure_tls = true` in the stage's `terraform.tfvars`. Anyone who can intercept the connection then gets the key. The gateway also takes the key over HTTPS only, or through the ingress's TLS. For a gateway reached over plain HTTP, set the gateway module's `api_token_require_tls = false` (`develop/` does this, as its gateway is on loopback). The ingress's TLS reaches the gateway as an `X-Forwarded-Proto: https` header, which the gateway believes only when the module has an ingress. A pod that can reach the gateway's HTTP port could send that header too, and the NetworkPolicy admits only the ingress controller's namespace and the release's own namespace, so keep other workloads out of that namespace. The platform module's database, which shares it, can't open connections.
 
 On 8.1 there is no `config` stage to run: the gateway seeded itself on start. The seeded users' password is `tofu output -raw demo_users_password` in `infra`.
