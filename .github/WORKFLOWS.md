@@ -37,15 +37,16 @@ The `resources` job checks the repository tooling and the project resources:
 - **Sanitised resources**: fails if a committed `resource.json` still carries the Designer's noise.
 - **Asset installer tests**: tests the gateway image's asset installer.
 - **API key bootstrap tests**: tests the script that installs the 8.3 API key.
+- **Trial keepalive tests**: tests that the 8.1 sign-in sends any admin password as valid JSON, and that failing resets back off.
 - **Ignition versions**: `scripts/check-ignition-versions.sh` fails if a file names an Ignition release other than the ones pinned in `gateway/base/<line>/Dockerfile`. Dependabot moves those pins on to each line's patch releases, and this check then lists every other place the new release must go.
 - **Event scripts**: fails if the 8.1 gateway event scripts are out of date with their script files.
 
 ## OpenTofu and config scan
 
-The `tofu` job checks the infrastructure code:
+The `tofu` job checks the infrastructure code with OpenTofu 1.13.1, the release ignition-tofu tests the provider with:
 
 - **Format**: runs `tofu fmt -check` over `cluster/` and `develop/`.
-- **Validate**: validates the `platform`, `gateway` and `resources` modules, the k3s `infra` and `config` stages, and `develop/config`. The config stages install the Ignition provider from its network mirror.
+- **Validate**: validates the `platform`, `gateway` and `resources` modules, the k3s `infra` and `config` stages, and `develop/config`. The config stages install the Ignition provider from its network mirror, checked against the build each stage's committed `.terraform.lock.hcl` records.
 - **Trivy**: scans the OpenTofu code, the Compose file and the Dockerfile for misconfigurations, failing on high or critical ones. `.trivyignore` lists the accepted findings, each with its reason.
 
 ## Gateway image

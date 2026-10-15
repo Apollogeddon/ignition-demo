@@ -110,6 +110,8 @@ jobs:
         run: bash gateway/tests/install-assets_test.sh
       - name: API key bootstrap tests
         run: bash gateway/tests/api-token_test.sh
+      - name: Trial keepalive tests
+        run: bash gateway/tests/trial-keepalive_test.sh
       - name: Ignition versions match the pinned base images
         run: |
           bash scripts/tests/check-ignition-versions_test.sh
@@ -130,7 +132,10 @@ jobs:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
+      # the release ignition-tofu builds and tests the provider with
       - uses: opentofu/setup-opentofu@v2
+        with:
+          tofu_version: 1.13.1
       - run: tofu fmt -check -recursive cluster develop
       - name: Validate the modules and the infra stage
         run: |
