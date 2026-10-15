@@ -20,15 +20,20 @@ locals {
     }
     affinity = { enabled = var.redundancy, type = "soft" }
     ignition = {
-      args = [
+      args = concat([
         "-m", tostring(var.memory_mb),
         "-n", "$(GATEWAY_SYSTEM_NAME)",
         "--",
+        ], var.ingress == null ? [] : [
+        # the gateway believes X-Forwarded-Proto from whoever reaches its HTTP port, so
+        # only with an ingress, and the NetworkPolicy keeps that to the ingress's namespace
+        # and the release's own (see api_token_require_tls)
         "gateway.useProxyForwardedHeader=true",
+        ], [
         # projects come from the image, not the data volume (see gateway/)
         "-Dignition.projects.dir=${local.projects_dir}",
         "-Dignition.projects.scanFrequency=60",
-      ]
+      ])
       secrets = merge({
         GATEWAY_ADMIN_USERNAME         = "admin"
         GATEWAY_ADMIN_PASSWORD         = local.admin_password

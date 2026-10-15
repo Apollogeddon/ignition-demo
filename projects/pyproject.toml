@@ -9,7 +9,8 @@ classifiers = ["Private :: Do Not Upload"]
 [dependency-groups]
 dev = ["forgepy[toolchain]", "vermin>=1.8"]
 
-# Ignition API stubs: one group per gateway version; CI checks both
+# Ignition API stubs: one group per gateway version; CI checks both. 8.3.9.post1 is the
+# newest 8.3 release of the stubs, while the images run 8.3.10
 ignition83 = ["ignition-api-stubs==8.3.9.post1"]
 ignition81 = ["ignition-api-stubs==8.1.55"]
 
@@ -20,7 +21,7 @@ conflicts = [[{ group = "ignition81" }, { group = "ignition83" }]]
 
 
 [tool.uv.sources]
-forgepy = {git = "https://github.com/apollogeddon/forgepy", tag = "v0.7.0"}
+forgepy = {git = "https://github.com/apollogeddon/forgepy", tag = "v0.9.0"}
 
 [tool.coverage.report]
 # type-only imports never run

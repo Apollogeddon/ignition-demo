@@ -104,7 +104,13 @@ variable "api_token_name" {
 }
 
 variable "api_token_require_tls" {
-  description = "Accept the API key over HTTPS only (8.3); the ingress's TLS counts, through its forwarded headers"
+  description = <<-EOT
+    Accept the API key over HTTPS only (8.3). With an ingress, the ingress's TLS
+    counts, through the X-Forwarded-Proto header the gateway then trusts: a pod
+    that can reach the gateway's HTTP port could send that header itself, and the
+    NetworkPolicy admits the ingress's namespace and the release's own. Keep other
+    workloads out of the namespace; the platform module's database can't call out.
+  EOT
   type        = bool
   default     = true
 }

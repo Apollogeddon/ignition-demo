@@ -188,7 +188,8 @@ resource "kubernetes_service_v1" "db" {
   }
 }
 
-# Only the gateways may reach the database
+# Only the gateways may reach the database, and it reaches nothing: it shares the
+# gateways' namespace, whose pods the gateways trust for X-Forwarded-Proto
 resource "kubernetes_network_policy_v1" "db" {
   metadata {
     name      = "database"
@@ -199,7 +200,7 @@ resource "kubernetes_network_policy_v1" "db" {
     pod_selector {
       match_labels = local.labels
     }
-    policy_types = ["Ingress"]
+    policy_types = ["Ingress", "Egress"]
     ingress {
       from {
         pod_selector {
