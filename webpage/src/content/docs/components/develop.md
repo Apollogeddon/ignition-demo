@@ -42,7 +42,7 @@ Both publish their ports on 127.0.0.1 only, so the `change-me` passwords in `.en
 
 ## Gateway resources
 
-**8.3.** `develop/config/` applies the cluster's `resources` module to this gateway, so it gets the same resources as a deployed one. It authenticates with the key from `GATEWAY_API_TOKEN`, which the gateway installs for itself on start:
+**8.3.** `develop/config/` applies the cluster's `resources` module to this gateway, so it gets the same resources as a deployed one. It authenticates with the key from `GATEWAY_API_TOKEN`, which the gateway installs for itself on start (the compose file sets `GATEWAY_API_TOKEN_REQUIRE_TLS=false`, so the gateway takes it over plain HTTP on loopback):
 
 ```sh
 set -a; . develop/.env; set +a     # load GATEWAY_API_TOKEN and DB_PASSWORD

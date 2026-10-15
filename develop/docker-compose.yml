@@ -37,6 +37,8 @@ services:
       # 8.3 only: the API key develop/config authenticates with (installed by
       # gateway/api-token.sh; empty installs none)
       GATEWAY_API_TOKEN: ${GATEWAY_API_TOKEN:-}
+      # develop/config reaches this gateway over plain HTTP on loopback
+      GATEWAY_API_TOKEN_REQUIRE_TLS: "false"
     command:
       - -n
       - ignition-develop

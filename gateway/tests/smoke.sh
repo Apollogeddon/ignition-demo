@@ -3,7 +3,11 @@
 # shellcheck disable=SC2016
 # Start a gateway image and check what the image is responsible for: the
 # projects load from assets/projects, the icon library and web files are
-# served, and the asset installer ran. Works with docker or podman.
+# served, and the asset installer ran. On 8.3 it also starts two gateways with
+# an API key, and checks the key is refused over plain HTTP, taken behind a
+# TLS proxy (X-Forwarded-Proto: https), and taken over plain HTTP with
+# GATEWAY_API_TOKEN_REQUIRE_TLS=false, and that the key's security level joins an existing
+# external one. Works with docker or podman.
 #
 #   gateway/tests/smoke.sh <image> [timeout seconds]
 set -euo pipefail
@@ -13,7 +17,10 @@ engine=${CONTAINER_ENGINE:-$(command -v docker >/dev/null && echo docker || echo
 name="smoke-$$"
 export MSYS_NO_PATHCONV=1
 
-cleanup() { "${engine}" rm -f "${name}" >/dev/null 2>&1 || true; }
+cleanup() {
+  "${engine}" rm -f "${name}" "${name}-tls" "${name}-http" >/dev/null 2>&1 || true
+  [ -z "${levels_dir:-}" ] || rm -rf "${levels_dir}"
+}
 trap cleanup EXIT
 
 "${engine}" run -d --name "${name}" \
@@ -56,7 +63,56 @@ check "startup event imported the UDTs exactly once" '[ "$(grep -c "UDT definiti
 check "icon library served" 'get http://localhost:8088/data/perspective/icons/equipment | grep -q "id=\"pump\""'
 check "web file served from the web root" 'get http://localhost:8088/operator-guide.html | grep -q "Operator guide"'
 
+if [[ ${version} == 8.3.* ]]; then
+  key="smoke:$(head -c 32 /dev/urandom | base64 -w0 | tr '+/' '-_' | tr -d '=')"
+  # start_keyed <container> <GATEWAY_API_TOKEN_REQUIRE_TLS>: a gateway with the key, trusting
+  # forwarded headers as the cluster's does
+  start_keyed() {
+    "${engine}" create --name "$1" \
+      -e ACCEPT_IGNITION_EULA=Y -e DISABLE_QUICKSTART=true -e IGNITION_EDITION=standard \
+      -e GATEWAY_ADMIN_USERNAME=admin -e GATEWAY_ADMIN_PASSWORD=smoke-test \
+      -e GATEWAY_API_TOKEN="${key}" -e GATEWAY_API_TOKEN_REQUIRE_TLS="$2" \
+      "${image}" -n "$1" -m 768 -- gateway.useProxyForwardedHeader=true >/dev/null
+    # an external security level of someone else's, which the key's level must join
+    [ "$2" = true ] && "${engine}" cp "${levels_dir}/." "$1:/usr/local/bin/ignition/data/config/resources/external/"
+    "${engine}" start "$1" >/dev/null
+  }
+  levels_dir=$(mktemp -d)
+  mkdir -p "${levels_dir}/ignition/security-levels"
+  printf '{"securityLevels": [{"children": [], "description": "A level the site defined", "name": "Site"}]}\n' \
+    > "${levels_dir}/ignition/security-levels/config.json"
+  printf '{"attributes": {"enabled": true}, "files": ["config.json"], "overridable": true, "restricted": false, "scope": "A", "version": 1}\n' \
+    > "${levels_dir}/ignition/security-levels/resource.json"
+  # docker cp keeps the modes, and the gateway may run as a user other than this one
+  chmod -R a+rwX "${levels_dir}"
+  levels() { "${engine}" exec "${name}-tls" cat /usr/local/bin/ignition/data/config/resources/external/ignition/security-levels/config.json; }
+  # api <container> [curl args]: the status of a keyed API read over plain HTTP
+  api() {
+    local c=$1
+    shift
+    "${engine}" exec "${c}" curl -s -o /dev/null -w "%{http_code}" -m 5 -H "X-Ignition-API-Token: ${key}" "$@" \
+      http://localhost:8088/data/api/v1/resources/singleton/ignition/gateway-network-settings 2>/dev/null
+  }
+  # accepted <container> [curl args]: wait, through commissioning and the restart that
+  # grants the key, until the read succeeds
+  accepted() {
+    local end=$(( $(date +%s) + timeout ))
+    until [ "$(api "$@")" = 200 ]; do
+      [ "$(date +%s)" -lt "${end}" ] || return 1
+      sleep 5
+    done
+  }
+  start_keyed "${name}-tls" true
+  start_keyed "${name}-http" false
+  check "the API key is taken behind a TLS proxy (X-Forwarded-Proto: https)" 'accepted "${name}-tls" -H "X-Forwarded-Proto: https"'
+  check "the API key is refused over plain HTTP by default" '[ "$(api "${name}-tls")" != 200 ]'
+  check "the key's level was added to the existing external levels (Jython)" 'levels | grep -q "\"name\": *\"Api\""'
+  check "the existing external level was kept" 'levels | grep -q "\"name\": *\"Site\""'
+  check "GATEWAY_API_TOKEN_REQUIRE_TLS=false takes the key over plain HTTP" 'accepted "${name}-http"'
+fi
+
 if [ "${failures}" -ne 0 ]; then
+  [[ ${version} != 8.3.* ]] || "${engine}" logs --tail 40 "${name}-tls" >&2
   grep -iE "project|icon|assets" <<< "${logs}" | tail -20 >&2
   echo "${failures} failed" >&2
   exit 1

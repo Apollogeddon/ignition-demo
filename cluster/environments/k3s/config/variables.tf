@@ -12,7 +12,7 @@ variable "ignition_token" {
 }
 
 variable "allow_insecure_tls" {
-  description = "Accept the gateway's certificate without verifying it (the demo issuer is a private CA)"
+  description = "Accept the gateway's certificate without verifying it, which exposes the API key to anyone who can intercept; for a throwaway local cluster only (cluster/README.md)"
   type        = bool
-  default     = true
+  default     = false
 }

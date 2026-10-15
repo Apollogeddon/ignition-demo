@@ -55,6 +55,43 @@ updates:
     cooldown:
       default-days: 3
 
+  # The Ignition releases the gateway image builds on, one directory per release line, so
+  # each line only moves to its own patch releases. A bump fails
+  # scripts/check-ignition-versions.sh, which lists every other place to move on with it.
+  - package-ecosystem: "docker"
+    directories:
+      - "/gateway/base/8.1"
+      - "/gateway/base/8.3"
+    schedule:
+      interval: "weekly"
+    groups:
+      ignition:
+        patterns: ["*"]
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+    commit-message:
+      prefix: "fix(deps)"
+    cooldown:
+      default-days: 3
+
+  # The Kubernetes, Helm and random providers. The config stages use only the Ignition
+  # provider, which is on no registry, so they aren't listed.
+  - package-ecosystem: "opentofu"
+    directories:
+      - "/cluster/modules/platform"
+      - "/cluster/modules/gateway"
+      - "/cluster/environments/k3s/infra"
+    schedule:
+      interval: "weekly"
+    groups:
+      providers:
+        patterns: ["*"]
+    commit-message:
+      prefix: "fix(deps)"
+    cooldown:
+      default-days: 3
+
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:

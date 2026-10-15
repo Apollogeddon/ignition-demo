@@ -12,6 +12,8 @@
 # contents: a new image tag ships new projects, and both gateways of a
 # redundant pair always run the same ones. Designer edits made on a deployed
 # gateway are not kept; develop against develop/ instead.
+# gateway/base/<line>/Dockerfile pins each line's release for Dependabot, and
+# scripts/check-ignition-versions.sh keeps this default in step with it
 ARG IGNITION_VERSION=8.3.10
 FROM docker.io/inductiveautomation/ignition:${IGNITION_VERSION}
 
