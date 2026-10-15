@@ -11,7 +11,10 @@
 #                            true (default): the gateway takes the key over
 #                            HTTPS only (or behind a TLS proxy that sets
 #                            X-Forwarded-Proto); false also takes it over plain
-#                            HTTP, for a local gateway on loopback
+#                            HTTP, for a local gateway on loopback. With
+#                            GATEWAY_TRIAL_KEEPALIVE=true on 8.3 it must be false,
+#                            or GATEWAY_TRIAL_URL https://, or the start fails:
+#                            the keepalive resets the trial with the key
 #
 # What it writes, and why where:
 #   external collection   the key (its hash only), rewritten on every start so
@@ -85,10 +88,10 @@ EOF
   dir="${resources}/external/ignition/security-levels"
   # levels defined there already are kept: only a missing one is added
   if [ -f "${dir}/config.json" ]; then
-    grep -qF "\"name\": \"${level}\"" "${dir}/config.json" && return 0
+    # --define checks the top-level names itself: 3 means the level is already there
     local status=0
     jython --define "${dir}/config.json" "${level}" || status=$?
-    [ "${status}" -eq 0 ] || log "WARNING: could not add security level ${level} to ${dir}/config.json"
+    [ "${status}" -eq 0 ] || [ "${status}" -eq 3 ] || log "WARNING: could not add security level ${level} to ${dir}/config.json"
     return 0
   fi
   mkdir -p "${dir}"
@@ -161,6 +164,14 @@ main() {
     true | false) ;;
     *) log "WARNING: GATEWAY_API_TOKEN_REQUIRE_TLS must be true or false; no API key installed"; return 0 ;;
   esac
+  # trial-keepalive.sh resets an 8.3 trial with this key over GATEWAY_TRIAL_URL, plain HTTP
+  # on loopback unless set, which a key that needs TLS is refused on: fail the start rather
+  # than let the trial lapse two hours in
+  if [ "${GATEWAY_TRIAL_KEEPALIVE:-false}" = true ] && [ "${require_tls}" = true ] \
+    && [[ ${GATEWAY_TRIAL_URL:-http://localhost:8088} != https://* ]]; then
+    log "ERROR: GATEWAY_TRIAL_KEEPALIVE=true resets the trial with the API key over plain HTTP, which the key refuses; set GATEWAY_API_TOKEN_REQUIRE_TLS=false (a gateway on loopback or a private network) or an https:// GATEWAY_TRIAL_URL"
+    return 1
+  fi
   if [ ! -d "${resources}/external" ]; then
     log "WARNING: no external config collection; no API key installed"
     return 0

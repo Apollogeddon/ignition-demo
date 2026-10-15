@@ -28,8 +28,10 @@ home() { # home <dir> <version>: a fake install with external and core collectio
   mkdir -p "$1/lib" "$1/data/config/resources/external" "$1/data/config/resources/core"
   echo "gateway.version=$2" > "$1/lib/install-info.txt"
 }
-run() { # run <home> <token> [VAR=value ...]
-  env IGNITION_HOME="$1" GATEWAY_API_TOKEN="$2" "${@:3}" bash "${script}" > "$1/out.txt" 2>&1 || true
+run() { # run <home> <token> [VAR=value ...]; the exit status goes to <home>/rc
+  local rc=0
+  env IGNITION_HOME="$1" GATEWAY_API_TOKEN="$2" "${@:3}" bash "${script}" > "$1/out.txt" 2>&1 || rc=$?
+  echo "${rc}" > "$1/rc"
 }
 
 h="${work}/83"; home "$h" 8.3.10; run "$h" "iac:${secret}"
@@ -52,6 +54,17 @@ done
 h="${work}/level"; home "$h" 8.3.10; run "$h" "iac:${secret}" 'GATEWAY_API_TOKEN_LEVEL=Api", "x'
 check "a level that isn't a plain name is refused" 'grep -q "may only hold" "$h/out.txt" && [ ! -e "$h/data/config/resources/external/ignition" ]'
 
+# the trial keepalive resets an 8.3 trial with the key over plain HTTP, which a key that needs
+# TLS is refused on: the start fails with the way out, rather than the trial lapsing later
+h="${work}/keepalive"; home "$h" 8.3.10; run "$h" "iac:${secret}" GATEWAY_TRIAL_KEEPALIVE=true
+check "keepalive with a key that needs TLS fails the start, naming the fix" '[ "$(cat "$h/rc")" != 0 ] && grep -q "GATEWAY_API_TOKEN_REQUIRE_TLS=false" "$h/out.txt"'
+h="${work}/keepalive-http"; home "$h" 8.3.10; run "$h" "iac:${secret}" GATEWAY_TRIAL_KEEPALIVE=true GATEWAY_API_TOKEN_REQUIRE_TLS=false
+check "keepalive with the plain-HTTP opt-out starts" '[ "$(cat "$h/rc")" = 0 ] && [ -f "$h/data/config/resources/external/ignition/api-token/iac/config.json" ]'
+h="${work}/keepalive-https"; home "$h" 8.3.10; run "$h" "iac:${secret}" GATEWAY_TRIAL_KEEPALIVE=true GATEWAY_TRIAL_URL=https://gateway.example:8043
+check "keepalive over an https GATEWAY_TRIAL_URL starts" '[ "$(cat "$h/rc")" = 0 ]'
+h="${work}/no-keepalive"; home "$h" 8.3.10; run "$h" "iac:${secret}"
+check "without the keepalive the default starts" '[ "$(cat "$h/rc")" = 0 ]'
+
 # security levels someone else defined in the external collection are kept
 h="${work}/levels"; home "$h" 8.3.10
 levels="$h/data/config/resources/external/ignition/security-levels"
@@ -62,6 +75,14 @@ check "existing levels that hold the key's level are left as they are" 'grep -q 
 printf '{"securityLevels": [{"children": [], "name": "Site"}]}\n' > "${levels}/config.json"
 run "$h" "iac:${secret}"
 check "existing levels without it are kept (the level is added with Jython)" 'grep -q "\"name\": \"Site\"" "${levels}/config.json"'
+
+# a level of the same name nested under another isn't the top-level one: Jython decides
+mkdir -p "$h/lib/runtime/jre/bin"
+printf '#!/bin/sh\necho "$@" >> "%s/java-args"\n' "$h" > "$h/lib/runtime/jre/bin/java"
+chmod +x "$h/lib/runtime/jre/bin/java"
+printf '{"securityLevels": [{"children": [{"children": [], "name": "Api"}], "name": "Site"}]}\n' > "${levels}/config.json"
+run "$h" "iac:${secret}"
+check "a level named only as a child is still added at the top level" 'grep -q -- "--define ${levels}/config.json Api" "$h/java-args"'
 
 h="${work}/81"; home "$h" 8.1.55; run "$h" "iac:${secret}"
 check "8.1 does nothing" '[ ! -e "$h/data/config/resources/external/ignition" ]'
