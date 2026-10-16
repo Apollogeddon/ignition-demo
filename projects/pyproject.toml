@@ -21,7 +21,7 @@ conflicts = [[{ group = "ignition81" }, { group = "ignition83" }]]
 
 
 [tool.uv.sources]
-forgepy = {git = "https://github.com/apollogeddon/forgepy", tag = "v0.9.0"}
+forgepy = {git = "https://github.com/apollogeddon/forgepy", tag = "v1.0.0"}
 
 [tool.coverage.report]
 # type-only imports never run
