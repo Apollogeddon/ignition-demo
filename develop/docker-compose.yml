@@ -45,7 +45,6 @@ services:
       - -m
       - "${GATEWAY_MEMORY_MB:-1024}"
       - --
-      - gateway.useProxyForwardedHeader=true
       - -Dignition.projects.dir=/usr/local/bin/ignition/assets/projects
       # pick up file changes quickly while developing (the cluster uses 60)
       - -Dignition.projects.scanFrequency=10
