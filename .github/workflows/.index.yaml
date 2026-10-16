@@ -255,15 +255,18 @@ jobs:
       - name: Smoke test the published image
         if: env.PUBLISH == 'true'
         env:
-          IMAGE: ghcr.io/${{ github.repository_owner }}/ignition-gateway@${{ steps.publish.outputs.digest }}
-        run: gateway/tests/smoke.sh "$IMAGE"
+          OWNER: ${{ github.repository_owner }}
+          DIGEST: ${{ steps.publish.outputs.digest }}
+        # image references must be lower case, and the owner's name isn't
+        run: gateway/tests/smoke.sh "ghcr.io/${OWNER,,}/ignition-gateway@${DIGEST}"
       # the release's image by digest, for the release's images file
       - name: Record the release image
         if: env.RELEASE == 'true' && env.PUBLISH == 'true'
         env:
-          IMAGE: ghcr.io/${{ github.repository_owner }}/ignition-gateway:${{ matrix.ignition }}-${{ needs.version.outputs.version }}
+          OWNER: ${{ github.repository_owner }}
+          TAG: ${{ matrix.ignition }}-${{ needs.version.outputs.version }}
           DIGEST: ${{ steps.publish.outputs.digest }}
-        run: echo "${IMAGE}@${DIGEST}" > "$RUNNER_TEMP/image.txt"
+        run: echo "ghcr.io/${OWNER,,}/ignition-gateway:${TAG}@${DIGEST}" > "$RUNNER_TEMP/image.txt"
       - uses: actions/upload-artifact@v7
         if: env.RELEASE == 'true' && env.PUBLISH == 'true'
         with:
