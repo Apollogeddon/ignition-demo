@@ -1,0 +1,149 @@
+name: docker
+
+# The gateway image for one Ignition release: built, smoke-tested, and pushed to GHCR with every tag
+# starting with the Ignition version. forgepy's docker pipeline builds a working directory's Dockerfile,
+# pushes only releases and tags by the release alone, so this one stays local: the image is
+# gateway/Dockerfile with an IGNITION_VERSION build argument, main pushes too, the push is smoke-tested
+# again, and a release records its image by digest.
+on:
+  workflow_call:
+    inputs:
+      ignition_version:
+        description: "The Ignition release to build on, e.g. 8.3.10"
+        required: true
+        type: string
+      push:
+        description: "Push the image to GHCR"
+        required: false
+        type: boolean
+        default: false
+      release_version:
+        description: "The release version.yml created in this run, which tags the image and records it for the release's files; empty when none"
+        required: false
+        type: string
+        default: ''
+
+jobs:
+  # the image's layers, into the Actions cache the later stages build from
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v4
+      - name: Build
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: gateway/Dockerfile
+          build-args: IGNITION_VERSION=${{ inputs.ignition_version }}
+          cache-from: type=gha,scope=${{ inputs.ignition_version }}
+          cache-to: type=gha,mode=max,scope=${{ inputs.ignition_version }}
+
+  test:
+    name: test
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v4
+      # from the build stage's cache, into the runner's Docker
+      - name: Load the image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: gateway/Dockerfile
+          build-args: IGNITION_VERSION=${{ inputs.ignition_version }}
+          load: true
+          tags: ignition-gateway:test
+          cache-from: type=gha,scope=${{ inputs.ignition_version }}
+      - name: Test
+        run: gateway/tests/smoke.sh ignition-gateway:test
+
+  push:
+    name: push
+    needs: test
+    if: inputs.push
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+    env:
+      RELEASE: ${{ inputs.release_version != '' }}
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v4
+      - name: Log in to GHCR
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Name the tags
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/ignition-gateway
+          # every tag carries the Ignition version: 8.3.10-main, 8.3.10-sha-<commit>, and for a release
+          # 8.3.10-<release version>
+          flavor: prefix=${{ inputs.ignition_version }}-,onlatest=true
+          tags: |
+            type=sha,format=long
+            type=ref,event=branch
+            type=raw,value=${{ inputs.release_version }},enable=${{ env.RELEASE }}
+      - name: Push to GHCR
+        id: push
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: gateway/Dockerfile
+          build-args: IGNITION_VERSION=${{ inputs.ignition_version }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=${{ inputs.ignition_version }}
+          # an SPDX SBOM and SLSA provenance, attached to the image in GHCR
+          sbom: true
+          provenance: mode=max
+      # the push builds again from the cache, so test what it pushed: a failure here keeps a release a
+      # draft (publish / assets needs this pipeline)
+      - name: Test the pushed image
+        env:
+          OWNER: ${{ github.repository_owner }}
+          DIGEST: ${{ steps.push.outputs.digest }}
+        # image references must be lower case, and the owner's name isn't
+        run: gateway/tests/smoke.sh "ghcr.io/${OWNER,,}/ignition-gateway@${DIGEST}"
+      # the release's image by digest, for the release's images file
+      - name: Record the release image
+        if: env.RELEASE == 'true'
+        env:
+          OWNER: ${{ github.repository_owner }}
+          TAG: ${{ inputs.ignition_version }}-${{ inputs.release_version }}
+          DIGEST: ${{ steps.push.outputs.digest }}
+        run: echo "ghcr.io/${OWNER,,}/ignition-gateway:${TAG}@${DIGEST}" > "$RUNNER_TEMP/image.txt"
+      - name: Upload the release image
+        if: env.RELEASE == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: release-image-${{ inputs.ignition_version }}
+          path: ${{ runner.temp }}/image.txt
+          retention-days: 1
