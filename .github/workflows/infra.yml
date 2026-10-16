@@ -1,0 +1,72 @@
+name: infra
+
+# The OpenTofu code's own checks, which need neither a cluster nor secrets: format and validate, then
+# Trivy's misconfiguration scan of the OpenTofu code, the Compose file and the Dockerfile.
+on:
+  workflow_call:
+
+jobs:
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      # the release ignition-tofu builds and tests the provider with
+      - name: Set up OpenTofu
+        uses: opentofu/setup-opentofu@v2
+        with:
+          tofu_version: 1.13.1
+      - name: Format
+        run: tofu fmt -check -recursive cluster develop
+      - name: Validate the modules and the infra stage
+        run: |
+          for dir in cluster/modules/platform cluster/modules/gateway cluster/environments/k3s/infra; do
+            tofu -chdir="$dir" init -backend=false -input=false >/dev/null
+            tofu -chdir="$dir" validate
+          done
+      # The Ignition provider is on no registry: the config stages install it from the network mirror its
+      # docs site serves, as cluster/README.md tells users to
+      - name: Validate the config stages
+        run: |
+          cat >"$RUNNER_TEMP/tofurc" <<'CONFIG'
+          provider_installation {
+            network_mirror {
+              url     = "https://apollogeddon.github.io/ignition-tofu/providers/"
+              include = ["registry.opentofu.org/apollogeddon/ignition"]
+            }
+            direct {
+              exclude = ["registry.opentofu.org/apollogeddon/ignition"]
+            }
+          }
+          CONFIG
+          export TF_CLI_CONFIG_FILE="$RUNNER_TEMP/tofurc"
+          for dir in cluster/modules/resources cluster/environments/k3s/config develop/config; do
+            tofu -chdir="$dir" init -backend=false -input=false >/dev/null
+            tofu -chdir="$dir" validate
+          done
+
+  scan:
+    name: scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      # a high or critical misconfiguration fails it; .trivyignore lists the accepted ones
+      - name: Scan with Trivy
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: config
+          scan-ref: .
+          exit-code: '1'
+          severity: 'CRITICAL,HIGH'

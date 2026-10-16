@@ -1,0 +1,276 @@
+name: index
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  # sent by the merge pipeline, as a merge it makes starts no push run on main
+  repository_dispatch:
+    types: [auto-merged]
+  # weekly, for the patch pipelines; a manual run or a merge's dispatch patches too
+  schedule:
+    - cron: '17 3 * * 1'
+
+# A pull request's newer run replaces its older one; every other run has a group of its own, so a run on
+# main, running or queued, is never cancelled and a release is never created without its images.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+# Each job calls one pipeline, or is a stage of one, so the run page reads <pipeline> / <stage>.
+jobs:
+  # What a pull request needs: each check runs only when its own files, or a workflow, changed.
+  # Every other run checks everything.
+  changes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      projects: ${{ steps.diff.outputs.projects }}
+      resources: ${{ steps.diff.outputs.resources }}
+      tofu: ${{ steps.diff.outputs.tofu }}
+      image: ${{ steps.diff.outputs.image }}
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Find what changed
+        id: diff
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE: ${{ github.event.pull_request.base.sha }}
+          WORKFLOW: '^\.github/workflows/'
+          PROJECTS: '^projects/'
+          RESOURCES: '^(scripts/|gateway/|projects/|.*\.sh$|\.shellcheckrc$)'
+          TOFU: '^(cluster/|develop/|gateway/Dockerfile$|\.trivyignore$)'
+          IMAGE: '^(gateway/|projects/(library|project)/src/)'
+        run: |
+          if [ "$EVENT" != pull_request ] || ! git cat-file -e "$BASE^{commit}" 2>/dev/null; then
+            for check in projects resources tofu image; do echo "$check=true" >> "$GITHUB_OUTPUT"; done
+            exit 0
+          fi
+          files=$(git diff --name-only "$BASE" HEAD)
+          printf '%s\n' "$files"
+          for check in projects resources tofu image; do
+            pattern=$(printenv "${check^^}")
+            if printf '%s\n' "$files" | grep -qE "$pattern|$WORKFLOW"; then value=true; else value=false; fi
+            echo "$check=$value" | tee -a "$GITHUB_OUTPUT"
+          done
+
+  # release-please, on main: opens or updates the release pull request, asks for its review, and creates
+  # the release as a draft when it merges (.github/release.json). A tag created with GITHUB_TOKEN starts no
+  # workflow, so this run checks the release, publishes its images and then publishes it.
+  version:
+    if: ${{ github.event_name != 'pull_request' && github.event_name != 'schedule' }}
+    uses: apollogeddon/forgepy/.github/workflows/version.yml@main
+    permissions:
+      contents: write
+      pull-requests: write
+
+  # forgepy's checks for the Jython scripts: ruff, basedpyright, the Jython 2.7 compatibility check and
+  # pytest, once per Ignition API (8.1 and 8.3), each with that version's API stubs from its uv dependency
+  # group; on a pull request, and on main a release's
+  library:
+    name: library (${{ matrix.ignition }})
+    needs: [changes, version]
+    if: >-
+      ${{ !cancelled() && ((github.event_name == 'pull_request' && needs.changes.outputs.projects == 'true') ||
+      needs.version.outputs.new_release_published == 'true') }}
+    strategy:
+      matrix:
+        include:
+          - ignition: "8.1"
+            group: ignition81
+          - ignition: "8.3"
+            group: ignition83
+    uses: apollogeddon/forgepy/.github/workflows/library.yml@main
+    permissions:
+      contents: read
+      pull-requests: write
+    with:
+      working_directory: projects
+      python_version: "3.12"
+      sync_args: --no-default-groups --group dev --group ${{ matrix.group }}
+      run_build: false
+      # the website's scan already checks the repository for secrets
+      enable_secrets: false
+      artifact_name: projects-${{ matrix.group }}
+
+  # shellcheck, the repository's consistency checks and the scripts' tests
+  scripts:
+    needs: [changes, version]
+    if: >-
+      ${{ !cancelled() && ((github.event_name == 'pull_request' && needs.changes.outputs.resources == 'true') ||
+      needs.version.outputs.new_release_published == 'true') }}
+    uses: ./.github/workflows/scripts.yml
+    permissions:
+      contents: read
+
+  # tofu fmt and validate, and Trivy's config scan
+  infra:
+    needs: [changes, version]
+    if: >-
+      ${{ !cancelled() && ((github.event_name == 'pull_request' && needs.changes.outputs.tofu == 'true') ||
+      needs.version.outputs.new_release_published == 'true') }}
+    uses: ./.github/workflows/infra.yml
+    permissions:
+      contents: read
+
+  # The gateway image, once per Ignition release: built and smoke-tested on a pull request; on main also
+  # pushed to GHCR, with the release's version when version created one
+  docker:
+    name: docker (${{ matrix.ignition }})
+    needs: [changes, version, library, scripts]
+    if: >-
+      ${{ !cancelled() && !contains(needs.*.result, 'failure') &&
+      ((github.event_name == 'pull_request' && needs.changes.outputs.image == 'true') ||
+      (github.event_name != 'pull_request' && github.event_name != 'schedule')) }}
+    strategy:
+      matrix:
+        include:
+          - ignition: "8.1"
+            version: "8.1.55"
+          - ignition: "8.3"
+            version: "8.3.10"
+    uses: ./.github/workflows/docker.yml
+    permissions:
+      contents: read
+      packages: write
+    with:
+      ignition_version: ${{ matrix.version }}
+      push: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}
+      release_version: ${{ needs.version.outputs.new_release_published == 'true' && needs.version.outputs.version || '' }}
+
+  # The release's files: a published release is immutable, so release-please leaves it a draft, and this
+  # attaches the project exports, the images by digest and their checksums, then publishes it. A release
+  # whose checks or images failed stays a draft; re-running the failed jobs finishes it.
+  publish:
+    name: publish / assets
+    needs: [version, library, scripts, infra, docker]
+    if: >-
+      ${{ !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') &&
+      needs.version.outputs.new_release_published == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+      TAG: ${{ needs.version.outputs.tag_name }}
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.version.outputs.tag_name }}
+          persist-credentials: false
+      - name: Download the release images
+        uses: actions/download-artifact@v8
+        with:
+          pattern: release-image-*
+          path: ${{ runner.temp }}/images
+      - name: Build
+        run: scripts/release-artifacts.sh "$VERSION" "$RUNNER_TEMP/release" "$RUNNER_TEMP"/images/*/image.txt
+      - name: Upload the assets and publish the release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload "$TAG" "$RUNNER_TEMP"/release/* --repo "$GITHUB_REPOSITORY" --clobber
+          gh release edit "$TAG" --draft=false --repo "$GITHUB_REPOSITORY"
+
+  # forgejs's website pipeline for the documentation site: Gitleaks over the whole repository (so it
+  # isn't path filtered), OSV-Scanner, Biome, the type check and the build, then its internal links with
+  # lychee and every page in the sitemap against WCAG 2.2 A and AA with axe
+  website:
+    if: ${{ github.event_name != 'schedule' }}
+    uses: apollogeddon/forgejs/.github/workflows/website.yml@main
+    permissions:
+      contents: read
+      packages: read
+      pull-requests: write
+    with:
+      working_directory: webpage
+      run_tests: false
+      # served under its GitHub Pages path
+      base_path: /ignition-demo/
+      check_links: true
+      check_accessibility: true
+
+  # A website stage of the repository's own: every Markdown file in it, which no forge pipeline lints
+  website-lint-markdown:
+    name: website / lint (markdown)
+    if: ${{ github.event_name != 'schedule' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      # the root tooling installs @apollogeddon/forgejs from GitHub Packages
+      packages: read
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: webpage/.nvmrc
+          cache: "npm"
+          cache-dependency-path: package-lock.json
+          registry-url: "https://npm.pkg.github.com"
+          scope: "@apollogeddon"
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Lint
+        run: npx markdownlint-cli2 "**/*.{md,mdx}"
+
+  # Every push to main deploys the site, whether or not it made a release, as a docs change makes none
+  pages:
+    needs: [website, website-lint-markdown]
+    if: >-
+      ${{ !cancelled() && needs.website.result == 'success' && needs.website-lint-markdown.result == 'success' &&
+      github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}
+    uses: apollogeddon/forgejs/.github/workflows/pages.yml@main
+    permissions:
+      pages: write
+      id-token: write
+
+  # Weekly, by hand, or after a merge's dispatch: forgepy's configs refreshed and uv.lock's vulnerable
+  # packages upgraded on main
+  patch-projects:
+    name: patch (projects)
+    if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.event_name == 'repository_dispatch' }}
+    uses: apollogeddon/forgepy/.github/workflows/patch.yml@main
+    permissions:
+      contents: write
+    with:
+      working_directory: projects
+
+  # the site's vulnerable npm dependencies, after the projects' patch so the two never push at once
+  patch-webpage:
+    name: patch (webpage)
+    needs: patch-projects
+    if: ${{ !cancelled() && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.event_name == 'repository_dispatch') }}
+    uses: apollogeddon/forgejs/.github/workflows/patch.yml@main
+    permissions:
+      contents: write
+      packages: read
+    with:
+      working_directory: webpage
+
+  # Dependabot's pull requests: a review request, and a squash merge once every check above passed
+  merge:
+    needs: [changes, library, scripts, infra, docker, website, website-lint-markdown]
+    if: ${{ !cancelled() && github.event_name == 'pull_request' && github.event.pull_request.user.login == 'dependabot[bot]' }}
+    uses: apollogeddon/forgepy/.github/workflows/merge.yml@main
+    permissions:
+      contents: write
+      pull-requests: write
+    with:
+      checks_passed: ${{ !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}

@@ -43,18 +43,18 @@ Commit messages follow [Conventional Commits](https://www.conventionalcommits.or
 
 ## 4. Ship
 
-CI runs on every pull request and every push to `main`. On a pull request, each job runs only when its own files changed:
+CI runs on every pull request and every push to `main`. Each job on the run page reads `<pipeline> / <stage>`, and on a pull request each pipeline runs only when its own files changed:
 
-| Job | What it checks |
+| Pipeline | What it checks |
 | --- | --- |
-| Projects | forgepy's `testing.yml`, once per Ignition API (8.1 and 8.3): ruff format and lint, basedpyright, the Jython 2.7 compatibility check, the forgepy config drift check, pytest and OSV-Scanner |
-| Resources and scripts | shellcheck, the sanitiser's and the image scripts' tests, that every committed `resource.json` is clean, and that the 8.1 event scripts are up to date |
-| OpenTofu and config scan | `tofu fmt`, `tofu validate` for the modules and the `infra` stage, and a Trivy misconfiguration scan |
-| Gateway image | builds and smoke-tests the image for 8.1.55 and 8.3.10; on `main`, publishes it to GHCR |
-| Markdown | markdownlint over every Markdown file |
-| Webpage | forgejs's `website.yml`: Gitleaks over the repository, OSV-Scanner, Biome, the type check and the build; on `main`, deploys this site to GitHub Pages |
+| `library (8.1)`, `library (8.3)` | forgepy's `library.yml`, once per Ignition API: ruff format and lint, basedpyright, the Jython 2.7 compatibility check and the forgepy config drift check (`lint`), OSV-Scanner (`scan`) and pytest (`test`) |
+| `scripts` | shellcheck, that every committed `resource.json` is clean, that the Ignition versions match the base images and that the 8.1 event scripts are up to date (`lint`), and the sanitiser's and the image scripts' tests (`test`) |
+| `infra` | `tofu fmt` and `tofu validate` for the modules and both stages (`lint`), and a Trivy misconfiguration scan (`scan`) |
+| `docker (8.1)`, `docker (8.3)` | builds and smoke-tests the image for 8.1.55 and 8.3.10 (`build`, `test`); on `main`, pushes it to GHCR and tests the pushed image (`push`) |
+| `website` | forgejs's `website.yml`: Gitleaks over the repository and OSV-Scanner, Biome and the type check, the build, and the built site's links and accessibility; `website / lint (markdown)` runs markdownlint over every Markdown file |
+| `pages` | on `main`, deploys this site to GitHub Pages |
 
-On `main`, release-please keeps a release pull request open with the next version and changelog, generated from the Conventional Commits. Merging it creates the release, and the same run publishes the release's images.
+On `main`, release-please keeps a release pull request open with the next version and changelog, generated from the Conventional Commits. Merging it creates the release as a draft; the same run checks it, publishes its images, and `publish / assets` attaches the project exports and image digests and publishes it.
 
 Every published tag starts with the Ignition version:
 

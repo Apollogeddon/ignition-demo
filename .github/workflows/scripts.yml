@@ -1,0 +1,64 @@
+name: scripts
+
+# The repository's tooling and the project resources: shellcheck and the consistency checks, then the
+# tests of the scripts the image and the repository use.
+on:
+  workflow_call:
+
+jobs:
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+      # pinned, as the runner's shellcheck version changes what it reports
+      - name: Set up shellcheck
+        env:
+          VERSION: v0.11.0
+        run: |
+          curl -sSfL "https://github.com/koalaman/shellcheck/releases/download/$VERSION/shellcheck-$VERSION.linux.x86_64.tar.xz" \
+            | tar -xJ -C "$RUNNER_TEMP" --strip-components=1 "shellcheck-$VERSION/shellcheck"
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+      - name: Lint
+        run: git ls-files -z '*.sh' | xargs -0 shellcheck
+      - name: Check the project resources are sanitised
+        run: git ls-files -z -- '*resource.json' | xargs -0 uv run --no-project scripts/sanitise.py --check
+      - name: Check the Ignition versions match the pinned base images
+        run: scripts/check-ignition-versions.sh
+      - name: Check the 8.1 gateway events match the event script files
+        run: |
+          scripts/generate-event-scripts.sh
+          git diff --exit-code -- 'projects/*/src/ignition/event-scripts' \
+            || { echo "::error::run scripts/generate-event-scripts.sh and commit the result"; exit 1; }
+
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+      - name: Test the sanitiser
+        run: uv run --no-project --with pytest pytest -q scripts/tests
+      - name: Test the Ignition version check
+        run: bash scripts/tests/check-ignition-versions_test.sh
+      - name: Test the asset installer
+        run: bash gateway/tests/install-assets_test.sh
+      - name: Test the API key bootstrap
+        run: bash gateway/tests/api-token_test.sh
+      - name: Test the trial keepalive
+        run: bash gateway/tests/trial-keepalive_test.sh
