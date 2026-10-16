@@ -348,8 +348,8 @@ wheels = [
 
 [[package]]
 name = "forgepy"
-version = "0.9.0"
-source = { git = "https://github.com/apollogeddon/forgepy?tag=v0.9.0#baabab931c00aa5e7fc19f543ee2589e737fa96e" }
+version = "1.0.0"
+source = { git = "https://github.com/apollogeddon/forgepy?tag=v1.0.0#147ec1c3266d3b6984f04bbcf5e4e4f8a1888ab3" }
 dependencies = [
     { name = "tomlkit" },
 ]
@@ -423,7 +423,7 @@ ignition83 = [
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "forgepy", extras = ["toolchain"], git = "https://github.com/apollogeddon/forgepy?tag=v0.9.0" },
+    { name = "forgepy", extras = ["toolchain"], git = "https://github.com/apollogeddon/forgepy?tag=v1.0.0" },
     { name = "vermin", specifier = ">=1.8" },
 ]
 ignition81 = [{ name = "ignition-api-stubs", specifier = "==8.1.55" }]
