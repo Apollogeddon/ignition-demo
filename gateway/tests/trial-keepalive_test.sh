@@ -51,6 +51,24 @@ rm -f "${work}/sleeps"; backoff
 check "failed resets back off from 30 s, doubling to an hour" \
   '[ "$(tr "\n" " " < "${work}/sleeps")" = "30 60 120 240 480 960 1920 3600 3600 " ]'
 
+# a trial seen running again, reset some other way, starts the next failure's backoff at
+# 30 s rather than where the earlier failures left it
+rm -f "${work}/sleeps" "${work}/polls"
+(
+  sleeps=0
+  curl() {
+    case "$*" in *-X\ POST*) return 22 ;; esac
+    echo poll >> "${work}/polls"
+    case "$(wc -l < "${work}/polls")" in
+      *3) printf '{"trialSecondsLeft":0,"expired":false}' ;;
+      *) printf '{"trialSecondsLeft":0,"expired":true}' ;;
+    esac
+  }
+  sleep() { echo "$1" >> "${work}/sleeps"; sleeps=$((sleeps + 1)); [ "${sleeps}" -lt 4 ] || exit 0; }
+  GATEWAY_TRIAL_KEEPALIVE=true GATEWAY_API_TOKEN=k version=8.3.10 main > /dev/null
+)
+check "a trial running again resets the backoff to 30 s" '[ "$(tr "\n" " " < "${work}/sleeps")" = "30 60 3 30 " ]'
+
 # the seconds left come from the gateway: anything but digits sleeps the shortest time,
 # and is never evaluated
 for sent in '120' '120.5' '"a[$(touch ${work}/pwned)]"' '-5' '99999999999999999999'; do

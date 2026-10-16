@@ -66,7 +66,8 @@ check "web file served from the web root" 'get http://localhost:8088/operator-gu
 if [[ ${version} == 8.3.* ]]; then
   key="smoke:$(head -c 32 /dev/urandom | base64 -w0 | tr '+/' '-_' | tr -d '=')"
   # start_keyed <container> <GATEWAY_API_TOKEN_REQUIRE_TLS>: a gateway with the key, trusting
-  # forwarded headers as the cluster's does
+  # forwarded headers as the cluster's does behind its ingress; here the test's own requests
+  # stand in for that TLS proxy, sending X-Forwarded-Proto: https themselves
   start_keyed() {
     "${engine}" create --name "$1" \
       -e ACCEPT_IGNITION_EULA=Y -e DISABLE_QUICKSTART=true -e IGNITION_EDITION=standard \
