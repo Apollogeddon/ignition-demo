@@ -100,6 +100,8 @@ main() {
       [ "${#left}" -gt 6 ] && left=3600
       left=$(( 10#${left} + buffer ))
       [ "${left}" -gt 3600 ] && left=3600
+      # the trial runs again, reset some other way: a later failure starts its backoff afresh
+      delay=${retry}
       sleep "${left}"
       continue
     fi
