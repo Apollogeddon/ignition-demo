@@ -1,5 +1,23 @@
 # Changelog
 
+## [2.0.0](https://github.com/Apollogeddon/ignition-demo/compare/v1.2.3...v2.0.0) (2026-10-16)
+
+
+### ⚠ BREAKING CHANGES
+
+* secure API key defaults, Dependabot for Ignition and providers, test the published image ([#46](https://github.com/Apollogeddon/ignition-demo/issues/46))
+
+### Bug Fixes
+
+* **ci:** Lower-case the owner in the published image's reference ([#53](https://github.com/Apollogeddon/ignition-demo/issues/53)) ([be13d1a](https://github.com/Apollogeddon/ignition-demo/commit/be13d1a9fc10354fd9a81c78abef5cd07ec22b6d))
+* **deps:** Bump astro ([#47](https://github.com/Apollogeddon/ignition-demo/issues/47)) ([8a96306](https://github.com/Apollogeddon/ignition-demo/commit/8a963061ef51c27879b680a515f35596fe87ef81))
+* **deps:** Bump the apollogeddon group across 2 directories with 1 update ([#48](https://github.com/Apollogeddon/ignition-demo/issues/48)) ([9e9ca2a](https://github.com/Apollogeddon/ignition-demo/commit/9e9ca2acab3fb8a945855e69094d9f00c9e7bd6d))
+* **deps:** Bump the providers group across 3 directories with 1 update ([#49](https://github.com/Apollogeddon/ignition-demo/issues/49)) ([025dba2](https://github.com/Apollogeddon/ignition-demo/commit/025dba20f809d00a6c857377c8b358e019fee21e))
+* **deps:** Take ignition-failover 4.2.6, the ignition provider 1.2.4 and forgepy 1.0.0 ([#56](https://github.com/Apollogeddon/ignition-demo/issues/56)) ([8f54d66](https://github.com/Apollogeddon/ignition-demo/commit/8f54d661183bbaac65acbd09378b784047779b15))
+* Restart the trial reset backoff when the trial runs again, and drop an unneeded forwarded-header flag ([#52](https://github.com/Apollogeddon/ignition-demo/issues/52)) ([a3638aa](https://github.com/Apollogeddon/ignition-demo/commit/a3638aaf075efad2d87fa79844de2d0a4c5692f5))
+* Review 4 findings (trial keepalive JSON and backoff, forwarded-header trust, lock files, forgepy, OpenTofu pin) ([#51](https://github.com/Apollogeddon/ignition-demo/issues/51)) ([ac72a04](https://github.com/Apollogeddon/ignition-demo/commit/ac72a042b0643dcc09ff010a85390791452b7946))
+* Secure API key defaults, Dependabot for Ignition and providers, test the published image ([#46](https://github.com/Apollogeddon/ignition-demo/issues/46)) ([adc551b](https://github.com/Apollogeddon/ignition-demo/commit/adc551bae59bd44703dd0066977420a2b203b325))
+
 ## [1.2.3](https://github.com/Apollogeddon/ignition-demo/compare/v1.2.2...v1.2.3) (2026-10-12)
 
 
