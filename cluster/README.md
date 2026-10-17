@@ -30,20 +30,84 @@ Each environment is applied in two stages, because the Ignition provider can onl
 | A generated API key (8.3) | The `config` stage authenticates with it from the first start; nobody creates a key by hand |
 | The seed environment (8.1) | The gateway seeds its own configuration (connection, users, journal, audit and so on) on start |
 
-`ignition_version` (`8.1` or `8.3`) chooses between the last two. The k3s environment takes it from the image tag (`8.3.10-main`, `8.1.55-main`).
+`ignition_version` (`8.1` or `8.3`) chooses between the last two. The k3s environment takes it from the image tag (its `8.1` or `8.3` prefix).
+
+## Module inputs
+
+### `platform`
+
+| Input | What it sets | Default |
+| --- | --- | --- |
+| `namespace` | Namespace for the gateway and its database | required |
+| `create_namespace` | Create the namespace, with restricted Pod Security enforced; `false` uses an existing one | `true` |
+| `db_init_dir` | Folder of `*.sql` files run, in name order, when the database is first created | required |
+| `db_image` | PostgreSQL image | the module's |
+| `db_name`, `db_user` | Database name and user | `demo` |
+| `db_password` | Database password (sensitive) | generated |
+| `db_storage` | Database volume size | `2Gi` |
+| `storage_class` | StorageClass for the database volume | the cluster default |
+| `db_client_labels` | Pod labels allowed to connect to the database (the gateway pods) | `app.kubernetes.io/name = ignition` |
+| `registry` | Credentials for a private image registry, stored as a pull secret (sensitive) | none |
+
+### `gateway`
+
+| Input | What it sets | Default |
+| --- | --- | --- |
+| `namespace` | Namespace to install into (created by the platform module) | required |
+| `name` | The chart's `applicationName`, used for its resources and pod labels | `ignition` |
+| `chart_version` | The Helm chart version to install | the module's |
+| `image_repository`, `image_tag` | The gateway image; one tag fully describes the projects it runs | required |
+| `image_pull_policy` | `Never` for images imported straight into the nodes | `IfNotPresent` |
+| `image_pull_secrets` | Pull secret names for a private registry | `[]` |
+| `admin_password` | Gateway admin password (sensitive) | generated |
+| `redundancy` | A Master/Backup pair with active routing and certificate-renewal restarts | `true` |
+| `issuer` | cert-manager issuer for the Gateway Network and web certificates | required |
+| `ingress` | Ingress for the gateway web UI | none |
+| `memory_mb` | Gateway JVM max heap in MB; the container limit is twice this | `1024` |
+| `values` | Extra chart values, merged last | `{}` |
+| `ignition_version` | `8.1` or `8.3`: 8.3 gets an API key for the `resources` module, 8.1 a seed environment | `8.3` |
+| `api_token_name` | Name of the generated API key (8.3) | `iac` |
+| `api_token_require_tls` | Take the API key over HTTPS only, or through the ingress's TLS (8.3) | `true` |
+| `seed_environment` | Environment variables for the 8.1 seed spec (`gateway/seed/seed.json`) (sensitive) | `{}` |
+
+### `resources`
+
+| Input | What it sets | Default |
+| --- | --- | --- |
+| `database` | The demo database the gateway connects to (sensitive) | required |
+| `connection_name` | Name of the gateway's database connection, which the projects' named queries use | `demo` |
+| `alarm_journal` | Store alarm events in the demo database; `null` for no journal | `{}` |
+| `user_source` | An internal user source, and an identity provider using it, for the project's users; `null` for none | `{}` |
+| `audit_profile` | An audit profile in the demo database (logins and configuration changes); `null` for none | `{}` |
+| `smtp` | Outgoing mail for alarm notifications: an SMTP profile and an email notification profile; `null` for none | `{}` |
+
+### The k3s stages
+
+| Stage | Input | What it sets | Default |
+| --- | --- | --- | --- |
+| `infra` | `kubeconfig`, `kube_context` | The kubeconfig file and the k3s cluster's context | `~/.kube/config`, `default` |
+| `infra` | `namespace` | Namespace for the demo | `ignition` |
+| `infra` | `image_repository`, `image_tag`, `image_pull_policy` | The gateway image (see [Choose the image](#1-choose-the-image)) | `ghcr.io/apollogeddon/ignition-gateway`, required, `IfNotPresent` |
+| `infra` | `ghcr_username`, `ghcr_token` | A GitHub user and token with `read:packages`, for a private GHCR package | none |
+| `infra` | `hostname` | Host name for the gateway web UI, through Traefik | required |
+| `infra` | `issuer_name` | cert-manager ClusterIssuer for the gateway and ingress certificates | `cluster-issuer` |
+| `infra` | `redundancy` | A redundant Master/Backup pair | `true` |
+| `config` | `gateway_url` | Gateway URL to configure | the `infra` stage's ingress URL |
+| `config` | `ignition_token` | Gateway API key (`name:secret`) (sensitive) | the key the `infra` stage generated |
+| `config` | `allow_insecure_tls` | Accept the gateway's certificate without verifying it; for a throwaway local cluster only | `false` |
 
 ## The k3s reference environment
 
 Prerequisites:
 
-- OpenTofu 1.8 or later
+- OpenTofu
 - A kubeconfig context for the cluster (`kube_context`, default `default`, the name k3s gives it)
 - cert-manager with a ClusterIssuer (`issuer_name`, default `cluster-issuer`)
 - Traefik, k3s's default ingress controller
 
 ### 1. Choose the image
 
-By default the environment pulls a published image from `ghcr.io/apollogeddon/ignition-gateway` (`image_repository`, with `image_pull_policy = "IfNotPresent"`). Set `image_tag` to a tag CI published, such as `8.3.10-main`, `8.1.55-main` or a release's `8.3.10-1.0.0`. If the package is private, also set `ghcr_username` and `ghcr_token` (a GitHub token with `read:packages`) to create a pull secret.
+By default the environment pulls a published image from `ghcr.io/apollogeddon/ignition-gateway` (`image_repository`, with `image_pull_policy = "IfNotPresent"`). Set `image_tag` to a tag CI published, such as `<ignition version>-main` or a release's `<ignition version>-<release version>`. If the package is private, also set `ghcr_username` and `ghcr_token` (a GitHub token with `read:packages`) to create a pull secret.
 
 To run a locally built image instead, import it into k3s's containerd directly:
 
@@ -54,7 +118,7 @@ docker save localhost/ignition-gateway:dev -o gateway.tar
 sudo k3s ctr images import gateway.tar
 ```
 
-Then set `image_repository = "localhost/ignition-gateway"`, `image_tag = "dev"` and `image_pull_policy = "Never"`. Name a local tag after its Ignition version (for example `8.1.55-dev`) when it isn't 8.3, as the environment reads the version from the tag.
+Then set `image_repository = "localhost/ignition-gateway"`, `image_tag = "dev"` and `image_pull_policy = "Never"`. Name a local tag after its Ignition version (for example `8.1-dev`) when it isn't 8.3, as the environment reads the version from the tag.
 
 ### 2. Infra
 
@@ -82,7 +146,7 @@ provider_installation {
 }
 ```
 
-`tofu init` then installs the provider for your platform. The configurations take 1.2 patch releases from 1.2.4 (`~> 1.2.4`), and each stage's `.terraform.lock.hcl` fixes the exact build and its checksums: commit it, and move it on with `tofu init -upgrade`. The shared module only states the minimum it needs (`>= 1.2.3, < 2.0.0`). To use a provider built from source instead, see the provider's [installation guide](https://apollogeddon.github.io/ignition-tofu/docs/guides/installation/).
+`tofu init` then installs the provider for your platform, and each stage's `.terraform.lock.hcl` fixes the exact build and its checksums: commit it, and move it on with `tofu init -upgrade`. To use a provider built from source instead, see the provider's [installation guide](https://apollogeddon.github.io/ignition-tofu/docs/guides/installation/).
 
 The provider authenticates with the API key the `infra` stage generated, which the gateway installed for itself. `config` reads it from the `infra` state; set the `ignition_token` variable to use another:
 

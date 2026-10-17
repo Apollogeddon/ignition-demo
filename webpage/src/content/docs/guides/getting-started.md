@@ -42,7 +42,7 @@ This builds the gateway image from `gateway/Dockerfile`, the same image every en
 | Gateway | <http://localhost:8088> | `admin` / `IGNITION_ADMIN_PASSWORD` |
 | Database | `localhost:5432` | database and user `demo` / `DB_PASSWORD` |
 
-> **Tip:** set `IGNITION_VERSION` in `develop/.env` to any 8.1 or 8.3 image tag, then rebuild with `up -d --build`. The projects, scripts and UDTs work on both. The default is 8.3.10.
+> **Tip:** set `IGNITION_VERSION` in `develop/.env` to any 8.1 or 8.3 image tag, then rebuild with `up -d --build`. The projects, scripts and UDTs work on both. The default is an 8.3 release.
 
 ## 3. Create the gateway resources (8.3)
 

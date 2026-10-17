@@ -25,7 +25,7 @@ Ignition Demo Stack is a template for teams that want to run Ignition 8.1 or 8.3
 ## Features
 
 - **Projects as code.** Each Ignition project lives in `projects/` as the files the Designer writes. A git filter strips the Designer's noise (timestamps, actors, signatures) so diffs show only real changes.
-- **Tested scripts.** Project scripts are formatted, linted, type-checked, checked for Jython 2.7 compatibility and unit tested under Python 3.12 against the Ignition API stubs, for both 8.1 and 8.3.
+- **Tested scripts.** Project scripts are formatted, linted, type-checked, checked for Jython 2.7 compatibility and unit tested under Python against the Ignition API stubs, for both 8.1 and 8.3.
 - **Immutable gateway image.** `gateway/` bakes the projects into the image, so shipping a project means shipping a new image tag, and both gateways in a redundant pair run the same code.
 - **Platform as code.** `cluster/` uses OpenTofu to install the `ignition-failover` Helm chart with redundancy, TLS and active routing, plus its database.
 - **Gateway resources as code.** On 8.3, `cluster/`'s `resources` module creates the running gateway's resources through its REST API with the Ignition provider: database connections, alarm journals, user sources and more. On 8.1, the gateway seeds the same resources itself on start.
@@ -36,7 +36,7 @@ Ignition Demo Stack is a template for teams that want to run Ignition 8.1 or 8.3
 - Docker or Podman with Compose, for the local develop stack
 - [uv](https://docs.astral.sh/uv/), for the script checks and the resource sanitiser
 - Node.js and npm, for the commit hooks
-- OpenTofu 1.8 or later and a Kubernetes cluster, to deploy
+- OpenTofu and a Kubernetes cluster, to deploy
 
 ## Setup
 
@@ -79,13 +79,13 @@ See [`projects/`](projects/README.md) for the script conventions and every task.
 
 ## Gateway images
 
-CI publishes the gateway image to `ghcr.io/apollogeddon/ignition-gateway` for Ignition 8.1.55 and 8.3.10. Every tag starts with the Ignition version:
+CI publishes the gateway image to `ghcr.io/apollogeddon/ignition-gateway` for Ignition 8.1 and 8.3. Every tag starts with the Ignition version:
 
 | Tag | Published |
 | --- | --- |
-| `<ignition version>-main` | On every push to `main`, e.g. `8.3.10-main` |
+| `<ignition version>-main` | On every push to `main` |
 | `<ignition version>-sha-<commit>` | On every push to `main`, for the full commit SHA |
-| `<ignition version>-<release version>` | For each release, e.g. `8.3.10-1.0.0` |
+| `<ignition version>-<release version>` | For each release |
 
 Each image carries an SPDX SBOM and SLSA provenance, which `docker buildx imagetools inspect <image> --format '{{ json .SBOM }}'` (or `.Provenance`) shows.
 

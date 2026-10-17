@@ -25,7 +25,7 @@ A new push to a pull request cancels its previous run. Every other run has a con
 
 ## Projects
 
-The `library` job runs [forgepy](https://github.com/apollogeddon/forgepy)'s `library.yml` on `projects/` with Python 3.12, once per Ignition API (8.1 and 8.3). Each run installs that version's [Ignition API stubs](https://pypi.org/project/ignition-api-stubs/) from its uv dependency group (`ignition81` or `ignition83`):
+The `library` job runs [forgepy](https://github.com/apollogeddon/forgepy)'s `library.yml` on `projects/`, once per Ignition API (8.1 and 8.3). Each run installs that version's [Ignition API stubs](https://pypi.org/project/ignition-api-stubs/) from its uv dependency group (`ignition81` or `ignition83`):
 
 - **Ruff**: checks formatting and lints the scripts, with forgepy's Jython 2.7 rules.
 - **basedpyright**: type-checks the scripts against the API stubs.
@@ -57,7 +57,7 @@ There's nothing to build, so the `build` stage is off, and Gitleaks is turned of
 
 ## Infra
 
-[`infra.yml`](./workflows/infra.yml) checks the infrastructure code with OpenTofu 1.13.1, the release ignition-tofu tests the provider with.
+[`infra.yml`](./workflows/infra.yml) checks the infrastructure code with OpenTofu.
 
 `infra / lint`:
 
@@ -70,7 +70,7 @@ There's nothing to build, so the `build` stage is off, and Gitleaks is turned of
 
 ## Gateway image
 
-[`docker.yml`](./workflows/docker.yml) builds the gateway image once per Ignition version, as `docker (8.1)` (8.1.55) and `docker (8.3)` (8.3.10). It stays local rather than forgepy's `docker.yml`, as the image is `gateway/Dockerfile` with the Ignition version as a build argument, `main` pushes it as well as a release, and the pushed image is smoke-tested again:
+[`docker.yml`](./workflows/docker.yml) builds the gateway image once per Ignition version, as `docker (8.1)` and `docker (8.3)`. It stays local rather than forgepy's `docker.yml`, as the image is `gateway/Dockerfile` with the Ignition version as a build argument, `main` pushes it as well as a release, and the pushed image is smoke-tested again:
 
 - **`build`**: builds `gateway/Dockerfile` with the projects baked in, into the Actions cache.
 - **`test`**: loads the image from that cache and smoke-tests it: that the asset installer ran, the projects load, Perspective serves them, the startup event imports the UDTs, and the icon library and web files are served. On 8.3 it also starts two gateways with an API key and checks that the key is refused over plain HTTP, taken behind a TLS proxy (`X-Forwarded-Proto: https`, as Traefik sends), and taken over plain HTTP with `GATEWAY_API_TOKEN_REQUIRE_TLS=false`.
@@ -78,11 +78,11 @@ There's nothing to build, so the `build` stage is off, and Gitleaks is turned of
 
 Every tag starts with the Ignition version:
 
-| Tag | Example | Published |
-| --- | --- | --- |
-| `<ignition version>-main` | `8.3.10-main` | Every push to `main` |
-| `<ignition version>-sha-<commit>` | `8.3.10-sha-<full commit SHA>` | Every push to `main` |
-| `<ignition version>-<release version>` | `8.3.10-1.0.0` | When the run creates a release |
+| Tag | Published |
+| --- | --- |
+| `<ignition version>-main` | Every push to `main` |
+| `<ignition version>-sha-<full commit SHA>` | Every push to `main` |
+| `<ignition version>-<release version>` | When the run creates a release |
 
 ## Releases
 

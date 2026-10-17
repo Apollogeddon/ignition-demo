@@ -11,20 +11,20 @@ Build from the repository root, so the projects are in the build context:
 
 ```sh
 docker build -f gateway/Dockerfile -t ignition-gateway:dev .
-docker build -f gateway/Dockerfile --build-arg IGNITION_VERSION=8.1.55 -t ignition-gateway:8.1 .
+docker build -f gateway/Dockerfile --build-arg IGNITION_VERSION=8.1 -t ignition-gateway:8.1 .
 ```
 
-`IGNITION_VERSION` selects the base image (default `8.3.10`); any 8.1 or 8.3 tag works.
+`IGNITION_VERSION` selects the base image (an 8.3 release by default); any 8.1 or 8.3 tag works.
 
 ## Published images
 
-CI builds the image for Ignition 8.1.55 and 8.3.10 and runs `gateway/tests/smoke.sh` against each: the asset installer ran, the projects load and Perspective serves them, the startup event imports the UDTs, and the icon library and web files are served. On pushes to `main` it publishes the images to `ghcr.io/apollogeddon/ignition-gateway`. Every tag starts with the Ignition version:
+CI builds the image for Ignition 8.1 and 8.3 and runs `gateway/tests/smoke.sh` against each: the asset installer ran, the projects load and Perspective serves them, the startup event imports the UDTs, and the icon library and web files are served. On pushes to `main` it publishes the images to `ghcr.io/apollogeddon/ignition-gateway`. Every tag starts with the Ignition version:
 
 | Tag | Published |
 | --- | --- |
-| `<ignition version>-main`, e.g. `8.3.10-main` | Every push to `main` |
+| `<ignition version>-main` | Every push to `main` |
 | `<ignition version>-sha-<commit>` | Every push to `main`, with the full commit SHA |
-| `<ignition version>-<release version>`, e.g. `8.3.10-1.0.0` | Each release |
+| `<ignition version>-<release version>` | Each release |
 
 ## Gateway arguments
 
