@@ -9,7 +9,7 @@ The Ignition projects, kept as files, and the Python tooling that checks their s
 
 ## Script conventions
 
-Gateway scripts run on Jython 2.7, while the tooling here runs them under Python 3.12 with the [Ignition API stubs](https://pypi.org/project/ignition-api-stubs/):
+Gateway scripts run on Jython 2.7, while the tooling here runs them under Python with the [Ignition API stubs](https://pypi.org/project/ignition-api-stubs/):
 
 - Every importable script folder has an `__init__.py` re-exporting its `code.py` (`from .code import *`), and its `resource.json` lists both files. Ignition imports the package through it the same way CPython does.
 - Types use comments, not annotations, and type-only imports sit under `MYPY = False` / `if MYPY:` so the gateway never runs them:
@@ -65,7 +65,7 @@ The same checks are available as [poe](https://poethepoet.natn.io/) tasks (`uv r
 
 The tooling comes from [forgepy](https://github.com/apollogeddon/forgepy)'s `--jython` setup:
 
-- `ruff.toml` extends forgepy's managed Jython base in `.forgepy/ruff-jython.toml`, selects every rule, and turns off the ones that don't fit Jython scripts or Ignition's naming conventions. Scripts are indented with tabs, as the Designer writes them; the tests target Python 3.12.
+- `ruff.toml` extends forgepy's managed Jython base in `.forgepy/ruff-jython.toml`, selects every rule, and turns off the ones that don't fit Jython scripts or Ignition's naming conventions. Scripts are indented with tabs, as the Designer writes them.
 - `pyrightconfig.json` extends `.forgepy/pyrightconfig.json`, adds the script folders to the import path, and defines `MYPY` as true so basedpyright reads the type-only imports. Its `stubPath`, `stubs/`, types the gateway internals `library.gateway81` uses that the Ignition API stubs leave out.
 - `uv run forgepy sync` refreshes the files in `.forgepy/`.
 - `conftest.py` registers mocks for the `system.*` modules, so scripts import under pytest exactly as they do in the gateway.

@@ -25,7 +25,7 @@ Both publish their ports on 127.0.0.1 only, so the `change-me` passwords in `.en
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
-| `IGNITION_VERSION` | `8.3.10` | Any 8.1 or 8.3 image tag; rebuild with `up -d --build` after changing it |
+| `IGNITION_VERSION` | an 8.3 release | Any 8.1 or 8.3 image tag; rebuild with `up -d --build` after changing it |
 | `IGNITION_ADMIN_PASSWORD` | `change-me` | Gateway admin password |
 | `DB_PASSWORD` | `change-me` | Database password for the `demo` user |
 | `DEMO_USERS_PASSWORD` | `change-me` | 8.1: password of the seeded `operator` and `engineer` users |

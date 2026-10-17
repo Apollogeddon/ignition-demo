@@ -14,10 +14,10 @@ Vulnerabilities in Ignition itself should be reported to Inductive Automation, n
 
 ## Automated security tooling
 
-CI runs these checks on pull requests and on pushes to `main`:
+CI runs these checks on pull requests and on each release, and Gitleaks and the site's OSV-Scanner on every push to `main`:
 
 - **Gitleaks** scans the repository for committed secrets.
-- **OSV-Scanner** scans the project tooling's `uv.lock` and the documentation site's dependencies for known vulnerabilities. On `main`, it upgrades vulnerable packages and commits the patched lock files.
+- **OSV-Scanner** scans the project tooling's `uv.lock` and the documentation site's dependencies for known vulnerabilities. Weekly, and after a Dependabot merge, the patch pipelines upgrade vulnerable packages and commit the patched lock files to `main`.
 - **Trivy** scans the OpenTofu code, the Compose file and the Dockerfile for high and critical misconfigurations.
 
 **Dependabot** proposes dependency updates with a 3-day cooldown, which gives a compromised release time to be caught and yanked upstream.

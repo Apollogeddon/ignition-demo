@@ -2,14 +2,14 @@
 
 The gateway image: Ignition 8.1 or 8.3 with the projects from `projects/` baked in at `/usr/local/bin/ignition/assets/projects`, plus web files, icon libraries, certificates and any `.modl` files placed in `modules/`. The develop stack and every cluster environment run this same image.
 
-Build it from the repository root, so the projects are in the build context. `IGNITION_VERSION` selects the base image (default `8.3.10`):
+Build it from the repository root, so the projects are in the build context. `IGNITION_VERSION` selects the base image (an 8.3 release by default):
 
 ```sh
 docker build -f gateway/Dockerfile -t ignition-gateway:dev .
-docker build -f gateway/Dockerfile --build-arg IGNITION_VERSION=8.1.55 -t ignition-gateway:8.1 .
+docker build -f gateway/Dockerfile --build-arg IGNITION_VERSION=8.1 -t ignition-gateway:8.1 .
 ```
 
-CI builds and smoke-tests the image for Ignition 8.1.55 and 8.3.10, and publishes it from `main` to `ghcr.io/apollogeddon/ignition-gateway` with tags such as `8.3.10-main`, `8.3.10-sha-<commit>` and, for a release, `8.3.10-1.0.0`.
+CI builds and smoke-tests the image for Ignition 8.1 and 8.3, and publishes it from `main` to `ghcr.io/apollogeddon/ignition-gateway` with tags `<ignition version>-main`, `<ignition version>-sha-<commit>` and, for a release, `<ignition version>-<release version>`.
 
 Start the gateway with these arguments, which point it at the baked-in projects. The `gateway` OpenTofu module and `develop/docker-compose.yml` set them; the develop stack rescans every 10 seconds instead of 60.
 
