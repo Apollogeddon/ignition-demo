@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.0.2](https://github.com/Apollogeddon/ignition-demo/compare/v2.0.1...v2.0.2) (2026-10-19)
+
+
+### Bug Fixes
+
+* **deps:** Bump the apollogeddon group across 2 directories with 1 update ([#60](https://github.com/Apollogeddon/ignition-demo/issues/60)) ([cd50dc2](https://github.com/Apollogeddon/ignition-demo/commit/cd50dc288acdec745547058a1b79ccc165c06760))
+* **deps:** Bump the dependencies group across 1 directory with 2 updates ([#61](https://github.com/Apollogeddon/ignition-demo/issues/61)) ([72fc1e1](https://github.com/Apollogeddon/ignition-demo/commit/72fc1e1fe4cb0e17f1353b8084d54055654bb1d5))
+
 ## [2.0.1](https://github.com/Apollogeddon/ignition-demo/compare/v2.0.0...v2.0.1) (2026-10-16)
 
 
