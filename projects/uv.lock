@@ -849,11 +849,11 @@ wheels = [
 
 [[package]]
 name = "vermin"
-version = "1.8.0"
+version = "1.9.1"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/24/7b/2c1b403f2a844e1acb36694fc336e323df742f7f752edb4188311ad43f9e/vermin-1.8.0.tar.gz", hash = "sha256:3621955ac2a2950175c5b4a9b2fc3bd24bd416da0388893c9eb6971264e4ca1f", size = 99913, upload-time = "2025-11-20T17:29:31.509Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/c9/ec/ff9f006481d293c9703e1adb87b57c03fbb49f21d1534ed77ff5684e0790/vermin-1.9.1.tar.gz", hash = "sha256:15abe48e5e8b228fb8694a28e7f31bb3cf6d38e7c40627c17708ce9fd8d42dc0", size = 223057, upload-time = "2026-10-15T16:22:45.451Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/e6/fd/6d2167767488e162efd01300a679c7f7d913dbb65baa0b15760ebb369854/vermin-1.8.0-py3-none-any.whl", hash = "sha256:6f2b98ad697a16ed3442e81a0f0baabfc38c185b78aaab1b1fecd87bdd6640b8", size = 98030, upload-time = "2025-11-20T17:29:29.931Z" },
+    { url = "https://files.pythonhosted.org/packages/42/a7/7cdc524f8efa3f655d3acc39ca6433b339d7255e1b3882ec0c8c7da4cc94/vermin-1.9.1-py3-none-any.whl", hash = "sha256:bfc9a843582d237d5eb1a4368ebcaacc44675dec79afc770f2643129edbf23a3", size = 107754, upload-time = "2026-10-15T16:22:43.945Z" },
 ]
 
 [[package]]
