@@ -1,5 +1,21 @@
 # Changelog
 
+## [2.0.2](https://github.com/Apollogeddon/ignition-demo/compare/v2.0.1...v2.0.2) (2026-11-05)
+
+
+### Bug Fixes
+
+* **deps:** Bump astro ([#75](https://github.com/Apollogeddon/ignition-demo/issues/75)) ([d57ccdb](https://github.com/Apollogeddon/ignition-demo/commit/d57ccdbeeb8d0a9234bda2d298d4676be0b6b0b6))
+* **deps:** Bump dompurify from 3.4.16 to 3.4.17 in /webpage ([#70](https://github.com/Apollogeddon/ignition-demo/issues/70)) ([f5c8d0b](https://github.com/Apollogeddon/ignition-demo/commit/f5c8d0bcca97ec0a9c1b5e1895695e45017b7e4d))
+* **deps:** Bump fast-uri from 3.1.8 to 3.1.9 ([#71](https://github.com/Apollogeddon/ignition-demo/issues/71)) ([9bf277b](https://github.com/Apollogeddon/ignition-demo/commit/9bf277b1f3ad2a37da1aad43d4f875a3b3258c8a))
+* **deps:** Bump fast-uri from 3.1.8 to 3.1.9 in /webpage ([#72](https://github.com/Apollogeddon/ignition-demo/issues/72)) ([c6f66c9](https://github.com/Apollogeddon/ignition-demo/commit/c6f66c986645f72f02d8d2b450a1179b7f9ed2f3))
+* **deps:** Bump hashicorp/kubernetes ([#63](https://github.com/Apollogeddon/ignition-demo/issues/63)) ([b9e8cec](https://github.com/Apollogeddon/ignition-demo/commit/b9e8cec7aa6f04b220abc95899ee4456d656ce74))
+* **deps:** Bump the apollogeddon group across 2 directories with 1 update ([#60](https://github.com/Apollogeddon/ignition-demo/issues/60)) ([cd50dc2](https://github.com/Apollogeddon/ignition-demo/commit/cd50dc288acdec745547058a1b79ccc165c06760))
+* **deps:** Bump the apollogeddon group across 2 directories with 1 update ([#73](https://github.com/Apollogeddon/ignition-demo/issues/73)) ([578b069](https://github.com/Apollogeddon/ignition-demo/commit/578b069f186f4d1620f0bda44d88c57160d17b95))
+* **deps:** Bump the dependencies group across 1 directory with 2 updates ([#61](https://github.com/Apollogeddon/ignition-demo/issues/61)) ([72fc1e1](https://github.com/Apollogeddon/ignition-demo/commit/72fc1e1fe4cb0e17f1353b8084d54055654bb1d5))
+* **deps:** Bump the dependencies group across 1 directory with 3 updates ([#68](https://github.com/Apollogeddon/ignition-demo/issues/68)) ([5498bb5](https://github.com/Apollogeddon/ignition-demo/commit/5498bb5b2e514532a6ed7c30489d684fa7bc2add))
+* **deps:** Bump the dependencies group across 2 directories with 3 updates ([#74](https://github.com/Apollogeddon/ignition-demo/issues/74)) ([a0be711](https://github.com/Apollogeddon/ignition-demo/commit/a0be7115062edb37e5dc1550400ddca2aad0315c))
+
 ## [2.0.1](https://github.com/Apollogeddon/ignition-demo/compare/v2.0.0...v2.0.1) (2026-10-16)
 
 
