@@ -2,7 +2,7 @@
 
 # Read the Ignition End User License Agreement before you set this:
 # https://inductiveautomation.com/ignition/license
-accept_eula = true
+# accept_eula = true
 
 # A release's tag in ghcr.io/apollogeddon/ignition-gateway: <ignition version>-<release version>.
 # Not <ignition version>-main, which CI re-pushes on every merge.
