@@ -178,6 +178,24 @@ resource "helm_release" "gateway" {
   }
 }
 
+# The chart has no pod annotations and doesn't watch existingSecret, so a changed
+# Secret (a rotated password, a new license key) would wait for the next restart:
+# a hash of it on the pod template rolls the gateways (Backup first) instead. The
+# first apply adds it, which restarts the new gateways once.
+resource "kubernetes_annotations" "secret_checksum" {
+  count       = local.existing_secret ? 1 : 0
+  api_version = "apps/v1"
+  kind        = "StatefulSet"
+  metadata {
+    name      = var.name
+    namespace = var.namespace
+  }
+  template_annotations = {
+    "checksum/secret" = nonsensitive(sha256(jsonencode(local.secret_environment)))
+  }
+  depends_on = [helm_release.gateway]
+}
+
 # The chart's NetworkPolicy covers the gateways. Its other pods (the
 # active-routing labeller and the certificate-renewal CronJob) only call out,
 # to the Kubernetes API and the gateways, so nothing may connect to them.
