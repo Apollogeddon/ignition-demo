@@ -10,6 +10,32 @@ Each folder in `projects/` is one Ignition project, and this page covers how the
 | `library` | Inheritable: shared scripts (`library.*`), style classes, views and UDT definitions |
 | `project` | The application; `project.json` names `library` as its parent |
 
+## The demo application
+
+`project` is a small Perspective application over the [database](../database/)'s assets, at `/data/perspective/client/project`. A docked header (`Shell/Header`) links its three pages and shows the time and the gateway's Ignition release:
+
+| Page | View | Shows |
+| --- | --- | --- |
+| `/` Overview | `Page/Overview` | KPI cards (assets, online, offline, pumped flow, last event), pumped flow per area over the last 72 hours (Time Series Chart), assets per area (Pie Chart), a card per area, and the selected area's assets |
+| `/assets` Assets | `Page/Assets` | Every asset with its status and latest reading; the selected asset's trend, recent events, and Acknowledge and Log note actions |
+| `/events` Events | `Page/Events` | Counts by kind and the event log, newest first |
+
+The views use only built-in components, styled by the `library` project's style classes (`Card`, `Kpi/*`, `Pill/*`, `Shell/*`, ...); the `Cells/Pill` view draws a status or event kind as a coloured pill inside tables. Every binding is one call into a script module, which shapes the named queries' rows and is unit-tested:
+
+| Module | Does |
+| --- | --- |
+| `project.overview` | The Overview's KPIs, area cards, pie data and flow trend |
+| `project.assets` | The asset table and the asset detail panel |
+| `project.events` | Validates and records events, and lists them |
+
+The message flows:
+
+- **Select an area.** An area card on the Overview sends the `areaSelected` page message (`system.perspective.sendMessage`); the area panel's handler sets the view's selected area and refreshes its table.
+- **Select an asset.** A row of the Assets table sends `assetSelected`; the detail panel's handler loads that asset.
+- **Acknowledge or log a note.** The detail panel's buttons call `project.events.send`, which asks the `recordEvent` gateway message handler (`system.util.sendRequest`). The handler, `ignition/message/recordEvent/handleMessage.py`, calls `project.events.handle`: it validates the request, inserts the row with the `events/insert` named query and answers `{ok, text}`, which the panel shows. The panel then refreshes and sends the `eventRecorded` session message, which refreshes the Events page in any other tab of the session.
+
+The named queries (`assets/list`, `assets/status`, `readings/flowByArea`, `readings/asset`, `events/list`, `events/insert`) are plain SQL on the `demo` connection, the same on 8.1 and 8.3. The data comes from `database/init`, which PostgreSQL only runs when the database volume is created: after pulling a change to it, reset the develop stack with `docker compose -f develop/docker-compose.yml down -v`.
+
 ## Script conventions
 
 Gateway scripts run on Jython 2.7, while the tooling runs them under Python with the [Ignition API stubs](https://pypi.org/project/ignition-api-stubs/). A few conventions keep both happy:
@@ -30,7 +56,7 @@ Gateway scripts run on Jython 2.7, while the tooling runs them under Python with
   ```
 
 - **Imports and logging.** Import gateway functions directly (`from system.db import execQuery`) and name loggers `demo.<project>.<module>`. Log routine progress at DEBUG and keep INFO for events worth noticing.
-- **Strings.** Use `.format()`; Jython 2.7 has no f-strings. Avoid `u""` literals: the formatter removes the prefix, and on Jython that turns a unicode string into a byte string. Build non-ASCII text at run time (`library.format` does it for its em dash) and compare against `STRING_TYPES` rather than `str` (`library.seed`).
+- **Strings.** Use `.format()`; Jython 2.7 has no f-strings. Avoid `u""` literals: the formatter removes the prefix, and on Jython that turns a unicode string into a byte string. Build non-ASCII text at run time (`library.format` does it for its em dash) and compare against `STRING_TYPES` rather than `str` (`library.seed`). A database or Perspective string is unicode on Jython, and `"{}".format()` encodes its arguments as ASCII, so join such values with `+` (`project.assets.reading`) and keep them out of log lines.
 - **Both versions.** The checks run against the 8.1 and the 8.3 API stubs. Where the versions differ, a library module chooses at run time: `library.db.namedQuery` runs `execQuery` on 8.3 and `runNamedQuery` on 8.1.
 
 ## Checks
@@ -109,14 +135,15 @@ uv run --no-project scripts/sanitise.py --fix FILE...     # rewrite in place
 
 ## Gateway events
 
-`project`'s gateway events are one line each, calling `project.gateway`, where the work is tested:
+`project`'s gateway events and message handlers are one line each, calling a script module where the work is tested:
 
 | Event | Does |
 | --- | --- |
 | Startup | Applies the seed (8.1), imports the UDT definitions, then creates or updates a UDT instance per asset in the background, retrying while the database comes up |
 | Project update | Exports the UDT definitions back to the files, so a UDT edit made in the Designer becomes a diff (save the project after editing tags) |
+| Message handler `recordEvent` | Records an operator's note or acknowledgement and answers the view (`project.events.handle`; see [the demo application](#the-demo-application)) |
 
-The events are written once, in 8.3's format (`ignition/startup/onStartup.py`, `ignition/update/onUpdate.py`). 8.1 stores gateway events as a binary `ignition/event-scripts/data.bin`, so `scripts/generate-event-scripts.sh` builds it from those files with Ignition 8.1's own serializer (in its Docker image), byte for byte reproducibly; CI fails if it is out of date. Run it after changing an event script.
+The events are written once, in 8.3's format (`ignition/startup/onStartup.py`, `ignition/update/onUpdate.py`, and `ignition/message/<name>/handleMessage.py` with its `enabled` and `threadType` in `resource.json`). 8.1 stores gateway events and message handlers as a binary `ignition/event-scripts/data.bin`, so `scripts/generate-event-scripts.sh` builds it from those files with Ignition 8.1's own serializer (in its Docker image), byte for byte reproducibly; CI fails if it is out of date. Run it after changing an event script or a message handler.
 
 ## UDT definitions
 

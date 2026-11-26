@@ -7,6 +7,32 @@ The Ignition projects, kept as files, and the Python tooling that checks their s
 | `library` | Inheritable: shared scripts (`library.*`), style classes, views and UDT definitions |
 | `project` | The application; `project.json` names `library` as its parent |
 
+## The demo application
+
+`project` is a small Perspective application over the [database](../database/README.md)'s assets, at `/data/perspective/client/project`. A docked header (`Shell/Header`) links its three pages and shows the time and the gateway's Ignition release:
+
+| Page | View | Shows |
+| --- | --- | --- |
+| `/` Overview | `Page/Overview` | KPI cards (assets, online, offline, pumped flow, last event), pumped flow per area over the last 72 hours (Time Series Chart), assets per area (Pie Chart), a card per area, and the selected area's assets |
+| `/assets` Assets | `Page/Assets` | Every asset with its status and latest reading; the selected asset's trend, recent events, and Acknowledge and Log note actions |
+| `/events` Events | `Page/Events` | Counts by kind and the event log, newest first |
+
+The views use only built-in components, styled by the `library` project's style classes (`Card`, `Kpi/*`, `Pill/*`, `Shell/*`, ...); the `Cells/Pill` view draws a status or event kind as a coloured pill inside tables. Every binding is one call into a script module, which shapes the named queries' rows and is unit-tested:
+
+| Module | Does |
+| --- | --- |
+| `project.overview` | The Overview's KPIs, area cards, pie data and flow trend |
+| `project.assets` | The asset table and the asset detail panel |
+| `project.events` | Validates and records events, and lists them |
+
+The message flows:
+
+- **Select an area.** An area card on the Overview sends the `areaSelected` page message (`system.perspective.sendMessage`); the area panel's handler sets the view's selected area and refreshes its table.
+- **Select an asset.** A row of the Assets table sends `assetSelected`; the detail panel's handler loads that asset.
+- **Acknowledge or log a note.** The detail panel's buttons call `project.events.send`, which asks the `recordEvent` gateway message handler (`system.util.sendRequest`). The handler, `ignition/message/recordEvent/handleMessage.py`, calls `project.events.handle`: it validates the request, inserts the row with the `events/insert` named query and answers `{ok, text}`, which the panel shows. The panel then refreshes and sends the `eventRecorded` session message, which refreshes the Events page in any other tab of the session.
+
+The named queries (`assets/list`, `assets/status`, `readings/flowByArea`, `readings/asset`, `events/list`, `events/insert`) are plain SQL on the `demo` connection, the same on 8.1 and 8.3. The data comes from `database/init`, which PostgreSQL only runs when the database volume is created: after pulling a change to it, reset the develop stack with `docker compose -f develop/docker-compose.yml down -v`.
+
 ## Script conventions
 
 Gateway scripts run on Jython 2.7, while the tooling here runs them under Python with the [Ignition API stubs](https://pypi.org/project/ignition-api-stubs/):
@@ -27,9 +53,9 @@ Gateway scripts run on Jython 2.7, while the tooling here runs them under Python
   ```
 
 - Import gateway functions directly (`from system.db import execQuery`) and name loggers `demo.<project>.<module>`. Log routine progress at DEBUG and keep INFO for events worth noticing.
-- Format strings with `.format()`: Jython 2.7 has no f-strings.
+- Format strings with `.format()`: Jython 2.7 has no f-strings. A database or Perspective string is unicode there, which `"{}".format()` encodes as ASCII: join such values with `+` and keep them out of log lines.
 
-The [Projects](../webpage/src/content/docs/components/projects.md) docs page covers the conventions in full, along with the library modules, gateway events and UDT definitions.
+The [Projects](../webpage/src/content/docs/components/projects.md) docs page covers the conventions in full, along with the library modules, gateway events, message handlers and UDT definitions.
 
 ## Checks
 
