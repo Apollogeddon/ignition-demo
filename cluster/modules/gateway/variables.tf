@@ -109,15 +109,20 @@ variable "issuer" {
 }
 
 variable "ingress" {
-  description = "Ingress for the gateway web UI; null for none"
+  description = "Ingress for the gateway web UI; null for none. namespace is the ingress controller's, which the gateways' NetworkPolicy lets in (kube-system for k3s's Traefik, ingress-nginx for ingress-nginx, and so on)"
   type = object({
     host        = string
     class_name  = optional(string, "")
     tls_secret  = optional(string)
-    namespace   = optional(string, "kube-system")
+    namespace   = string
     annotations = optional(map(string), {})
   })
   default = null
+
+  validation {
+    condition     = var.ingress == null || can(regex("^[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])?$", var.ingress.namespace))
+    error_message = "ingress.namespace must be the ingress controller's namespace, a DNS label such as kube-system or ingress-nginx."
+  }
 }
 
 variable "persistence" {

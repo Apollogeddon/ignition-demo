@@ -3,6 +3,17 @@ variable "namespace" {
   type        = string
 }
 
+variable "name" {
+  description = "Prefix for the platform's resource names (<name>-database, <name>-registry, ...), so two deployments can share a namespace; null keeps the unprefixed names of earlier releases"
+  type        = string
+  default     = null
+
+  validation {
+    condition     = var.name == null || can(regex("^[a-z0-9]([-a-z0-9]{0,30}[a-z0-9])?$", var.name))
+    error_message = "name must be a lower-case DNS label of at most 32 characters."
+  }
+}
+
 variable "create_namespace" {
   description = "Create the namespace (with restricted Pod Security enforced); false to use an existing one"
   type        = bool

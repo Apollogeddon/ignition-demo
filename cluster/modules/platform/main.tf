@@ -2,9 +2,10 @@
 # database, initialised from database/init on first start.
 
 locals {
+  prefix    = var.name == null ? "" : "${var.name}-"
   namespace = var.create_namespace ? kubernetes_namespace_v1.this[0].metadata[0].name : var.namespace
   labels = {
-    "app.kubernetes.io/name"       = "database"
+    "app.kubernetes.io/name"       = "${local.prefix}database"
     "app.kubernetes.io/part-of"    = "ignition"
     "app.kubernetes.io/managed-by" = "opentofu"
   }
@@ -31,7 +32,7 @@ resource "random_password" "db" {
 
 resource "kubernetes_secret_v1" "db" {
   metadata {
-    name      = "database"
+    name      = "${local.prefix}database"
     namespace = local.namespace
     labels    = local.labels
   }
@@ -44,7 +45,7 @@ resource "kubernetes_secret_v1" "db" {
 
 resource "kubernetes_config_map_v1" "db_init" {
   metadata {
-    name      = "database-init"
+    name      = "${local.prefix}database-init"
     namespace = local.namespace
     labels    = local.labels
   }
@@ -53,12 +54,12 @@ resource "kubernetes_config_map_v1" "db_init" {
 
 resource "kubernetes_stateful_set_v1" "db" {
   metadata {
-    name      = "database"
+    name      = "${local.prefix}database"
     namespace = local.namespace
     labels    = local.labels
   }
   spec {
-    service_name = "database"
+    service_name = "${local.prefix}database"
     replicas     = 1
     selector {
       match_labels = local.labels
@@ -174,7 +175,7 @@ resource "kubernetes_stateful_set_v1" "db" {
 
 resource "kubernetes_service_v1" "db" {
   metadata {
-    name      = "database"
+    name      = "${local.prefix}database"
     namespace = local.namespace
     labels    = local.labels
   }
@@ -193,7 +194,7 @@ resource "kubernetes_service_v1" "db" {
 # X-Forwarded-Proto
 resource "kubernetes_network_policy_v1" "db" {
   metadata {
-    name      = "database"
+    name      = "${local.prefix}database"
     namespace = local.namespace
     labels    = local.labels
   }
@@ -228,7 +229,7 @@ resource "kubernetes_network_policy_v1" "db" {
 resource "kubernetes_secret_v1" "registry" {
   count = nonsensitive(var.registry == null) ? 0 : 1
   metadata {
-    name      = "registry"
+    name      = "${local.prefix}registry"
     namespace = local.namespace
     labels    = local.labels
   }
@@ -248,13 +249,13 @@ resource "kubernetes_secret_v1" "registry" {
 # own, keeping db_backup.retention_days of them
 
 locals {
-  backup_labels = merge(local.labels, { "app.kubernetes.io/name" = "database-backup" })
+  backup_labels = merge(local.labels, { "app.kubernetes.io/name" = "${local.prefix}database-backup" })
 }
 
 resource "kubernetes_persistent_volume_claim_v1" "db_backup" {
   count = var.db_backup == null ? 0 : 1
   metadata {
-    name      = "database-backup"
+    name      = "${local.prefix}database-backup"
     namespace = local.namespace
     labels    = local.backup_labels
   }
@@ -272,7 +273,7 @@ resource "kubernetes_persistent_volume_claim_v1" "db_backup" {
 resource "kubernetes_cron_job_v1" "db_backup" {
   count = var.db_backup == null ? 0 : 1
   metadata {
-    name      = "database-backup"
+    name      = "${local.prefix}database-backup"
     namespace = local.namespace
     labels    = local.backup_labels
   }
@@ -359,7 +360,7 @@ resource "kubernetes_cron_job_v1" "db_backup" {
 resource "kubernetes_network_policy_v1" "db_backup" {
   count = var.db_backup == null ? 0 : 1
   metadata {
-    name      = "database-backup"
+    name      = "${local.prefix}database-backup"
     namespace = local.namespace
     labels    = local.backup_labels
   }

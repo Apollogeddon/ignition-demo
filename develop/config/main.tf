@@ -11,6 +11,13 @@ module "resources" {
     user     = "demo"
     password = var.db_password
   }
+
+  # the demo configures all of these, as the 8.1 seed does; the module's
+  # default is none of them
+  alarm_journal = {}
+  user_source   = {}
+  audit_profile = {}
+  smtp          = {}
 }
 
 # the module was called gateway_config: move existing state instead of recreating it
