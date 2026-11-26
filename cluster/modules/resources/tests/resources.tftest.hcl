@@ -17,6 +17,7 @@ run "only_the_connection_by_default" {
   assert {
     condition = alltrue([
       length(ignition_alarm_journal.demo) == 0,
+      length(ignition_historian_provider.demo) == 0,
       length(ignition_user_source.demo) == 0,
       length(ignition_identity_provider.demo) == 0,
       length(ignition_audit_profile.logins) == 0,
@@ -35,6 +36,7 @@ run "every_block_with_its_defaults" {
   command = plan
   variables {
     alarm_journal = {}
+    historian     = {}
     user_source   = {}
     audit_profile = {}
     smtp          = {}
@@ -42,6 +44,8 @@ run "every_block_with_its_defaults" {
   assert {
     condition = alltrue([
       ignition_alarm_journal.demo[0].table_name == "alarm_events",
+      ignition_historian_provider.demo[0].name == "demo",
+      ignition_historian_provider.demo[0].pruning_age == 12,
       ignition_identity_provider.demo[0].user_source == "demo",
       ignition_audit_profile.logins[0].retention_days == 90,
       ignition_smtp_profile.demo[0].hostname == "localhost",
@@ -49,4 +53,12 @@ run "every_block_with_its_defaults" {
     ])
     error_message = "{} does not create the block with its defaults."
   }
+}
+
+run "historian_pruning_at_least_a_month" {
+  command = plan
+  variables {
+    historian = { pruning_months = 0 }
+  }
+  expect_failures = [var.historian]
 }

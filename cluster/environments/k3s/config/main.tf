@@ -21,6 +21,7 @@ module "resources" {
   # the demo configures all of these, as the 8.1 seed does; the module's
   # default is none of them
   alarm_journal = {}
+  historian     = {}
   user_source   = {}
   audit_profile = {}
   smtp          = {}

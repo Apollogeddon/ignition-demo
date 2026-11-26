@@ -26,6 +26,19 @@ variable "alarm_journal" {
   default = null
 }
 
+variable "historian" {
+  description = "Store tag history in the demo database: a SQL Historian (8.3), named as the UDTs' historyProvider; null for none, {} for the defaults"
+  type = object({
+    name           = optional(string, "demo")
+    pruning_months = optional(number, 12)
+  })
+  default = null
+  validation {
+    condition     = var.historian == null || try(var.historian.pruning_months >= 1, false)
+    error_message = "historian.pruning_months must be at least 1."
+  }
+}
+
 variable "user_source" {
   description = "Internal user source (and an identity provider using it) for the project's users; null for none, {} for the defaults"
   type = object({
