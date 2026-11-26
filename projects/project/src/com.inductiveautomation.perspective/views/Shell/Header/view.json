@@ -201,7 +201,8 @@
           "alignItems": "center",
           "direction": "row",
           "style": {
-            "gap": "4px"
+            "gap": "4px",
+            "classes": "Shell/Links"
           }
         },
         "type": "ia.container.flex"

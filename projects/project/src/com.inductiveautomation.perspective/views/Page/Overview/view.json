@@ -723,7 +723,8 @@
         "props": {
           "direction": "row",
           "style": {
-            "gap": "16px"
+            "gap": "16px",
+            "classes": "Layout/Kpis"
           }
         },
         "type": "ia.container.flex"
@@ -1335,7 +1336,8 @@
         "props": {
           "direction": "row",
           "style": {
-            "gap": "16px"
+            "gap": "16px",
+            "classes": "Layout/ChartRow"
           }
         },
         "type": "ia.container.flex"
@@ -2378,7 +2380,8 @@
         "props": {
           "direction": "row",
           "style": {
-            "gap": "16px"
+            "gap": "16px",
+            "classes": "Layout/Row"
           }
         },
         "type": "ia.container.flex"

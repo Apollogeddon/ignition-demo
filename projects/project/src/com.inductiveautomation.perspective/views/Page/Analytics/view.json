@@ -657,7 +657,7 @@
                   "props.text": {
                     "binding": {
                       "config": {
-                        "expression": "concat('m³ delivered to the network in the last ', {view.custom.analytics.output.hours}, ' hours')"
+                        "expression": "concat('m\u00b3 delivered to the network in the last ', {view.custom.analytics.output.hours}, ' hours')"
                       },
                       "type": "expr"
                     }
@@ -699,7 +699,8 @@
         "props": {
           "direction": "row",
           "style": {
-            "gap": "16px"
+            "gap": "16px",
+            "classes": "Layout/Kpis Layout/Gauges"
           }
         },
         "type": "ia.container.flex"
@@ -972,7 +973,7 @@
                   },
                   "hiddenInLegend": false,
                   "label": {
-                    "text": "Delivered (m³)"
+                    "text": "Delivered (m\u00b3)"
                   },
                   "line": {
                     "appearance": {
@@ -1030,7 +1031,7 @@
                     "cornerRadius": 6,
                     "enabled": true,
                     "pointerLength": 4,
-                    "text": "{categoryX}: [bold]{valueY} m³[/]"
+                    "text": "{categoryX}: [bold]{valueY} m\u00b3[/]"
                   },
                   "visible": true,
                   "xAxis": "hour",
@@ -1375,7 +1376,7 @@
                   "label": {
                     "color": "#64748B",
                     "enabled": true,
-                    "text": "m³ per hour"
+                    "text": "m\u00b3 per hour"
                   },
                   "name": "volume",
                   "render": "value",
@@ -1932,7 +1933,8 @@
         "props": {
           "direction": "row",
           "style": {
-            "gap": "16px"
+            "gap": "16px",
+            "classes": "Layout/ChartRow"
           }
         },
         "type": "ia.container.flex"

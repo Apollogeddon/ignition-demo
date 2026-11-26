@@ -1,7 +1,9 @@
 /*
  * What style classes can't express: the gateway drops CSS variables and
- * filters from them. Kept to the Plant page's symbols; every other style is a
- * style class.
+ * filters from them, and a style class can't restyle its children. Kept to the
+ * Plant page's symbols and the layout on narrow screens; every other style is
+ * a style class. A container's position props are inline styles, so the layout
+ * rules need !important to override them.
  */
 
 /* the symbols' running state: green, pulsing while it animates */
@@ -15,4 +17,80 @@
 /* a clickable symbol glows on hover */
 .psc-Plant\/Equipment:hover {
   filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.75));
+}
+
+/* the schematic keeps its size; it centres while it fits and scrolls once it doesn't */
+.psc-Plant\/Canvas {
+  justify-content: flex-start !important;
+}
+.psc-Plant\/Canvas > * {
+  margin: 0 auto;
+}
+
+/* the page links scroll sideways rather than push the header off the screen */
+.psc-Shell\/Links {
+  scrollbar-width: none;
+}
+
+/* tablets: the clock gives the page links its room */
+@media (max-width: 1100px) {
+  .psc-Shell\/Meta {
+    display: none !important;
+  }
+}
+
+/* phones: rows stack, KPI cards go two to a row, and the header keeps only the links */
+@media (max-width: 640px) {
+  .psc-Shell\/Header {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+  .psc-Shell\/Header > :first-child,
+  .psc-Shell\/Badge {
+    display: none !important;
+  }
+  .psc-Shell\/Nav {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+  .psc-Layout\/Page {
+    padding: 16px 12px !important;
+    gap: 12px !important;
+  }
+  .psc-Layout\/Kpis {
+    flex-wrap: wrap !important;
+    gap: 12px !important;
+  }
+  .psc-Layout\/Kpis > * {
+    flex: 1 1 calc(50% - 6px) !important;
+    min-width: 0;
+  }
+  .psc-Layout\/Kpis .psc-Kpi\/Value {
+    font-size: 22px !important;
+  }
+  .psc-Layout\/Kpis .psc-Kpi\/Label {
+    font-size: 11px !important;
+    letter-spacing: 0.02em !important;
+  }
+  /* a gauge needs the full width to keep its value inside the arc */
+  .psc-Layout\/Gauges > * {
+    flex-basis: 100% !important;
+  }
+  /* an hour's cell is a few pixels wide: its colour carries the value */
+  .psc-Heat\/Text,
+  .psc-Heat\/TextDark {
+    color: transparent !important;
+  }
+  .psc-Layout\/Row,
+  .psc-Layout\/ChartRow {
+    flex-direction: column !important;
+    flex: 0 0 auto !important;
+    gap: 12px !important;
+  }
+  .psc-Layout\/Row > * {
+    flex: 0 0 auto !important;
+  }
+  .psc-Layout\/ChartRow > * {
+    flex: 0 0 340px !important;
+  }
 }

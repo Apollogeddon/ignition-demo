@@ -718,7 +718,8 @@
         "props": {
           "direction": "row",
           "style": {
-            "gap": "16px"
+            "gap": "16px",
+            "classes": "Layout/Kpis"
           }
         },
         "type": "ia.container.flex"
@@ -3030,7 +3031,8 @@
               "direction": "row",
               "justify": "center",
               "style": {
-                "overflow": "auto"
+                "overflow": "auto",
+                "classes": "Plant/Canvas"
               }
             },
             "type": "ia.container.flex"
