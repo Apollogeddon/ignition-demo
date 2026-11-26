@@ -1,7 +1,8 @@
 name: infra
 
-# The OpenTofu code's own checks, which need neither a cluster nor secrets: format and validate, then
-# Trivy's misconfiguration scan of the OpenTofu code, the Compose file and the Dockerfile.
+# The OpenTofu code's own checks, which need neither a cluster nor secrets: format and validate, the
+# modules' tofu tests against mock providers, then Trivy's misconfiguration scan of the OpenTofu code,
+# the Compose file and the Dockerfile.
 on:
   workflow_call:
 
@@ -49,6 +50,44 @@ jobs:
           for dir in cluster/modules/resources cluster/environments/k3s/config develop/config; do
             tofu -chdir="$dir" init -backend=false -input=false >/dev/null
             tofu -chdir="$dir" validate
+          done
+
+  # tofu test against mock providers: each module's validations and the values it renders, and the k3s
+  # infra stage's image checks and HTTPS-only ingress
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Set up OpenTofu
+        uses: opentofu/setup-opentofu@v2
+        with:
+          tofu_version: 1.13.1
+      # a mock provider still needs the provider's schema: the Ignition provider comes from its network
+      # mirror, as in lint
+      - name: Test
+        run: |
+          cat >"$RUNNER_TEMP/tofurc" <<'CONFIG'
+          provider_installation {
+            network_mirror {
+              url     = "https://apollogeddon.github.io/ignition-tofu/providers/"
+              include = ["registry.opentofu.org/apollogeddon/ignition"]
+            }
+            direct {
+              exclude = ["registry.opentofu.org/apollogeddon/ignition"]
+            }
+          }
+          CONFIG
+          export TF_CLI_CONFIG_FILE="$RUNNER_TEMP/tofurc"
+          for dir in cluster/modules/platform cluster/modules/gateway cluster/modules/resources cluster/environments/k3s/infra; do
+            tofu -chdir="$dir" init -backend=false -input=false >/dev/null
+            tofu -chdir="$dir" test
           done
 
   scan:

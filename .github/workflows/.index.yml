@@ -182,6 +182,20 @@ jobs:
           gh release upload "$TAG" "$RUNNER_TEMP"/release/* --repo "$GITHUB_REPOSITORY" --clobber
           gh release edit "$TAG" --draft=false --repo "$GITHUB_REPOSITORY"
 
+  # OpenTofu's deploy of the k3s environment: on a manual run, and on a push to main only when the
+  # repository variable DEPLOY_ON_PUSH is true. plan reads its secrets from the k3s-plan environment,
+  # apply from k3s, whose required reviewers approve the plan; without the secrets it skips cleanly
+  deploy:
+    if: >-
+      ${{ github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.DEPLOY_ON_PUSH == 'true') }}
+    uses: ./.github/workflows/deploy.yml
+    permissions:
+      contents: read
+    with:
+      environment: k3s
+      runs_on: ${{ vars.DEPLOY_RUNNER || 'ubuntu-latest' }}
+
   # forgejs's website pipeline for the documentation site: Gitleaks over the whole repository (so it
   # isn't path filtered), OSV-Scanner, Biome, the type check and the build, then its internal links with
   # lychee and every page in the sitemap against WCAG 2.2 A and AA with axe
