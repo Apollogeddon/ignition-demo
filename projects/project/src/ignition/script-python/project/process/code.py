@@ -1,7 +1,8 @@
 """A small water plant model that drives the assets' tags, so every view shows a live process.
 
 The project's gateway timer event (ignition/timer/process) calls tick() every
-TICK_SECONDS. tick() reads each asset's UDT instance, steps the model, writes
+TICK_SECONDS, through project.gateway.onTick, which first makes sure the asset
+instances exist. tick() reads each asset's UDT instance, steps the model, writes
 the results back and records each trip, reset, start and stop as a status
 event. Every LOG_MINUTES it appends each asset's reading to asset_reading, so
 the charts built on the seeded 72 hours keep growing.

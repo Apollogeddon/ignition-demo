@@ -2,7 +2,7 @@
 
 from unittest.mock import MagicMock, call, patch
 
-from project.gateway.code import onStartup, onUpdate, syncWhenReady
+from project.gateway.code import onStartup, onTick, onUpdate, syncWhenReady
 
 
 def test_startup_seeds_imports_udts_then_syncs_in_the_background() -> None:
@@ -65,3 +65,26 @@ def test_update_exports_udts_and_survives_failures() -> None:
 		onUpdate("designer", {})
 	exportAll.assert_called_once_with("library")
 	assert "read-only" in logger.warn.call_args.args[0]
+
+
+def test_tick_syncs_the_instances_first_then_steps() -> None:
+	memory: dict = {}
+	with (
+		patch("project.gateway.code.getGlobals", return_value={"demo.gateway": memory}),
+		patch("project.gateway.code.syncInstances") as sync,
+		patch("project.gateway.code.tick") as tick,
+	):
+		onTick()
+		onTick()
+	sync.assert_called_once_with()
+	assert tick.call_count == 2
+
+
+def test_tick_waits_for_the_database_before_stepping() -> None:
+	with (
+		patch("project.gateway.code.getGlobals", return_value={}),
+		patch("project.gateway.code.syncInstances", side_effect=RuntimeError("no connection")),
+		patch("project.gateway.code.tick") as tick,
+	):
+		onTick()
+	tick.assert_not_called()

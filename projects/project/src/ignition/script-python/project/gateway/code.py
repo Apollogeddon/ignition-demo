@@ -11,7 +11,8 @@ from java.lang import Throwable
 from library.seed import applyFile
 from library.udts import exportAll, importAll
 from project.assets import syncInstances
-from system.util import getLogger, invokeAsynchronous
+from project.process import tick
+from system.util import getGlobals, getLogger, invokeAsynchronous
 
 LOGGER = getLogger("demo.project.gateway")
 
@@ -84,3 +85,22 @@ def onUpdate(
 			exportAll(project)
 		except (Exception, Throwable) as e:  # noqa: BLE001 - the save must not fail on it
 			LOGGER.warn("UDT export for {} failed: {}".format(project, e))
+
+
+def onTick():
+	# type: (...) -> None
+	"""Run the process timer: make sure the asset instances exist, then step the process.
+
+	On 8.3 the database connection only exists once the config stage has run,
+	usually after the startup sync has given up, so until a sync succeeds each
+	tick tries it instead of stepping a plant whose tags don't exist yet.
+	"""
+	memory = getGlobals().setdefault("demo.gateway", {})
+	if not memory.get("synced"):
+		try:
+			syncInstances()
+		except (Exception, Throwable) as e:  # noqa: BLE001 - the next tick tries again
+			LOGGER.debug("Asset instances not synchronised yet: {}".format(e))
+			return
+		memory["synced"] = True
+	tick()

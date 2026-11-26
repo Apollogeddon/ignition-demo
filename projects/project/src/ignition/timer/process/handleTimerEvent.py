@@ -1,2 +1,2 @@
 def handleTimerEvent():
-	project.process.tick()
+	project.gateway.onTick()
