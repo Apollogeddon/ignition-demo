@@ -75,7 +75,10 @@ docker compose -f develop/docker-compose.yml up -d --build
   .content {
     position: relative;
     z-index: 10;
+    width: 100%;
     max-width: 800px;
+    /* the quick start's long lines scroll inside it, not widen the page */
+    min-width: 0;
   }
 
   .hero-logo {
