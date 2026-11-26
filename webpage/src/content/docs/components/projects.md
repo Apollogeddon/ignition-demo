@@ -12,11 +12,13 @@ Each folder in `projects/` is one Ignition project, and this page covers how the
 
 ## The demo application
 
-`project` is a small Perspective application over the [database](../database/)'s assets, at `/data/perspective/client/project`. A docked header (`Shell/Header`) links its three pages and shows the time and the gateway's Ignition release:
+`project` is a small Perspective application over the [database](../database/)'s assets, at `/data/perspective/client/project`. A docked header (`Shell/Header`) links its five pages and shows the time and the gateway's Ignition release:
 
 | Page | View | Shows |
 | --- | --- | --- |
 | `/` Overview | `Page/Overview` | KPI cards (assets, online, offline, pumped flow, last event), pumped flow per area over the last 72 hours (Time Series Chart), assets per area (Pie Chart), a card per area, and the selected area's assets |
+| `/plant` Plant | `Page/Plant` | A live process schematic from the intake well to the transfer pumps: tanks, pumps, blowers, the contact tank and its valve, joined by pipes that colour while their stage flows; each symbol opens the equipment popup (`Popup/Equipment`) |
+| `/analytics` Analytics | `Page/Analytics` | Gauges for availability, intake against capacity and reservoir level, the plant's output over the last day, hourly delivered volume against reservoir level (XY Chart), a day-by-hour heatmap of intake flow, and each area's load |
 | `/assets` Assets | `Page/Assets` | Every asset with its status and latest reading; the selected asset's trend, recent events, and Acknowledge and Log note actions |
 | `/events` Events | `Page/Events` | Counts by kind and the event log, newest first |
 
@@ -25,6 +27,8 @@ The views use only built-in components, styled by the `library` project's style 
 | Module | Does |
 | --- | --- |
 | `project.overview` | The Overview's KPIs, area cards, pie data and flow trend |
+| `project.plant` | The schematic's symbol states, readings and pipe colours, and the equipment popup |
+| `project.analytics` | The Analytics page's gauges, chart, heatmap and area load |
 | `project.assets` | The asset table and the asset detail panel |
 | `project.events` | Validates and records events, and lists them |
 
@@ -32,9 +36,34 @@ The message flows:
 
 - **Select an area.** An area card on the Overview sends the `areaSelected` page message (`system.perspective.sendMessage`); the area panel's handler sets the view's selected area and refreshes its table.
 - **Select an asset.** A row of the Assets table sends `assetSelected`; the detail panel's handler loads that asset.
-- **Acknowledge or log a note.** The detail panel's buttons call `project.events.send`, which asks the `recordEvent` gateway message handler (`system.util.sendRequest`). The handler, `ignition/message/recordEvent/handleMessage.py`, calls `project.events.handle`: it validates the request, inserts the row with the `events/insert` named query and answers `{ok, text}`, which the panel shows. The panel then refreshes and sends the `eventRecorded` session message, which refreshes the Events page in any other tab of the session.
+- **Acknowledge or log a note.** The detail panel's buttons call `project.events.send`, which asks the `recordEvent` gateway message handler (`system.util.sendRequest`). The handler, `ignition/message/recordEvent/handleMessage.py`, calls `project.events.handle`: it validates the request, inserts the row with the `events/insert` named query and answers `{ok, text}`, which the panel shows. The panel then refreshes and sends the `eventRecorded` session message, which refreshes the Events and Plant pages in any other tab of the session.
+- **Open equipment.** A symbol on the Plant page opens the equipment popup, whose Acknowledge button records an event the same way.
 
-The named queries (`assets/list`, `assets/status`, `readings/flowByArea`, `readings/asset`, `events/list`, `events/insert`) are plain SQL on the `demo` connection, the same on 8.1 and 8.3. The data comes from `database/init`, which PostgreSQL only runs when the database volume is created: after pulling a change to it, reset the develop stack with `docker compose -f develop/docker-compose.yml down -v`.
+The named queries (`assets/list`, `assets/status`, `readings/flowByArea`, `readings/hourly`, `readings/asset`, `events/list`, `events/insert`) are plain SQL on the `demo` connection, the same on 8.1 and 8.3. The data comes from `database/init`, which PostgreSQL only runs when the database volume is created: after pulling a change to it, reset the develop stack with `docker compose -f develop/docker-compose.yml down -v`.
+
+## How the views are built
+
+Every page follows the same pattern, so a new one starts from a copy of another:
+
+- **Pages and docks.** `com.inductiveautomation.perspective/page-config/config.json` maps each URL to a page view and declares one shared top dock, `Shell/Header`, which every page shows. Its `ia.navigation.link`s take the `Shell/NavActive` class from an expression on `{page.props.path}`.
+- **Custom properties fetch.** A page view's root is an `ia.container.flex` with the `Layout/Page` class, its sections nested flex containers with the `Card` class. The page's data sits in view custom properties, such as `view.custom.plant`, each bound to an expression that ticks (`now(15000)`) with a script transform that makes one call: `return project.plant.getPlant()`. Components only bind to parts of them, with property and expression bindings such as `{view.custom.plant.slots.intake1.state}`.
+- **Script modules and named queries.** Each page has a module in `ignition/script-python/project/<module>/code.py`. It runs named queries through `library.db.namedQuery` and shapes the rows into plain dictionaries and lists, down to the text, symbol states and colours the view shows, so the view holds no logic and the shaping is unit-tested in `project/tests` with the `system.*` mocks in `conftest.py`. A named query is `ignition/named-query/<group>/<name>/query.sql` plus its `resource.json`, on the `demo` connection; the readings queries cover the 72 hours up to the latest reading.
+- **Style classes.** Components name classes from the `library` project (`Card`, `Kpi/*`, `Section/*`, `Pill/*`, `Text/*`, `Plant/*`, `Heat/*`, `Progress/*`) rather than carry styles; inline styles are kept to layout gaps and colours that come from data, such as an area's swatch or a heatmap cell. The gateway drops what a class can't hold as a plain property (CSS variables, `filter`, the `border` shorthand), so `library`'s `stylesheet.css`, Perspective's advanced stylesheet, holds the two rules that need them: the symbols' running colours and their hover glow, on `.psc-Plant\/Equipment`.
+- **Repeated cells.** A Flex Repeater draws one small view per item of a list: `Cells/HeatRow` and `Cells/HeatCell` make the heatmap, `Cells/AreaLoad` an area's load bar. Tables draw `Cells/Pill` in their status and kind columns.
+- **Messages.** View message handlers sit on a component (`scripts.messageHandlers`). `areaSelected` and `assetSelected` are page-scoped: a card or table row on the page sends one with `system.perspective.sendMessage` and a panel on the same page handles it. `eventRecorded` is session-scoped, so recording an event refreshes the Events and Plant pages in every tab of the session. Writes go through the gateway: `project.events.send` calls `system.util.sendRequest`, which the `recordEvent` gateway message handler answers.
+- **Popups.** A schematic symbol's `onClick` calls `project.plant.openEquipment`, which opens the `Popup/Equipment` view with `system.perspective.openPopup`, passing `assetId` as a view parameter. The popup binds its data to that parameter, acknowledges through `recordEvent`, and closes itself with `system.perspective.closePopup`.
+- **Ignition 8.1.** Views, style classes, the stylesheet, named queries and scripts are the same files on both lines, and every component here exists in Perspective on 8.1.55 and 8.3.10. Only the gateway events and message handlers differ: 8.1 keeps them in `ignition/event-scripts/data.bin`, which `scripts/generate-event-scripts.sh` builds from the 8.3 files, so a handler is written once.
+
+The components each page uses, beyond flex containers, labels and icons:
+
+| View | Components |
+| --- | --- |
+| `Page/Overview` | Time Series Chart, Pie Chart, Table, Button |
+| `Page/Plant` | Coordinate Container in fixed mode, with its pipes; Cylindrical Tank; the Pump, Motor, Vessel, Valve and Sensor symbols |
+| `Popup/Equipment` | Gauge, Sparkline, Button |
+| `Page/Analytics` | Simple Gauge, LED Display, XY Chart (columns and a line on two axes), Flex Repeater, Embedded View, Progress Bar |
+| `Page/Assets` | Table, Time Series Chart, Text Area, Button |
+| `Page/Events` | Table |
 
 ## Script conventions
 
