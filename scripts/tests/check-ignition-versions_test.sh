@@ -29,5 +29,9 @@ echo "FROM docker.io/inductiveautomation/ignition:8.3.11" > "$r/gateway/base/8.3
 check "a bumped pin fails" '! run "$r"'
 check "and names the file still on the old release" 'grep -q "index.yaml:1:" "$r.out" && grep -q "pinned at 8.3.11" "$r.out"'
 
+r="${work}/npm"; repo "$r"
+mkdir -p "$r/webpage"; printf '{"dependencies": {"@astrojs/mdx": "8.1.5"}}\n' > "$r/webpage/package.json"; git -C "$r" add -A
+check "an npm package's version in a package.json is ignored" 'run "$r"'
+
 if [ "${failures}" -ne 0 ]; then echo "${failures} failed"; exit 1; fi
 echo "all passed"

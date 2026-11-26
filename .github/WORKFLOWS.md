@@ -4,7 +4,7 @@ This repository uses GitHub Actions to check the projects and the infrastructure
 
 ## CI orchestration
 
-The root workflow, [`.index.yml`](./workflows/.index.yml) (`index`), runs on every pull request, every push to `main`, a manual run, the `auto-merged` dispatch the merge pipeline sends, and weekly for the patch pipelines. Each of its jobs calls one pipeline, or is a stage of one, so the run page lists every job as `<pipeline> / <stage>`. The pipelines are [forgepy](https://github.com/apollogeddon/forgepy)'s and [forgejs](https://github.com/apollogeddon/forgejs)'s shared ones, and three of the repository's own: [`scripts.yml`](./workflows/scripts.yml), [`infra.yml`](./workflows/infra.yml) and [`docker.yml`](./workflows/docker.yml).
+The root workflow, [`.index.yml`](./workflows/.index.yml) (`index`), runs on every pull request, every push to `main`, a manual run, the `auto-merged` dispatch the merge pipeline sends, and weekly for the patch pipeline. Each of its jobs calls one pipeline, or is a stage of one, so the run page lists every job as `<pipeline> / <stage>`. The pipelines are [forgepy](https://github.com/apollogeddon/forgepy)'s and [forgejs](https://github.com/apollogeddon/forgejs)'s shared ones, and three of the repository's own: [`scripts.yml`](./workflows/scripts.yml), [`infra.yml`](./workflows/infra.yml) and [`docker.yml`](./workflows/docker.yml).
 
 | Job | Pipeline | Runs |
 | --- | --- | --- |
@@ -18,7 +18,7 @@ The root workflow, [`.index.yml`](./workflows/.index.yml) (`index`), runs on eve
 | `website / lint`, `scan`, `build`, `check` | forgejs's `website.yml` | Every run but the weekly one ([Documentation site](#documentation-site)) |
 | `website / lint (markdown)` | (this workflow) | Every run but the weekly one |
 | `pages / deploy` | forgejs's `pages.yml` | On `main`, once the site's checks pass |
-| `patch (projects) / update`, `patch (webpage) / update` | forgepy's and forgejs's `patch.yml` | Weekly, on a manual run, and after the `auto-merged` dispatch ([Patches](#patches)) |
+| `patch (projects) / update` | forgepy's `patch.yml` | Weekly, on a manual run, and after the `auto-merged` dispatch ([Patches](#patches)) |
 | `merge / review`, `merge / squash` | forgepy's `merge.yml` | On Dependabot's pull requests, once every check above passed or was skipped ([Dependabot](#dependabot)) |
 
 A new push to a pull request cancels its previous run. Every other run has a concurrency group of its own, so a run on `main`, running or queued, is never cancelled and a release is never created without its images.
@@ -106,10 +106,9 @@ Three jobs check the [Astro](https://astro.build/) documentation site in `webpag
 
 ## Patches
 
-Weekly, on a manual run, and after the merge pipeline's `auto-merged` dispatch, the patch pipelines commit to `main`:
+Weekly, on a manual run, and after the merge pipeline's `auto-merged` dispatch, **`patch (projects)`** calls forgepy's `patch.yml`, which refreshes forgepy's managed configs in `projects/.forgepy/` and proposes the refresh as a pull request.
 
-- **`patch (projects)`**: forgepy's `patch.yml` refreshes forgepy's managed configs in `projects/.forgepy/` and upgrades the packages in `projects/uv.lock` with known vulnerabilities.
-- **`patch (webpage)`**: forgejs's `patch.yml` updates the site's vulnerable npm dependencies, after the projects' patch so the two never push at once.
+Vulnerable dependencies, in `projects/uv.lock` and the site's npm packages alike, are left to Dependabot security updates, which open their own pull requests that `merge` squashes like any other Dependabot update. They only run once **Dependabot security updates** are turned on in the repository's settings (Settings → Advanced Security).
 
 ## Dependabot
 
