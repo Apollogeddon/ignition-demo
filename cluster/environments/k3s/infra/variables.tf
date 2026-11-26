@@ -77,6 +77,18 @@ variable "hostname" {
   type        = string
 }
 
+variable "ingress_annotations" {
+  description = "Extra annotations for the gateway's Ingress, merged over the environment's (cert-manager's issuer, and Traefik's websecure entrypoint with TLS)"
+  type        = map(string)
+  default     = {}
+}
+
+variable "http_redirect" {
+  description = "Redirect plain HTTP to HTTPS, with a Traefik Middleware and an Ingress on the web entrypoint; false leaves port 80 unrouted"
+  type        = bool
+  default     = true
+}
+
 variable "issuer_name" {
   description = "cert-manager ClusterIssuer for the gateway and ingress certificates"
   type        = string

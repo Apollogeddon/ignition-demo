@@ -55,8 +55,61 @@ module "gateway" {
     class_name = "traefik"
     namespace  = "kube-system"
     tls_secret = "ignition-ingress-tls"
-    annotations = {
+    annotations = merge({
       "cert-manager.io/cluster-issuer" = var.issuer_name
+      # HTTPS only: Traefik serves an Ingress on every entrypoint unless told
+      # otherwise, so plain HTTP would reach the gateway (and its logins) too
+      "traefik.ingress.kubernetes.io/router.entrypoints" = "websecure"
+      "traefik.ingress.kubernetes.io/router.tls"         = "true"
+    }, var.ingress_annotations)
+  }
+}
+
+# Plain HTTP only redirects to HTTPS: a Traefik Middleware, and an Ingress on the
+# web entrypoint that applies it (its backend is never reached)
+resource "kubernetes_manifest" "https_redirect" {
+  count = var.http_redirect ? 1 : 0
+  manifest = {
+    apiVersion = "traefik.io/v1alpha1"
+    kind       = "Middleware"
+    metadata = {
+      name      = "${local.gateway_name}-https-redirect"
+      namespace = module.platform.namespace
+    }
+    spec = {
+      redirectScheme = { scheme = "https", permanent = true }
+    }
+  }
+}
+
+resource "kubernetes_ingress_v1" "http_redirect" {
+  count = var.http_redirect ? 1 : 0
+  metadata {
+    name      = "${local.gateway_name}-http-redirect"
+    namespace = module.platform.namespace
+    annotations = {
+      "traefik.ingress.kubernetes.io/router.entrypoints" = "web"
+      "traefik.ingress.kubernetes.io/router.middlewares" = "${module.platform.namespace}-${kubernetes_manifest.https_redirect[0].manifest.metadata.name}@kubernetescrd"
+    }
+  }
+  spec {
+    ingress_class_name = "traefik"
+    rule {
+      host = var.hostname
+      http {
+        path {
+          path      = "/"
+          path_type = "Prefix"
+          backend {
+            service {
+              name = module.gateway.service
+              port {
+                number = 8088
+              }
+            }
+          }
+        }
+      }
     }
   }
 }

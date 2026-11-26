@@ -128,6 +128,15 @@ resource "helm_release" "gateway" {
   # a redundant pair commissions, syncs and only then reports Ready
   timeout = 1200
   wait    = true
+
+  lifecycle {
+    # The gateway would refuse the API key over the ingress, so the first
+    # resources apply would fail with 401/403 instead
+    precondition {
+      condition     = !(var.ignition_version == "8.3" && var.api_token_require_tls && var.ingress != null && try(var.ingress.tls_secret, null) == null)
+      error_message = "api_token_require_tls is true, so the gateway only takes its API key over HTTPS, but the ingress has no tls_secret: set ingress.tls_secret, or api_token_require_tls = false for a gateway reached over plain HTTP."
+    }
+  }
 }
 
 # The chart's NetworkPolicy covers the gateways. Its other pods (the
