@@ -1,8 +1,34 @@
 {
   "pages": {
     "/": {
+      "title": "Overview",
+      "viewPath": "Page/Overview"
+    },
+    "/assets": {
       "title": "Assets",
-      "viewPath": "Page/Home"
+      "viewPath": "Page/Assets"
+    },
+    "/events": {
+      "title": "Events",
+      "viewPath": "Page/Events"
     }
+  },
+  "sharedDocks": {
+    "top": [
+      {
+        "anchor": "fixed",
+        "autoBreakpoint": 480,
+        "content": "push",
+        "handle": "hide",
+        "iconUrl": "",
+        "id": "Header",
+        "modal": false,
+        "resizable": false,
+        "show": "visible",
+        "size": 60,
+        "viewParams": {},
+        "viewPath": "Shell/Header"
+      }
+    ]
   }
 }

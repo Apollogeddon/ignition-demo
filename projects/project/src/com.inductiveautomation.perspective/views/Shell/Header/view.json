@@ -1,0 +1,244 @@
+{
+  "custom": {},
+  "params": {},
+  "props": {
+    "defaultSize": {
+      "height": 60,
+      "width": 1280
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "children": [
+          {
+            "meta": {
+              "name": "Logo"
+            },
+            "position": {
+              "basis": "26px",
+              "shrink": 0
+            },
+            "props": {
+              "color": "#38BDF8",
+              "path": "material/opacity",
+              "style": {}
+            },
+            "type": "ia.display.icon"
+          },
+          {
+            "meta": {
+              "name": "Name"
+            },
+            "position": {
+              "shrink": 0
+            },
+            "props": {
+              "style": {
+                "classes": "Shell/Brand"
+              },
+              "text": "Demo Waterworks"
+            },
+            "type": "ia.display.label"
+          }
+        ],
+        "meta": {
+          "name": "Brand"
+        },
+        "position": {
+          "shrink": 0
+        },
+        "props": {
+          "alignItems": "center",
+          "direction": "row",
+          "style": {
+            "gap": "8px",
+            "marginRight": "28px"
+          }
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "children": [
+          {
+            "meta": {
+              "name": "Overview"
+            },
+            "position": {
+              "shrink": 0
+            },
+            "propConfig": {
+              "props.style.classes": {
+                "binding": {
+                  "config": {
+                    "expression": "if({page.props.path} = \"/\", \"Shell/Nav Shell/NavActive\", \"Shell/Nav\")"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "style": {
+                "classes": "Shell/Nav"
+              },
+              "text": "Overview",
+              "url": "/"
+            },
+            "type": "ia.navigation.link"
+          },
+          {
+            "meta": {
+              "name": "Assets"
+            },
+            "position": {
+              "shrink": 0
+            },
+            "propConfig": {
+              "props.style.classes": {
+                "binding": {
+                  "config": {
+                    "expression": "if({page.props.path} = \"/assets\", \"Shell/Nav Shell/NavActive\", \"Shell/Nav\")"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "style": {
+                "classes": "Shell/Nav"
+              },
+              "text": "Assets",
+              "url": "/assets"
+            },
+            "type": "ia.navigation.link"
+          },
+          {
+            "meta": {
+              "name": "Events"
+            },
+            "position": {
+              "shrink": 0
+            },
+            "propConfig": {
+              "props.style.classes": {
+                "binding": {
+                  "config": {
+                    "expression": "if({page.props.path} = \"/events\", \"Shell/Nav Shell/NavActive\", \"Shell/Nav\")"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "style": {
+                "classes": "Shell/Nav"
+              },
+              "text": "Events",
+              "url": "/events"
+            },
+            "type": "ia.navigation.link"
+          }
+        ],
+        "meta": {
+          "name": "Nav"
+        },
+        "position": {
+          "grow": 1
+        },
+        "props": {
+          "alignItems": "center",
+          "direction": "row",
+          "style": {
+            "gap": "4px"
+          }
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "children": [
+          {
+            "meta": {
+              "name": "Clock"
+            },
+            "position": {
+              "shrink": 0
+            },
+            "propConfig": {
+              "props.text": {
+                "binding": {
+                  "config": {
+                    "expression": "dateFormat(now(1000), \"EEE d MMM, HH:mm:ss\")"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "style": {
+                "classes": "Shell/Meta"
+              },
+              "text": ""
+            },
+            "type": "ia.display.label"
+          },
+          {
+            "meta": {
+              "name": "Release"
+            },
+            "position": {
+              "shrink": 0
+            },
+            "propConfig": {
+              "props.text": {
+                "binding": {
+                  "config": {
+                    "expression": "now(0)"
+                  },
+                  "transforms": [
+                    {
+                      "code": "\treturn project.overview.gatewayRelease()",
+                      "type": "script"
+                    }
+                  ],
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "style": {
+                "classes": "Shell/Badge"
+              },
+              "text": ""
+            },
+            "type": "ia.display.label"
+          }
+        ],
+        "meta": {
+          "name": "Meta"
+        },
+        "position": {
+          "shrink": 0
+        },
+        "props": {
+          "alignItems": "center",
+          "direction": "row",
+          "style": {
+            "gap": "14px"
+          }
+        },
+        "type": "ia.container.flex"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "alignItems": "center",
+      "direction": "row",
+      "style": {
+        "classes": "Shell/Header"
+      }
+    },
+    "type": "ia.container.flex"
+  }
+}

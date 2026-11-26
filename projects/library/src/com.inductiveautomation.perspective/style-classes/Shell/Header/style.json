@@ -1,0 +1,10 @@
+{
+  "base": {
+    "style": {
+      "backgroundColor": "#0F172A",
+      "borderBottom": "1px solid #1E293B",
+      "fontFamily": "Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+      "padding": "0 24px"
+    }
+  }
+}
