@@ -132,3 +132,9 @@ variable "storage_class" {
   type        = string
   default     = null
 }
+
+variable "chart_path" {
+  description = "A local ignition-failover chart directory to install instead of the published chart, to try an unreleased one; null uses the module's chart_version"
+  type        = string
+  default     = null
+}
