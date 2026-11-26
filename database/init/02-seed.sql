@@ -7,18 +7,18 @@ INSERT INTO area (name, description, position) VALUES
     ('South', 'Treatment',          2),
     ('East',  'Storage',            3);
 
-INSERT INTO asset (id, name, area, kind, online, unit) VALUES
-    (1,  'Intake pump 1',     'North', 'pump',   true,  'L/s'),
-    (2,  'Intake pump 2',     'North', 'pump',   true,  'L/s'),
-    (3,  'Blower 1',          'South', 'blower', true,  'm³/h'),
-    (4,  'Dosing pump',       'South', 'pump',   true,  'L/s'),
-    (5,  'Mixer',             'South', 'mixer',  true,  'rpm'),
-    (6,  'Reservoir level',   'East',  'level',  true,  '%'),
-    (7,  'Intake pump 3',     'North', 'pump',   false, 'L/s'),
-    (8,  'Intake well level', 'North', 'level',  true,  '%'),
-    (9,  'Blower 2',          'South', 'blower', false, 'm³/h'),
-    (10, 'Transfer pump 1',   'East',  'pump',   true,  'L/s'),
-    (11, 'Transfer pump 2',   'East',  'pump',   true,  'L/s');
+INSERT INTO asset (id, name, area, kind, online, unit, capacity) VALUES
+    (1,  'Intake pump 1',     'North', 'pump',   true,  'L/s',    60),
+    (2,  'Intake pump 2',     'North', 'pump',   true,  'L/s',    60),
+    (3,  'Blower 1',          'South', 'blower', true,  'm³/h', 2000),
+    (4,  'Dosing pump',       'South', 'pump',   true,  'L/s',     3),
+    (5,  'Mixer',             'South', 'mixer',  true,  'rpm',    80),
+    (6,  'Reservoir level',   'East',  'level',  true,  '%',     100),
+    (7,  'Intake pump 3',     'North', 'pump',   false, 'L/s',    60),
+    (8,  'Intake well level', 'North', 'level',  true,  '%',     100),
+    (9,  'Blower 2',          'South', 'blower', false, 'm³/h', 2000),
+    (10, 'Transfer pump 1',   'East',  'pump',   true,  'L/s',    45),
+    (11, 'Transfer pump 2',   'East',  'pump',   true,  'L/s',    45);
 
 -- Every 15 minutes for 72 hours: a daily cycle peaking in the morning and
 -- evening, with noise; seeded, so every fresh database gets the same shape.

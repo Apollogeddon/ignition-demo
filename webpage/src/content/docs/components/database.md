@@ -7,7 +7,7 @@ description: The demo application's schema and seed data.
 
 | File | Contents |
 | --- | --- |
-| `01-schema.sql` | The `area`, `asset`, `asset_reading` and `asset_event` tables |
+| `01-schema.sql` | The `area`, `asset` (with each asset's unit and rated capacity), `asset_reading` and `asset_event` tables |
 | `02-seed.sql` | Example areas and assets, three days of readings ending when the database is created, and a few events |
 
 ## Schema
@@ -26,7 +26,8 @@ CREATE TABLE asset (
     kind    text    NOT NULL,
     enabled boolean NOT NULL DEFAULT true,
     online  boolean NOT NULL DEFAULT true,      -- reporting or not
-    unit    text    NOT NULL DEFAULT ''         -- unit of its readings
+    unit    text    NOT NULL DEFAULT '',        -- unit of its readings
+    capacity double precision NOT NULL DEFAULT 100 CHECK (capacity > 0)  -- rated maximum
 );
 
 CREATE TABLE asset_reading (                    -- one value per asset and time
@@ -47,6 +48,8 @@ CREATE TABLE asset_event (                      -- notes, acknowledgements, stat
 ```
 
 The seed generates a reading every 15 minutes for the 72 hours before the database is created: a daily cycle with noise, the same on every fresh database. The two offline assets read zero for the last six hours. The views chart the 72 hours up to the latest reading, so the seeded data still charts days later.
+
+An asset's `capacity` is the rated maximum of its readings, in its unit: a pump's or blower's design flow, a mixer's top speed, a tank's 100 %. The Plant page's gauges and the Analytics page's intake gauge and area load scale to it.
 
 An asset's `kind` (`pump`, `blower`, `mixer`, `level`) matches one of the equipment UDTs in the `library` project (see [Projects](../projects/#udt-definitions)).
 

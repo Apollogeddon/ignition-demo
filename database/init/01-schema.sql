@@ -18,7 +18,10 @@ CREATE TABLE asset (
     -- whether the asset is reporting; the overview counts online and offline
     online  boolean NOT NULL DEFAULT true,
     -- unit of the asset's readings (asset_reading.value)
-    unit    text    NOT NULL DEFAULT ''
+    unit    text    NOT NULL DEFAULT '',
+    -- rated maximum of its readings, in its unit: a pump's or blower's design
+    -- flow, a mixer's top speed, a tank's 100 %; the gauges scale to it
+    capacity double precision NOT NULL DEFAULT 100 CHECK (capacity > 0)
 );
 
 CREATE INDEX asset_area ON asset (area);
