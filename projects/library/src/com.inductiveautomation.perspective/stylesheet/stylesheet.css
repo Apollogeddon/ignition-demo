@@ -79,6 +79,11 @@
 
 /* tablets: the clock gives the page links its room */
 @media (max-width: 1100px) {
+  /* an hour's cell is a few pixels wide: its colour carries the value */
+  .psc-Heat\/Text,
+  .psc-Heat\/TextDark {
+    color: transparent !important;
+  }
   .psc-Shell\/Meta {
     display: none !important;
   }
@@ -132,11 +137,6 @@
   /* a gauge needs the full width to keep its value inside the arc */
   .psc-Layout\/Gauges > * {
     flex-basis: 100% !important;
-  }
-  /* an hour's cell is a few pixels wide: its colour carries the value */
-  .psc-Heat\/Text,
-  .psc-Heat\/TextDark {
-    color: transparent !important;
   }
   .psc-Plant\/Canvas {
     zoom: 0.78;

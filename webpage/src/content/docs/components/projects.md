@@ -52,10 +52,10 @@ Every page follows the same pattern, so a new one starts from a copy of another:
 - **Small screens.** A class can't restyle its children, so the stylesheet's media queries also hold the layout below desktop width. They key on layout classes that carry no style of their own (`Layout/Kpis`, `Layout/Row`, `Layout/ChartRow`, `Layout/CardHead`, `Layout/Gauges`, `Shell/Links`, `Plant/Canvas`, `Plant/GaugeRow`).
   - **Up to 1240px:** the Plant schematic's three stages wrap, scaled to 82%. It's one coordinate container per stage, with each pipe ending at its stage's edge, so on desktop the stages join into one diagram.
   - **Up to 1200px:** KPI rows wrap, four cards two by two and five three over two.
-  - **Up to 1100px:** the header's clock is hidden.
+  - **Up to 1100px:** the header's clock is hidden, and heatmap cells drop their numbers.
   - **Up to 640px:**
     - rows stack, KPI cards go two to a row without icons, and a card's legend or button goes below its title;
-    - gauges take the full width, and heatmap cells drop their numbers;
+    - gauges take the full width;
     - the schematic shows one stage per row;
     - the equipment popup fits the screen;
     - the header keeps only the page links.
