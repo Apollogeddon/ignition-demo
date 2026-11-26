@@ -4,7 +4,7 @@ This repository uses GitHub Actions to check the projects and the infrastructure
 
 ## CI orchestration
 
-The root workflow, [`.index.yml`](./workflows/.index.yml) (`index`), runs on every pull request, every push to `main`, a manual run, the `auto-merged` dispatch the merge pipeline sends, and weekly for the patch pipeline. Each of its jobs calls one pipeline, or is a stage of one, so the run page lists every job as `<pipeline> / <stage>`. The pipelines are [forgepy](https://github.com/apollogeddon/forgepy)'s and [forgejs](https://github.com/apollogeddon/forgejs)'s shared ones, and three of the repository's own: [`scripts.yml`](./workflows/scripts.yml), [`infra.yml`](./workflows/infra.yml) and [`docker.yml`](./workflows/docker.yml).
+The root workflow, [`.index.yml`](./workflows/.index.yml) (`index`), runs on every pull request, every push to `main`, a manual run, the `auto-merged` dispatch the merge pipeline sends, and weekly for the patch pipeline. Each of its jobs calls one pipeline, or is a stage of one, so the run page lists every job as `<pipeline> / <stage>`. The pipelines are [forgepy](https://github.com/apollogeddon/forgepy)'s and [forgejs](https://github.com/apollogeddon/forgejs)'s shared ones, and four of the repository's own: [`scripts.yml`](./workflows/scripts.yml), [`infra.yml`](./workflows/infra.yml), [`docker.yml`](./workflows/docker.yml) and [`deploy.yml`](./workflows/deploy.yml).
 
 | Job | Pipeline | Runs |
 | --- | --- | --- |
@@ -12,8 +12,9 @@ The root workflow, [`.index.yml`](./workflows/.index.yml) (`index`), runs on eve
 | `version / release` | forgepy's `version.yml` | On `main`, except on the weekly schedule ([Releases](#releases)) |
 | `library (8.1)`, `library (8.3)` / `lint`, `scan`, `test` | forgepy's `library.yml` | On a pull request that changes `projects/`, and on `main` when the run creates a release ([Projects](#projects)) |
 | `scripts / lint`, `scripts / test` | `scripts.yml` | On a pull request that changes the scripts, the gateway or the projects, and for a release ([Scripts](#scripts)) |
-| `infra / lint`, `infra / scan` | `infra.yml` | On a pull request that changes the OpenTofu code or the Dockerfile, and for a release ([Infra](#infra)) |
+| `infra / lint`, `infra / test`, `infra / scan` | `infra.yml` | On a pull request that changes the OpenTofu code or the Dockerfile, and for a release ([Infra](#infra)) |
 | `docker (8.1)`, `docker (8.3)` / `build`, `test`, `push` | `docker.yml` | On a pull request that changes the image, once the library and scripts checks pass; on every push to `main`, which pushes the image ([Gateway image](#gateway-image)) |
+| `deploy / plan`, `deploy / apply` | `deploy.yml` | On a manual run, and on a push to `main` when the `DEPLOY_ON_PUSH` variable is `true` ([Deploy](#deploy)) |
 | `publish / assets` | (this workflow) | When the run creates a release, once its checks and images pass ([Releases](#releases)) |
 | `website / lint`, `scan`, `build`, `check` | forgejs's `website.yml` | Every run but the weekly one ([Documentation site](#documentation-site)) |
 | `website / lint (markdown)` | (this workflow) | Every run but the weekly one |
@@ -64,9 +65,38 @@ There's nothing to build, so the `build` stage is off, and Gitleaks is turned of
 - **Format**: runs `tofu fmt -check` over `cluster/` and `develop/`.
 - **Validate**: validates the `platform`, `gateway` and `resources` modules, the k3s `infra` and `config` stages, and `develop/config`. The config stages install the Ignition provider from its network mirror, checked against the build each stage's committed `.terraform.lock.hcl` records.
 
+`infra / test`:
+
+- **tofu test**: runs each module's tests (`cluster/modules/*/tests`) and the k3s `infra` stage's against mock providers, so they need no cluster: the variables' validations (the EULA, image tags and digests, the ingress namespace, the state passphrase), the plan-time checks (an API key that needs TLS the ingress lacks, a backup with no URL), and the values each renders (the chart values, the gateway's Secret and `existingSecret`, the backup jobs, the resource names, the HTTPS-only ingress). A mock provider still needs the provider's schema, so the Ignition provider comes from its network mirror, as in `lint`.
+
 `infra / scan`:
 
 - **Trivy**: scans the OpenTofu code, the Compose file and the Dockerfile for misconfigurations, failing on high or critical ones. `.trivyignore` lists the accepted findings, each with its reason.
+
+## Deploy
+
+[`deploy.yml`](./workflows/deploy.yml) applies the k3s environment with OpenTofu. `index` calls it on a manual run (Actions → index → Run workflow), and on a push to `main` only when the repository variable `DEPLOY_ON_PUSH` is `true`. It deploys what the environment's `terraform.tfvars` pins, so a release's tag or digest, not the image the same run built. A manual run of `index` also runs its other manual-run jobs, such as the image push and `patch (projects)`.
+
+- **`plan`**: plans the `infra` stage into a plan file, which the stage's encryption block encrypts with the state passphrase, and uploads it for a day.
+- **`apply`**: once the environment's required reviewers approve, applies exactly that plan, then plans and applies the `config` stage, which can only be planned once `infra` exists (on 8.1 there is none to apply).
+
+Each job reads the cluster's credentials from a GitHub environment (Settings → Environments): `plan` from `k3s-plan`, `apply` from `k3s`. Give `k3s` required reviewers, and both a deployment branch rule for `main`, and give both the same secrets:
+
+| Name | Kind | What it holds |
+| --- | --- | --- |
+| `KUBECONFIG` | secret | A kubeconfig for the cluster, allowed into the release's namespace and the state namespace |
+| `TF_STATE_PASSPHRASE` | secret | The passphrase the state and plans are encrypted with |
+| `TFVARS` | secret | The `infra` stage's `terraform.tfvars` |
+| `CONFIG_TFVARS` | secret, optional | The `config` stage's `terraform.tfvars` |
+| `CA_CERT` | secret, optional | A private CA's certificate, so the Ignition provider can verify the gateway's ingress |
+| `KUBE_CONTEXT` | variable, optional | The kubeconfig context (default `default`) |
+| `TF_STATE_NAMESPACE` | variable, optional | The namespace holding the state Secrets (default `tofu-state`) |
+
+Without `KUBECONFIG`, `TF_STATE_PASSPHRASE` or `TFVARS`, `plan` says so in a notice and `apply` is skipped, so the pipeline passes in a fork or with no cluster. Two runs never deploy at once: the jobs share a concurrency group, and the state's Lease would stop a second apply anyway.
+
+The runner must reach the cluster's API, and the gateway's ingress for `config`. A k3s cluster on a private network needs a self-hosted runner: set the repository variable `DEPLOY_RUNNER` to its label.
+
+**Cloud clusters.** A static kubeconfig is a long-lived credential. For EKS, GKE or AKS, use OIDC instead: grant the jobs `id-token: write` (in `deploy.yml` and the `deploy` job of `.index.yml`, as GitHub checks a called workflow's permissions against its caller's), add the cloud's login action (`aws-actions/configure-aws-credentials`, `google-github-actions/auth`, `azure/login`) before the OpenTofu steps, trusting the repository's `environment:k3s` and `environment:k3s-plan` subjects, and write the kubeconfig with the cloud's CLI (`aws eks update-kubeconfig`, `gcloud container clusters get-credentials`, `az aks get-credentials`) in place of the `KUBECONFIG` secret.
 
 ## Gateway image
 

@@ -51,6 +51,8 @@ Each environment is applied in two stages, because the Ignition provider can onl
 | `infra` | kubernetes, helm | The namespace, the database and the gateway |
 | `config` | ignition | The gateway's configuration; it reads the database details from the `infra` state |
 
+Both keep their state in a Secret in the cluster, locked by a Lease and encrypted with a passphrase, as it holds every password. See [Cluster](../../components/cluster/#1-state).
+
 ## Repository layout
 
 | Path | What it holds |

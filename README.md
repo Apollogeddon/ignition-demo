@@ -103,7 +103,7 @@ The projects are the same files the release's images run.
 
 ## Deploy
 
-Each environment is applied in two stages: `infra` (the platform and the gateway), then `config` (the gateway's configuration). See [`cluster/`](cluster/README.md) for the k3s reference environment.
+Each environment is applied in two stages: `infra` (the platform and the gateway), then `config` (the gateway's configuration), with their state encrypted in a Secret in the cluster. See [`cluster/`](cluster/README.md) for the k3s reference environment.
 
 ## Repository layout
 

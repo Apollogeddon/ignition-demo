@@ -49,7 +49,7 @@ CI runs on every pull request and every push to `main`. Each job on the run page
 | --- | --- |
 | `library (8.1)`, `library (8.3)` | forgepy's `library.yml`, once per Ignition API: ruff format and lint, basedpyright, the Jython 2.7 compatibility check and the forgepy config drift check (`lint`), OSV-Scanner (`scan`) and pytest (`test`) |
 | `scripts` | shellcheck, that every committed `resource.json` is clean, that the Ignition versions match the base images and that the 8.1 event scripts are up to date (`lint`), and the sanitiser's and the image scripts' tests (`test`) |
-| `infra` | `tofu fmt` and `tofu validate` for the modules and both stages (`lint`), and a Trivy misconfiguration scan (`scan`) |
+| `infra` | `tofu fmt` and `tofu validate` for the modules and both stages (`lint`), `tofu test` against mock providers for the modules and the k3s `infra` stage (`test`), and a Trivy misconfiguration scan (`scan`) |
 | `docker (8.1)`, `docker (8.3)` | builds and smoke-tests the image for 8.1 and 8.3 (`build`, `test`); on `main`, pushes it to GHCR and tests the pushed image (`push`) |
 | `website` | forgejs's `website.yml`: Gitleaks over the repository and OSV-Scanner, Biome and the type check, the build, and the built site's links and accessibility; `website / lint (markdown)` runs markdownlint over every Markdown file |
 | `pages` | on `main`, deploys this site to GitHub Pages |
@@ -64,4 +64,4 @@ Every published tag starts with the Ignition version:
 | `<ignition version>-sha-<commit>` | Every push to `main` |
 | `<ignition version>-<release version>` | Each release |
 
-To deploy, set the new image tag in the environment and apply it. Because the projects are in the image, a rollback is deploying the previous tag.
+To deploy, set the new release's image tag (and optionally its digest) in the environment and apply it, by hand or with a manual run of `index`, whose `deploy / plan` and `deploy / apply` apply a plan the `k3s` environment's reviewers approved (see [Cluster](../../components/cluster/#from-ci)). Because the projects are in the image, a rollback is deploying the previous tag.
