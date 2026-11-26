@@ -10,9 +10,29 @@ variable "name" {
 }
 
 variable "chart_version" {
-  description = "ignition-failover chart version"
+  description = "ignition-failover chart version, from the chart repository; ignored when chart_path is set"
   type        = string
   default     = "4.2.6"
+}
+
+variable "chart_path" {
+  description = "A local ignition-failover chart directory to install instead of chart_version from the repository, to test an unreleased chart; null uses the repository"
+  type        = string
+  default     = null
+}
+
+variable "accept_eula" {
+  description = <<-EOT
+    Accept the Ignition End User License Agreement, which the chart then passes to
+    the gateway (its acceptEula value). Read it first:
+    https://inductiveautomation.com/ignition/license
+  EOT
+  type        = bool
+
+  validation {
+    condition     = var.accept_eula
+    error_message = "Set accept_eula = true once you have read and accepted the Ignition EULA (https://inductiveautomation.com/ignition/license); the gateway does not start without it."
+  }
 }
 
 variable "image_repository" {

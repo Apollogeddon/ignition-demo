@@ -62,3 +62,8 @@ variable "redundancy" {
   type        = bool
   default     = true
 }
+
+variable "accept_eula" {
+  description = "Accept the Ignition EULA (https://inductiveautomation.com/ignition/license); the gateway module requires true"
+  type        = bool
+}

@@ -32,6 +32,7 @@ module "gateway" {
 
   namespace          = module.platform.namespace
   name               = local.gateway_name
+  accept_eula        = var.accept_eula
   image_repository   = var.image_repository
   image_tag          = var.image_tag
   image_pull_policy  = var.image_pull_policy

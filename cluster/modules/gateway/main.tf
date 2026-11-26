@@ -6,6 +6,9 @@ locals {
 
   values = {
     applicationName = var.name
+    # the chart's own EULA switch (validated by accept_eula); a chart before it has
+    # no values schema, so the key is simply unused there
+    acceptEula = var.accept_eula
     image = {
       repository       = var.image_repository
       tag              = var.image_tag
@@ -112,11 +115,12 @@ locals {
 }
 
 resource "helm_release" "gateway" {
-  name       = var.name
-  namespace  = var.namespace
-  repository = "https://apollogeddon.github.io/ignition-helm"
-  chart      = "ignition-failover"
-  version    = var.chart_version
+  name      = var.name
+  namespace = var.namespace
+  # a local chart (chart_path) for an unreleased chart, else the published one
+  repository = var.chart_path == null ? "https://apollogeddon.github.io/ignition-helm" : null
+  chart      = coalesce(var.chart_path, "ignition-failover")
+  version    = var.chart_path == null ? var.chart_version : null
 
   values = [yamlencode(local.values), yamlencode(var.values)]
 
