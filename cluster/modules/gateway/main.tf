@@ -10,8 +10,9 @@ locals {
     # no values schema, so the key is simply unused there
     acceptEula = var.accept_eula
     image = {
-      repository       = var.image_repository
-      tag              = var.image_tag
+      repository = var.image_repository
+      # the chart renders repository:tag, so a digest rides on the tag
+      tag              = var.image_digest == null ? var.image_tag : "${var.image_tag}@${var.image_digest}"
       pullPolicy       = var.image_pull_policy
       imagePullSecrets = [for name in var.image_pull_secrets : { name = name }]
     }

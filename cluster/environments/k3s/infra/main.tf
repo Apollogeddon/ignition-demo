@@ -3,8 +3,9 @@
 
 locals {
   gateway_name = "ignition"
-  # the image tag starts with its Ignition version (8.3.10-main, 8.1.55-main)
-  ignition_version = startswith(var.image_tag, "8.1") ? "8.1" : "8.3"
+  # the image tag starts with its Ignition version (8.3.10-2.0.1, 8.1-dev), which
+  # image_tag's validation ensures
+  ignition_version = regex("^8\\.[13]", var.image_tag)
 }
 
 # 8.1: the password of the demo users the seed creates
@@ -35,6 +36,7 @@ module "gateway" {
   accept_eula        = var.accept_eula
   image_repository   = var.image_repository
   image_tag          = var.image_tag
+  image_digest       = var.image_digest
   image_pull_policy  = var.image_pull_policy
   image_pull_secrets = module.platform.image_pull_secrets
   ignition_version   = local.ignition_version

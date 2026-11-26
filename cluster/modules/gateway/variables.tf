@@ -43,6 +43,22 @@ variable "image_repository" {
 variable "image_tag" {
   description = "Gateway image tag; one tag fully describes the projects it runs"
   type        = string
+
+  validation {
+    condition     = var.image_tag != "" && var.image_tag != "latest"
+    error_message = "image_tag must name a release, not latest: a moving tag changes the gateway on any restart."
+  }
+}
+
+variable "image_digest" {
+  description = "Image digest (sha256:...) to pin image_tag to, as tag@digest, so a re-pushed tag can't change the gateway; null for the tag alone"
+  type        = string
+  default     = null
+
+  validation {
+    condition     = var.image_digest == null || can(regex("^sha256:[0-9a-f]{64}$", var.image_digest))
+    error_message = "image_digest must be sha256: followed by 64 lower-case hex digits."
+  }
 }
 
 variable "image_pull_policy" {
