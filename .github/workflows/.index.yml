@@ -11,6 +11,8 @@ on:
   # weekly, for the patch pipelines; a manual run or a merge's dispatch patches too
   schedule:
     - cron: '17 3 * * 1'
+    # nightly, for the e2e pipeline
+    - cron: '43 1 * * *'
 
 # A pull request's newer run replaces its older one; every other run has a group of its own, so a run on
 # main, running or queued, is never cancelled and a release is never created without its images.
@@ -33,6 +35,7 @@ jobs:
       resources: ${{ steps.diff.outputs.resources }}
       tofu: ${{ steps.diff.outputs.tofu }}
       image: ${{ steps.diff.outputs.image }}
+      e2e: ${{ steps.diff.outputs.e2e }}
     steps:
       - name: Check out
         uses: actions/checkout@v7
@@ -49,14 +52,15 @@ jobs:
           RESOURCES: '^(scripts/|gateway/|projects/|cluster/|develop/|webpage/|.*\.sh$|\.shellcheckrc$)'
           TOFU: '^(cluster/|develop/|gateway/Dockerfile$|\.trivyignore$)'
           IMAGE: '^(gateway/|projects/(library|project)/src/)'
+          E2E: '^(cluster/|gateway/|projects/|database/|scripts/e2e-check\.sh$)'
         run: |
           if [ "$EVENT" != pull_request ] || ! git cat-file -e "$BASE^{commit}" 2>/dev/null; then
-            for check in projects resources tofu image; do echo "$check=true" >> "$GITHUB_OUTPUT"; done
+            for check in projects resources tofu image e2e; do echo "$check=true" >> "$GITHUB_OUTPUT"; done
             exit 0
           fi
           files=$(git diff --name-only "$BASE" HEAD)
           printf '%s\n' "$files"
-          for check in projects resources tofu image; do
+          for check in projects resources tofu image e2e; do
             pattern=$(printenv "${check^^}")
             if printf '%s\n' "$files" | grep -qE "$pattern|$WORKFLOW"; then value=true; else value=false; fi
             echo "$check=$value" | tee -a "$GITHUB_OUTPUT"
@@ -145,6 +149,29 @@ jobs:
       ignition_version: ${{ matrix.version }}
       push: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}
       release_version: ${{ needs.version.outputs.new_release_published == 'true' && needs.version.outputs.version || '' }}
+
+  # The k3s environment deployed for real on a throwaway k3d cluster, and checked as a user would (the e2e
+  # pipeline): on a pull request that changes the cluster code, the image, the projects or the database,
+  # against the gateway module's pinned chart; nightly and on a manual run, also against an ignition-helm
+  # branch through chart_path (the repository variable E2E_CHART_REF, default main), to catch a chart
+  # change before it's released
+  e2e:
+    name: e2e (${{ matrix.chart }})
+    needs: [changes]
+    if: >-
+      ${{ !cancelled() && ((github.event_name == 'pull_request' && needs.changes.outputs.e2e == 'true') ||
+      (github.event_name == 'schedule' && github.event.schedule == '43 1 * * *') || github.event_name == 'workflow_dispatch') }}
+    strategy:
+      fail-fast: false
+      matrix:
+        chart: ${{ fromJSON(github.event_name == 'pull_request' && '["published"]' || '["published", "ignition-helm"]') }}
+    uses: ./.github/workflows/e2e.yml
+    permissions:
+      contents: read
+    with:
+      ignition_version: "8.3.10"
+      chart_repository: ${{ matrix.chart == 'ignition-helm' && 'apollogeddon/ignition-helm' || '' }}
+      chart_ref: ${{ vars.E2E_CHART_REF || 'main' }}
 
   # The release's files: a published release is immutable, so release-please leaves it a draft, and this
   # attaches the project exports, the images by digest and their checksums, then publishes it. A release
@@ -260,7 +287,9 @@ jobs:
   # updates, which must be turned on in the repository's settings.
   patch-projects:
     name: patch (projects)
-    if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.event_name == 'repository_dispatch' }}
+    if: >-
+      ${{ (github.event_name == 'schedule' && github.event.schedule == '17 3 * * 1') ||
+      github.event_name == 'workflow_dispatch' || github.event_name == 'repository_dispatch' }}
     uses: apollogeddon/forgepy/.github/workflows/patch.yml@main
     permissions:
       contents: write
@@ -270,7 +299,7 @@ jobs:
 
   # Dependabot's pull requests: a review request, and a squash merge once every check above passed
   merge:
-    needs: [changes, library, scripts, infra, docker, website, website-lint-markdown]
+    needs: [changes, library, scripts, infra, docker, e2e, website, website-lint-markdown]
     if: ${{ !cancelled() && github.event_name == 'pull_request' && github.event.pull_request.user.login == 'dependabot[bot]' }}
     uses: apollogeddon/forgepy/.github/workflows/merge.yml@main
     permissions:
