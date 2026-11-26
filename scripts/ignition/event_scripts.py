@@ -6,9 +6,12 @@ serializer (see scripts/generate-event-scripts.sh):
 
     event_scripts.py <project src dir>
 
-Reads  ignition/startup/onStartup.py, ignition/update/onUpdate.py and
-       ignition/shutdown/onShutdown.py (whichever exist; 8.3's format: the
-       script body inside its "def on...(...):" line)
+Reads  ignition/startup/onStartup.py, ignition/update/onUpdate.py,
+       ignition/shutdown/onShutdown.py and the gateway message handlers,
+       ignition/message/<name>/handleMessage.py (whichever exist; 8.3's
+       format: the script body inside its "def on...(...):" line; for a
+       message handler the whole "def handleMessage(payload):" function, as
+       8.1 also stores it, and its resource.json's enabled and threadType)
 Writes ignition/event-scripts/data.bin and resource.json (8.1's format)
 """
 import sys
@@ -18,9 +21,12 @@ from java.io import ByteArrayInputStream, ByteArrayOutputStream, File
 from java.lang import String
 from java.nio import ByteBuffer
 from java.nio.file import Files
+from java.util import LinkedHashMap
+from java.util.regex import Pattern
 from java.util.zip import GZIPInputStream, GZIPOutputStream
 
 from com.inductiveautomation.ignition.common.script import ScriptConfig
+from com.inductiveautomation.ignition.common.script.message import MessageHandlerKey
 from com.inductiveautomation.ignition.common.xmlserialization.serialization import XMLSerializer
 
 EVENTS = (
@@ -64,6 +70,39 @@ def body(path):
     return "\n".join(out).rstrip("\n") + "\n"
 
 
+# a message handler's attributes in its 8.3 resource.json (the image's
+# Jython has no json module): "enabled": <bool> and "threadType": "<type>"
+ENABLED = Pattern.compile('"enabled"\\s*:\\s*(true|false)')
+THREAD_TYPE = Pattern.compile('"threadType"\\s*:\\s*"([A-Za-z]+)"')
+
+
+def attribute(pattern, text, default):
+    match = pattern.matcher(text)
+    return match.group(1) if match.find() else default
+
+
+def message_handlers(src):
+    """Return 8.1's message handler map (key -> script) and the names found."""
+    handlers = LinkedHashMap()
+    names = []
+    folder = File("%s/ignition/message" % src)
+    for entry in sorted(folder.listFiles() or [], key=lambda f: f.getName()):
+        script = File(entry, "handleMessage.py")
+        if not script.isFile():
+            continue
+        resource = File(entry, "resource.json")
+        text = open(resource.getPath()).read() if resource.isFile() else ""
+        key = MessageHandlerKey()
+        key.setName(entry.getName())
+        key.setEnabled(attribute(ENABLED, text, "true") == "true")
+        key.setThreadType(attribute(THREAD_TYPE, text, MessageHandlerKey.THREAD_SHARED))
+        # unlike the events, 8.1 keeps a handler's whole function: it compiles
+        # the script and then calls the handleMessage it defines
+        handlers.put(key, open(script.getPath()).read().replace("\r\n", "\n"))
+        names.append(entry.getName())
+    return handlers, names
+
+
 # the binary format stores its write time (epoch ms) at this offset of the
 # uncompressed payload; pinned so the same scripts always give the same file
 WRITE_TIME_OFFSET = 20
@@ -96,6 +135,10 @@ def main(src):
         if File(path).isFile():
             getattr(config, setter)(body(path))
             found.append(folder)
+    handlers, names = message_handlers(src)
+    if names:
+        config.setMessageHandlerScripts(handlers)
+        found.append("message handlers (%s)" % ", ".join(names))
     if not found:
         raise SystemExit("no event scripts under %s/ignition" % src)
     serializer = XMLSerializer()
