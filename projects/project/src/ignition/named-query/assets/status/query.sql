@@ -8,6 +8,7 @@ SELECT
     a.kind,
     a.online,
     a.unit,
+    a.capacity,
     r.value,
     (extract(epoch FROM r.ts) * 1000)::bigint AS reading_ms,
     (extract(epoch FROM e.ts) * 1000)::bigint AS event_ms
