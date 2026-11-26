@@ -1,0 +1,121 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Read|Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/guard.py\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Read|Grep|Glob",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/read_counter.py\"",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/lint_on_edit.py\"",
+            "timeout": 60
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Bash(tofu fmt*)",
+      "Bash(tofu -chdir=* fmt*)",
+      "Bash(tofu init -backend=false*)",
+      "Bash(tofu -chdir=* init -backend=false*)",
+      "Bash(tofu validate*)",
+      "Bash(tofu -chdir=* validate*)",
+      "Bash(tofu test*)",
+      "Bash(tofu -chdir=* test*)",
+      "Bash(tofu plan -lock=false*)",
+      "Bash(tofu -chdir=* plan -lock=false*)",
+      "Bash(uv run poe *)",
+      "Bash(uv run --no-sync poe *)",
+      "Bash(uv run ruff*)",
+      "Bash(uv run --no-sync ruff*)",
+      "Bash(uv run basedpyright*)",
+      "Bash(uv run --no-sync basedpyright*)",
+      "Bash(uv run pytest*)",
+      "Bash(uv run --no-sync pytest*)",
+      "Bash(uv run --no-project --with pytest pytest*)",
+      "Bash(uv run --no-project scripts/sanitise.py --check*)",
+      "Bash(scripts/check-ignition-versions.sh*)",
+      "Bash(bash scripts/tests/*_test.sh*)",
+      "Bash(bash gateway/tests/*_test.sh*)",
+      "Bash(shellcheck*)",
+      "Bash(actionlint*)",
+      "Bash(npm run lint:md*)"
+    ],
+    "ask": [
+      "Bash(tofu apply*)",
+      "Bash(tofu * apply*)",
+      "Bash(tofu destroy*)",
+      "Bash(tofu * destroy*)",
+      "Bash(tofu state rm*)",
+      "Bash(tofu * state rm*)",
+      "Bash(tofu state mv*)",
+      "Bash(tofu * state mv*)",
+      "Bash(tofu state push*)",
+      "Bash(tofu * state push*)",
+      "Bash(tofu import*)",
+      "Bash(tofu * import*)",
+      "Bash(tofu force-unlock*)",
+      "Bash(tofu * force-unlock*)",
+      "Bash(tofu init -migrate-state*)",
+      "Bash(tofu * init -migrate-state*)",
+      "Bash(kubectl delete*)",
+      "Bash(kubectl * delete*)",
+      "Bash(kubectl apply*)",
+      "Bash(kubectl * apply*)",
+      "Bash(helm install*)",
+      "Bash(helm * install*)",
+      "Bash(helm upgrade*)",
+      "Bash(helm * upgrade*)",
+      "Bash(helm uninstall*)",
+      "Bash(helm * uninstall*)",
+      "Bash(docker compose * down*-v*)",
+      "Bash(docker compose down*-v*)",
+      "Bash(docker compose * down*--volumes*)",
+      "Bash(docker compose down*--volumes*)",
+      "Bash(docker volume rm*)"
+    ],
+    "deny": [
+      "Read(./**/terraform.tfstate*)",
+      "Read(./**/*.tfstate)",
+      "Read(./**/*.tfstate.*)",
+      "Read(./**/terraform.tfvars)",
+      "Read(./**/*.auto.tfvars)",
+      "Read(./**/*.tfvars.json)",
+      "Read(./**/backend.hcl)",
+      "Read(./develop/.env)",
+      "Read(./**/.terraform/**)",
+      "Read(./**/.terraform.lock.hcl)",
+      "Read(./**/uv.lock)",
+      "Read(./**/package-lock.json)",
+      "Read(./webpage/dist/**)",
+      "Read(./webpage/node_modules/**)",
+      "Read(./node_modules/**)",
+      "Read(./projects/.coverage)",
+      "Read(./projects/htmlcov/**)",
+      "Read(./projects/junit-report.xml)"
+    ]
+  }
+}
