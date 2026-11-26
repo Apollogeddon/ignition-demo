@@ -126,3 +126,9 @@ variable "activation_token" {
   default     = null
   sensitive   = true
 }
+
+variable "storage_class" {
+  description = "StorageClass for the gateways' and the database's volumes and their backups; null uses the cluster default (k3s's local-path)"
+  type        = string
+  default     = null
+}

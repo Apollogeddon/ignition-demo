@@ -74,6 +74,11 @@ locals {
         }]
       }
       emptyDirSizeLimit = { logs = "512Mi", temp = "1Gi", dotIgnition = "256Mi" }
+      persistence = {
+        size = var.persistence.size
+        # "" is the chart's default: the cluster's default StorageClass
+        storageClassName = var.persistence.storage_class == null ? "" : var.persistence.storage_class
+      }
     }
   }
 }
@@ -195,5 +200,167 @@ resource "kubernetes_network_policy_v1" "helpers" {
       }
     }
     policy_types = ["Ingress"]
+  }
+}
+
+# Backups (8.3): the gateway's own backup, through its REST API with the module's
+# API key, into a volume of their own. 8.1 has no REST API, so none there.
+
+locals {
+  backup = var.ignition_version == "8.3" && var.backup != null
+  backup_url = try(coalesce(
+    try(var.backup.url, null),
+    try(var.ingress.tls_secret, null) != null ? "https://${var.ingress.host}" : null,
+    var.api_token_require_tls ? null : "http://${var.redundancy ? "${var.name}-active" : var.name}.${var.namespace}.svc:8088",
+  ), null)
+  backup_labels = {
+    "app.kubernetes.io/name"       = "${var.name}-backup"
+    "app.kubernetes.io/instance"   = var.name
+    "app.kubernetes.io/part-of"    = "ignition"
+    "app.kubernetes.io/managed-by" = "opentofu"
+  }
+}
+
+resource "kubernetes_persistent_volume_claim_v1" "backup" {
+  count = local.backup ? 1 : 0
+  metadata {
+    name      = "${var.name}-backup"
+    namespace = var.namespace
+    labels    = local.backup_labels
+  }
+  spec {
+    access_modes       = ["ReadWriteOnce"]
+    storage_class_name = var.backup.storage_class
+    resources {
+      requests = { storage = var.backup.storage }
+    }
+  }
+  # a WaitForFirstConsumer class (k3s's local-path) binds on the first backup
+  wait_until_bound = false
+}
+
+resource "kubernetes_cron_job_v1" "backup" {
+  count = local.backup ? 1 : 0
+  metadata {
+    name      = "${var.name}-backup"
+    namespace = var.namespace
+    labels    = local.backup_labels
+  }
+  spec {
+    schedule                      = var.backup.schedule
+    concurrency_policy            = "Forbid"
+    successful_jobs_history_limit = 1
+    failed_jobs_history_limit     = 3
+    job_template {
+      metadata {
+        labels = local.backup_labels
+      }
+      spec {
+        backoff_limit = 2
+        template {
+          metadata {
+            labels = local.backup_labels
+          }
+          spec {
+            restart_policy                  = "Never"
+            automount_service_account_token = false
+            security_context {
+              run_as_user     = 65532
+              run_as_group    = 65532
+              fs_group        = 65532
+              run_as_non_root = true
+              seccomp_profile {
+                type = "RuntimeDefault"
+              }
+            }
+            container {
+              name  = "backup"
+              image = var.backup.image
+              env {
+                name  = "GATEWAY_URL"
+                value = local.backup_url
+              }
+              env {
+                name = "GATEWAY_API_TOKEN"
+                value_from {
+                  secret_key_ref {
+                    name = local.secret_name
+                    key  = "GATEWAY_API_TOKEN"
+                  }
+                }
+              }
+              # written under a temporary name and renamed once complete, so a
+              # failed run never leaves a truncated backup to restore
+              command = ["sh", "-ec", <<-EOT
+                rm -f /backups/*.partial
+                f="/backups/gateway-$(date -u +%Y%m%dT%H%M%SZ).gwbk"
+                set -- -sSf --max-time 900 -o "$f.partial" -H "X-Ignition-API-Token: $GATEWAY_API_TOKEN"
+                if [ -s /ca/ca.crt ]; then set -- "$@" --cacert /ca/ca.crt; fi
+                curl "$@" "$GATEWAY_URL/data/api/v1/backup"
+                mv "$f.partial" "$f"
+                find /backups -name '*.gwbk' -mmin +${var.backup.retention_days * 1440} -print -delete
+                ls -l /backups
+              EOT
+              ]
+              resources {
+                requests = { cpu = "10m", memory = "32Mi" }
+                limits   = { cpu = "200m", memory = "128Mi" }
+              }
+              security_context {
+                allow_privilege_escalation = false
+                read_only_root_filesystem  = true
+                capabilities {
+                  drop = ["ALL"]
+                }
+              }
+              volume_mount {
+                name       = "backups"
+                mount_path = "/backups"
+              }
+              dynamic "volume_mount" {
+                for_each = try(var.ingress.tls_secret, null) == null ? [] : [1]
+                content {
+                  name       = "ca"
+                  mount_path = "/ca"
+                  read_only  = true
+                }
+              }
+            }
+            volume {
+              name = "backups"
+              persistent_volume_claim {
+                claim_name = kubernetes_persistent_volume_claim_v1.backup[0].metadata[0].name
+              }
+            }
+            # the ingress certificate's CA, for a private issuer; optional, as a
+            # public one's Secret has no ca.crt
+            dynamic "volume" {
+              for_each = try(var.ingress.tls_secret, null) == null ? [] : [var.ingress.tls_secret]
+              content {
+                name = "ca"
+                secret {
+                  secret_name = volume.value
+                  optional    = true
+                  items {
+                    key  = "ca.crt"
+                    path = "ca.crt"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  # the API key's Secret is the chart's own before chart 5
+  depends_on = [helm_release.gateway]
+
+  lifecycle {
+    precondition {
+      condition     = local.backup_url != null
+      error_message = "The backup job needs the gateway's URL: with api_token_require_tls the gateway only takes the API key over HTTPS, and the ingress has none. Set backup.url, or backup = null."
+    }
   }
 }

@@ -21,6 +21,7 @@ module "platform" {
   db_init_dir = "${path.root}/../../../../database/init"
   # the gateway's pods, by the chart's name label
   db_client_labels = { "app.kubernetes.io/name" = local.gateway_name }
+  storage_class    = var.storage_class
   registry = var.ghcr_token == null ? null : {
     server   = "ghcr.io"
     username = var.ghcr_username
@@ -51,8 +52,11 @@ module "gateway" {
     GATEWAY_DB_DEMO_PASSWORD = module.platform.db_password
     DEMO_USERS_PASSWORD      = random_password.demo_users.result
   }
-  redundancy = var.redundancy
-  issuer     = { name = var.issuer_name }
+  redundancy  = var.redundancy
+  persistence = { storage_class = var.storage_class }
+  # nightly .gwbk downloads through the ingress (see the module's backup input)
+  backup = { storage_class = var.storage_class }
+  issuer = { name = var.issuer_name }
   ingress = {
     host       = var.hostname
     class_name = "traefik"

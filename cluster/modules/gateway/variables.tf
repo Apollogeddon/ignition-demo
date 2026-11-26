@@ -120,6 +120,41 @@ variable "ingress" {
   default = null
 }
 
+variable "persistence" {
+  description = "The gateways' data volumes (the chart's ignition.persistence). A StatefulSet's volumes can't be changed in place: set these before the first apply"
+  type = object({
+    size          = optional(string, "3Gi")
+    storage_class = optional(string)
+  })
+  default  = {}
+  nullable = false
+}
+
+variable "backup" {
+  description = <<-EOT
+    A CronJob (8.3) that downloads a gateway backup (.gwbk) from the gateway's REST
+    API (GET /data/api/v1/backup) with the module's API key, into a volume of its
+    own, keeping retention_days of them; null for none. url defaults to the
+    ingress's HTTPS URL, or with api_token_require_tls = false the in-cluster HTTP
+    one. The ingress's TLS Secret's ca.crt, when it has one, verifies the gateway.
+  EOT
+  type = object({
+    schedule       = optional(string, "47 2 * * *")
+    retention_days = optional(number, 7)
+    storage        = optional(string, "5Gi")
+    storage_class  = optional(string)
+    url            = optional(string)
+    # the chart's own helper image, which has sh and curl
+    image = optional(string, "docker.io/alpine/kubectl:1.37.1")
+  })
+  default = {}
+
+  validation {
+    condition     = var.backup == null || try(var.backup.retention_days >= 1, false)
+    error_message = "backup.retention_days must be at least 1."
+  }
+}
+
 variable "memory_mb" {
   description = "Gateway JVM max heap in MB; the container limit is set to twice this"
   type        = number

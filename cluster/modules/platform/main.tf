@@ -188,8 +188,9 @@ resource "kubernetes_service_v1" "db" {
   }
 }
 
-# Only the gateways may reach the database, and it reaches nothing: it shares the
-# gateways' namespace, whose pods the gateways trust for X-Forwarded-Proto
+# Only the gateways (and the backup job) may reach the database, and it reaches
+# nothing: it shares the gateways' namespace, whose pods the gateways trust for
+# X-Forwarded-Proto
 resource "kubernetes_network_policy_v1" "db" {
   metadata {
     name      = "database"
@@ -205,6 +206,14 @@ resource "kubernetes_network_policy_v1" "db" {
       from {
         pod_selector {
           match_labels = var.db_client_labels
+        }
+      }
+      dynamic "from" {
+        for_each = var.db_backup == null ? [] : [local.backup_labels]
+        content {
+          pod_selector {
+            match_labels = from.value
+          }
         }
       }
       ports {
@@ -232,5 +241,132 @@ resource "kubernetes_secret_v1" "registry" {
         }
       }
     })
+  }
+}
+
+# Backups: a nightly pg_dump (custom format, for pg_restore) into a volume of its
+# own, keeping db_backup.retention_days of them
+
+locals {
+  backup_labels = merge(local.labels, { "app.kubernetes.io/name" = "database-backup" })
+}
+
+resource "kubernetes_persistent_volume_claim_v1" "db_backup" {
+  count = var.db_backup == null ? 0 : 1
+  metadata {
+    name      = "database-backup"
+    namespace = local.namespace
+    labels    = local.backup_labels
+  }
+  spec {
+    access_modes       = ["ReadWriteOnce"]
+    storage_class_name = try(coalesce(var.db_backup.storage_class, var.storage_class), null)
+    resources {
+      requests = { storage = var.db_backup.storage }
+    }
+  }
+  # a WaitForFirstConsumer class (k3s's local-path) binds on the first backup
+  wait_until_bound = false
+}
+
+resource "kubernetes_cron_job_v1" "db_backup" {
+  count = var.db_backup == null ? 0 : 1
+  metadata {
+    name      = "database-backup"
+    namespace = local.namespace
+    labels    = local.backup_labels
+  }
+  spec {
+    schedule                      = var.db_backup.schedule
+    concurrency_policy            = "Forbid"
+    successful_jobs_history_limit = 1
+    failed_jobs_history_limit     = 3
+    job_template {
+      metadata {
+        labels = local.backup_labels
+      }
+      spec {
+        backoff_limit = 2
+        template {
+          metadata {
+            labels = local.backup_labels
+          }
+          spec {
+            restart_policy                  = "Never"
+            automount_service_account_token = false
+            security_context {
+              run_as_user     = 999
+              run_as_group    = 999
+              fs_group        = 999
+              run_as_non_root = true
+              seccomp_profile {
+                type = "RuntimeDefault"
+              }
+            }
+            container {
+              name  = "pg-dump"
+              image = var.db_image
+              env_from {
+                secret_ref {
+                  name = kubernetes_secret_v1.db.metadata[0].name
+                }
+              }
+              env {
+                name  = "PGHOST"
+                value = kubernetes_service_v1.db.metadata[0].name
+              }
+              # a dump is written under a temporary name and renamed once complete,
+              # so a failed run never leaves a truncated dump to restore
+              command = ["sh", "-ec", <<-EOT
+                rm -f /backups/*.partial
+                f="/backups/$POSTGRES_DB-$(date -u +%Y%m%dT%H%M%SZ).dump"
+                PGPASSWORD="$POSTGRES_PASSWORD" pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc -f "$f.partial"
+                mv "$f.partial" "$f"
+                find /backups -name '*.dump' -mmin +${var.db_backup.retention_days * 1440} -print -delete
+                ls -l /backups
+              EOT
+              ]
+              resources {
+                requests = { cpu = "50m", memory = "64Mi" }
+                limits   = { cpu = "500m", memory = "256Mi" }
+              }
+              security_context {
+                allow_privilege_escalation = false
+                read_only_root_filesystem  = true
+                capabilities {
+                  drop = ["ALL"]
+                }
+              }
+              volume_mount {
+                name       = "backups"
+                mount_path = "/backups"
+              }
+            }
+            volume {
+              name = "backups"
+              persistent_volume_claim {
+                claim_name = kubernetes_persistent_volume_claim_v1.db_backup[0].metadata[0].name
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+# The backup job only calls out, to the database
+resource "kubernetes_network_policy_v1" "db_backup" {
+  count = var.db_backup == null ? 0 : 1
+  metadata {
+    name      = "database-backup"
+    namespace = local.namespace
+    labels    = local.backup_labels
+  }
+  spec {
+    pod_selector {
+      match_labels = local.backup_labels
+    }
+    policy_types = ["Ingress"]
   }
 }

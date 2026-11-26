@@ -42,3 +42,8 @@ output "api_token" {
   value       = local.api_token
   sensitive   = true
 }
+
+output "backup_claim" {
+  description = "PersistentVolumeClaim holding the gateway backups (.gwbk); null without them (8.1, or backup = null)"
+  value       = try(kubernetes_persistent_volume_claim_v1.backup[0].metadata[0].name, null)
+}
