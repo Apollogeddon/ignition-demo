@@ -15,9 +15,9 @@ for line in 8.1 8.3; do
     status=1
     continue
   fi
-  # lockfiles and the changelog name other packages' versions and past releases,
+  # npm manifests, lockfiles and the changelog name other packages' versions and past releases,
   # the API stubs follow their own releases, and this script's test names others
-  stale=$(git grep -nwE "${line//./\\.}\.[0-9]+" -- . ':!CHANGELOG.md' ':!*package-lock.json' \
+  stale=$(git grep -nwE "${line//./\\.}\.[0-9]+" -- . ':!CHANGELOG.md' ':!*package.json' ':!*package-lock.json' \
     ':!projects/uv.lock' ':!projects/pyproject.toml' ':!scripts/tests/check-ignition-versions_test.sh' \
     | grep -vwE "${pin//./\\.}" || true)
   if [ -n "${stale}" ]; then

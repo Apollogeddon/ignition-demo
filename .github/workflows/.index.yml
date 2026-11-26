@@ -46,7 +46,7 @@ jobs:
           BASE: ${{ github.event.pull_request.base.sha }}
           WORKFLOW: '^\.github/workflows/'
           PROJECTS: '^projects/'
-          RESOURCES: '^(scripts/|gateway/|projects/|.*\.sh$|\.shellcheckrc$)'
+          RESOURCES: '^(scripts/|gateway/|projects/|cluster/|develop/|webpage/|.*\.sh$|\.shellcheckrc$)'
           TOFU: '^(cluster/|develop/|gateway/Dockerfile$|\.trivyignore$)'
           IMAGE: '^(gateway/|projects/(library|project)/src/)'
         run: |
@@ -241,28 +241,18 @@ jobs:
       pages: write
       id-token: write
 
-  # Weekly, by hand, or after a merge's dispatch: forgepy's configs refreshed and uv.lock's vulnerable
-  # packages upgraded on main
+  # Weekly, by hand, or after a merge's dispatch: a pull request refreshing forgepy's managed configs in
+  # projects/.forgepy/. Vulnerable packages, in projects/ and webpage/ alike, are left to Dependabot security
+  # updates, which must be turned on in the repository's settings.
   patch-projects:
     name: patch (projects)
     if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.event_name == 'repository_dispatch' }}
     uses: apollogeddon/forgepy/.github/workflows/patch.yml@main
     permissions:
       contents: write
+      pull-requests: write
     with:
       working_directory: projects
-
-  # the site's vulnerable npm dependencies, after the projects' patch so the two never push at once
-  patch-webpage:
-    name: patch (webpage)
-    needs: patch-projects
-    if: ${{ !cancelled() && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.event_name == 'repository_dispatch') }}
-    uses: apollogeddon/forgejs/.github/workflows/patch.yml@main
-    permissions:
-      contents: write
-      packages: read
-    with:
-      working_directory: webpage
 
   # Dependabot's pull requests: a review request, and a squash merge once every check above passed
   merge:

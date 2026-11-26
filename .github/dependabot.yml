@@ -26,6 +26,8 @@ updates:
         patterns: ["@apollogeddon/*"]
       dependencies:
         patterns: ["*"]
+        # a major update comes as a pull request of its own, so it never rides in with the minors
+        update-types: ["minor", "patch"]
     commit-message:
       prefix: "fix(deps)"
     # Wait 3 days after a version is published before proposing it, so a
@@ -47,6 +49,8 @@ updates:
     groups:
       dependencies:
         patterns: ["*"]
+        # a major update comes as a pull request of its own, so it never rides in with the minors
+        update-types: ["minor", "patch"]
     # pinned to the Ignition versions the projects target, one per dependency group
     ignore:
       - dependency-name: "ignition-api-stubs"
@@ -87,6 +91,8 @@ updates:
     groups:
       providers:
         patterns: ["*"]
+        # a major update comes as a pull request of its own, so it never rides in with the minors
+        update-types: ["minor", "patch"]
     commit-message:
       prefix: "fix(deps)"
     cooldown:
