@@ -128,6 +128,8 @@ resource "kubernetes_stateful_set_v1" "db" {
           }
           security_context {
             allow_privilege_escalation = false
+            # the provider sends an unset runAsNonRoot as false, which the restricted profile refuses
+            run_as_non_root = true
             capabilities {
               drop = ["ALL"]
             }
@@ -333,7 +335,9 @@ resource "kubernetes_cron_job_v1" "db_backup" {
               }
               security_context {
                 allow_privilege_escalation = false
-                read_only_root_filesystem  = true
+                # the provider sends an unset runAsNonRoot as false, which the restricted profile refuses
+                run_as_non_root           = true
+                read_only_root_filesystem = true
                 capabilities {
                   drop = ["ALL"]
                 }
