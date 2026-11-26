@@ -1,3 +1,14 @@
+variable "state_passphrase" {
+  description = "Passphrase the state and plans are encrypted with (at least 16 characters); set TF_VAR_state_passphrase rather than a file. Both stages use the same one"
+  type        = string
+  sensitive   = true
+
+  validation {
+    condition     = length(var.state_passphrase) >= 16
+    error_message = "state_passphrase must be at least 16 characters."
+  }
+}
+
 variable "kubeconfig" {
   description = "kubeconfig file"
   type        = string

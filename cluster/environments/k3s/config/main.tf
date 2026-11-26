@@ -1,10 +1,15 @@
 # The k3s reference environment, gateway side: configure the gateway that
 # ../infra deployed, through its REST API.
 
+# the infra stage's state, from the same backend (and decrypted with the same
+# passphrase: see versions.tf)
 data "terraform_remote_state" "infra" {
-  backend = "local"
+  backend = "kubernetes"
   config = {
-    path = "${path.root}/../infra/terraform.tfstate"
+    secret_suffix  = var.infra_state.secret_suffix
+    namespace      = var.infra_state.namespace
+    config_path    = var.infra_state.config_path
+    config_context = var.infra_state.config_context
   }
 }
 

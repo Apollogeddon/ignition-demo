@@ -15,6 +15,7 @@ dist/
 *.tfvars
 !*.example.tfvars
 .tofurc.local
+backend.hcl
 
 # Local stack
 develop/.env
