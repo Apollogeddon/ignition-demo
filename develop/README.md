@@ -33,7 +33,7 @@ The Ignition provider isn't on a registry; see [`cluster/README.md`](../cluster/
 
 On its first start with an API key, the gateway restarts once to load it, as the key's grants only apply after commissioning. For about 30 seconds `/data/perspective` and the API answer 503: if `tofu apply` fails with 503, apply again a minute later.
 
-On 8.1 there is no REST API; the gateway seeds itself from `gateway/seed/seed.json` on start (mounted live from the repository).
+On 8.1 there is no REST API; the gateway seeds itself from `gateway/seed/seed.json` on start (mounted live from the repository). A new gateway's seeded alarm journal only starts at its second start: 8.1's journal manager ignores a journal added while it runs, so restart the gateway once (`docker compose -f develop/docker-compose.yml restart gateway`) before relying on the Alarms page's journal.
 
 ## Reset
 

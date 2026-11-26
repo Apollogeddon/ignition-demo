@@ -51,7 +51,7 @@ The assets are UDT instances, `[default]Assets/<area>/<asset>`, which the startu
   - a running motor trips now and then and is back in service 15 minutes later, unless an operator starts it sooner.
 - **Records.** Each trip, reset, start and stop becomes a status event, and every five minutes each asset's reading is appended to `asset_reading`, so the charts over the seeded 72 hours keep growing.
 - **Control.** The equipment popup's Start or Stop writes the motor's `cmdRun` (`project.process.command`); Start also clears a trip. The next tick applies it.
-- **Alarms.** The UDTs carry them: a motor fault, and a tank's high (above 90%) and low (below 15%) level, each acknowledged by hand. The Alarms page shows them, and the `demo` alarm journal stores them in PostgreSQL.
+- **Alarms.** The UDTs carry them: a motor fault, and a tank's high (above 90%) and low (below 15%) level, each acknowledged by hand. The Alarms page shows them, and the `demo` alarm journal stores them in PostgreSQL. On 8.1 a new gateway's seeded journal starts at its second start (see [develop](../develop/README.md)).
 - **History.** The `value` and `motor/running` members are stored by the `demo` SQL historian: 8.1 creates one for each database connection, and on 8.3 the [cluster's resources module](../cluster/README.md) configures it. `library.history.averages` queries it on either line.
 
 ## How the views are built
