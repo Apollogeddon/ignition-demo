@@ -69,12 +69,7 @@ There's nothing to build, so the `build` stage is off, and Gitleaks is turned of
 
 `infra / test`:
 
-- **tofu test**: runs the modules' tests (`cluster/modules/*/tests`) and the k3s `infra` stage's against mock providers, with no cluster. They cover:
-  - the variables' validations: the EULA, image tags and digests, the ingress namespace, the state passphrase;
-  - the plan-time checks: an API key that needs TLS the ingress lacks, a backup with no URL;
-  - the rendered values: the chart values, the gateway's Secret and `existingSecret`, the backup jobs, the resource names, the HTTPS-only ingress.
-
-  A mock provider still needs the provider's schema, so the Ignition provider comes from its network mirror, as in `lint`.
+- **tofu test**: runs the modules' and the k3s `infra` stage's tests against mock providers: the variables' validations, the plan-time checks, and the rendered chart values, Secret, backup jobs and ingress. The Ignition provider's schema comes from its network mirror, as in `lint`.
 
 `infra / scan`:
 
@@ -82,51 +77,47 @@ There's nothing to build, so the `build` stage is off, and Gitleaks is turned of
 
 ## E2E
 
-[`e2e.yml`](./workflows/e2e.yml) deploys the k3s environment to a throwaway cluster on the runner, to catch what only a cluster refuses, such as a provider bump that makes Pod Security reject the database, or a chart whose Backup never syncs. Its one stage, `deploy`:
+[`e2e.yml`](./workflows/e2e.yml) deploys the k3s environment to a throwaway k3d cluster on the runner, to catch what only a cluster refuses. Its one stage, `deploy`:
 
-1. Builds the gateway image for the Ignition release (8.3), from the docker pipeline's cache where it has the layers.
-2. Starts k3s, with its Traefik, through [k3d](https://k3d.io) (a pinned binary checked against its digest), and imports the image (`image_pull_policy = "Never"`).
-3. Installs cert-manager with a private CA `ClusterIssuer` named `cluster-issuer`, the k3s environment's default.
-4. Applies the `infra` and `config` stages as [`cluster/README.md`](../cluster/README.md#deploying-to-k3s) describes, with their state in the cluster, a passphrase generated for the run, and `accept_eula = true` for this throwaway cluster only. The ingress host is `ignition.<node IP>.nip.io`, which resolves on the runner and inside the cluster. The config stage verifies the ingress against the CA through `SSL_CERT_FILE`.
-5. Runs [`scripts/e2e-check.sh`](../scripts/e2e-check.sh), retrying each check for up to 5 minutes, as the gateway restarts once after installing its API key. It checks, without Perspective:
-   - both gateways Ready, and the active Service routing to exactly one;
-   - `https://<host>/StatusPing` answering `RUNNING` through the ingress, and plain HTTP answering 301 to HTTPS;
-   - the `demo` database connection valid through the gateway API, with the generated API key;
-   - the Assets page's named query returning rows (its SQL, run in the database);
-   - each backup CronJob's job completing when run once.
+1. Builds the 8.3 gateway image and imports it into k3s ([k3d](https://k3d.io), a pinned binary checked against its digest), with `image_pull_policy = "Never"`.
+2. Installs cert-manager with a private CA `ClusterIssuer` named `cluster-issuer`.
+3. Applies `infra` and `config` as [`cluster/README.md`](../cluster/README.md#deploying-to-k3s) describes, with a generated passphrase, `accept_eula = true` for this throwaway cluster only, the host `ignition.<node IP>.nip.io`, and `SSL_CERT_FILE` for the CA.
+4. Runs [`scripts/e2e-check.sh`](../scripts/e2e-check.sh), retrying each check for up to 5 minutes while the gateway restarts for its API key: both gateways Ready, the active Service on exactly one, `StatusPing` `RUNNING` through the ingress, HTTP answering 301, the `demo` connection valid through the API, the Assets named query returning rows, and each backup job completing.
 
-If a step fails, the job prints the cluster's pods, events, certificates and the gateways' logs, never the Secrets.
+On a failure it prints pods, events, certificates and gateway logs, never Secrets.
 
-`index` calls it as `e2e (published)`, with the gateway module's pinned `chart_version`, on a pull request that changes `cluster/`, `gateway/`, `projects/`, `database/` or the check script, and nightly and on a manual run. Nightly and on a manual run, `e2e (ignition-helm)` also deploys [ignition-helm](https://github.com/apollogeddon/ignition-helm)'s `charts/failover` through the k3s stage's `chart_path`, to catch a chart change before it's released. The repository variable `E2E_CHART_REF` (default `main`) picks the branch. To test another repository laid out as ignition-helm, call `e2e.yml` with `chart_repository` and `chart_ref`.
+| Job | Chart | Runs |
+| --- | --- | --- |
+| `e2e (published)` | the gateway module's `chart_version` | On a pull request that changes `cluster/`, `gateway/`, `projects/`, `database/` or the check script; nightly; manual |
+| `e2e (ignition-helm)` | [ignition-helm](https://github.com/apollogeddon/ignition-helm)'s `charts/failover` at `E2E_CHART_REF` (default `main`), through `chart_path` | Nightly; manual |
+
+To test another repository laid out as ignition-helm, call `e2e.yml` with `chart_repository` and `chart_ref`.
 
 ## Deploy
 
-[`deploy.yml`](./workflows/deploy.yml) applies the k3s environment with OpenTofu. `index` calls it on a manual run (Actions → index → Run workflow), and on a push to `main` only when the repository variable `DEPLOY_ON_PUSH` is `true`. It deploys the release tag or digest the environment's `terraform.tfvars` pins, not the image the same run built. A manual run of `index` also runs its other manual-run jobs, such as the image push and `patch (projects)`.
+[`deploy.yml`](./workflows/deploy.yml) applies the k3s environment on a manual run of `index` (Actions → index → Run workflow), and on a push to `main` when the variable `DEPLOY_ON_PUSH` is `true`. It deploys the tag or digest `TFVARS` pins, not the image the run built. A manual run also runs `index`'s other manual-run jobs, such as the image push.
 
-- **`plan`**: plans the `infra` stage into a plan file, encrypted with the state passphrase, and uploads it for a day.
-- **`apply`**: once the environment's required reviewers approve, applies exactly that plan, then plans and applies the `config` stage, which can only be planned once `infra` exists (8.1 has none).
+- **`plan`** (environment `k3s-plan`): plans `infra` into an encrypted plan file, kept for a day.
+- **`apply`** (environment `k3s`): after the required reviewers approve, applies that plan, then plans and applies `config` (8.3 only).
 
-Each job reads the cluster's credentials from a GitHub environment (Settings → Environments): `plan` from `k3s-plan`, `apply` from `k3s`. Give `k3s` required reviewers, both a deployment branch rule for `main`, and both the same secrets:
+Give `k3s` required reviewers, both environments a deployment branch rule for `main`, and both the same secrets:
 
 | Name | Kind | What it holds |
 | --- | --- | --- |
-| `KUBECONFIG` | secret | A kubeconfig for the cluster, allowed into the release's namespace and the state namespace |
-| `TF_STATE_PASSPHRASE` | secret | The passphrase the state and plans are encrypted with |
+| `KUBECONFIG` | secret | A kubeconfig allowed into the release's and the state's namespaces |
+| `TF_STATE_PASSPHRASE` | secret | The state and plan passphrase |
 | `TFVARS` | secret | The `infra` stage's `terraform.tfvars` |
 | `CONFIG_TFVARS` | secret, optional | The `config` stage's `terraform.tfvars` |
-| `CA_CERT` | secret, optional | A private CA's certificate, so the Ignition provider can verify the gateway's ingress |
+| `CA_CERT` | secret, optional | A private CA's certificate, to verify the ingress |
 | `KUBE_CONTEXT` | variable, optional | The kubeconfig context (default `default`) |
-| `TF_STATE_NAMESPACE` | variable, optional | The namespace holding the state Secrets (default `tofu-state`) |
+| `TF_STATE_NAMESPACE` | variable, optional | The state namespace (default `tofu-state`) |
+| `DEPLOY_RUNNER` | variable, optional | A self-hosted runner's label, for a cluster on a private network |
 
-Without `KUBECONFIG`, `TF_STATE_PASSPHRASE` or `TFVARS`, `plan` says so in a notice and `apply` is skipped, so the pipeline passes in a fork or with no cluster. Two runs never deploy at once: the jobs share a concurrency group, and the state's Lease would stop a second apply anyway.
+- Without `KUBECONFIG`, `TF_STATE_PASSPHRASE` or `TFVARS`, `plan` leaves a notice and `apply` is skipped, so forks pass.
+- The jobs share a concurrency group, and the state's Lease stops a second apply.
+- The runner must reach the cluster's API, and the ingress for `config`.
 
-The runner must reach the cluster's API, and the gateway's ingress for `config`. A k3s cluster on a private network needs a self-hosted runner: set the repository variable `DEPLOY_RUNNER` to its label.
-
-**Cloud clusters.** A static kubeconfig is a long-lived credential. For EKS, GKE or AKS, use OIDC instead:
-
-1. Grant the jobs `id-token: write`, in `deploy.yml` and in the `deploy` job of `.index.yml`, as GitHub checks a called workflow's permissions against its caller's.
-2. Before the OpenTofu steps, add the cloud's login action (`aws-actions/configure-aws-credentials`, `google-github-actions/auth`, `azure/login`), trusting the repository's `environment:k3s` and `environment:k3s-plan` subjects.
-3. In place of the `KUBECONFIG` secret, write the kubeconfig with the cloud's CLI (`aws eks update-kubeconfig`, `gcloud container clusters get-credentials`, `az aks get-credentials`).
+**Cloud clusters.** For EKS, GKE or AKS, use OIDC instead of a kubeconfig: grant `id-token: write` in `deploy.yml` and in `.index.yml`'s `deploy` job, add the cloud's login action (`aws-actions/configure-aws-credentials`, `google-github-actions/auth`, `azure/login`) trusting the `environment:k3s` and `environment:k3s-plan` subjects, and write the kubeconfig with its CLI (`aws eks update-kubeconfig`, `gcloud container clusters get-credentials`, `az aks get-credentials`).
 
 ## Gateway image
 
@@ -172,4 +163,4 @@ Vulnerable dependencies, in `projects/uv.lock` and the site's npm packages alike
 
 ## Dependabot
 
-`merge` calls forgepy's `merge.yml` on Dependabot's pull requests: `review` asks the owner for a review, which CODEOWNERS doesn't request on a bot's, and `squash` turns on squash auto-merge once every check in the run passed or was skipped (`e2e` among them, so a provider or chart bump the cluster refuses isn't merged), then sends the `auto-merged` dispatch so `main`'s pipeline runs for the merge. GitHub Actions updates change workflow files, which the workflow token may not merge, so a person merges those.
+`merge` calls forgepy's `merge.yml` on Dependabot's pull requests: `review` asks the owner for a review, which CODEOWNERS doesn't request on a bot's, and `squash` turns on squash auto-merge once every check in the run, `e2e` included, passed or was skipped, then sends the `auto-merged` dispatch so `main`'s pipeline runs for the merge. GitHub Actions updates change workflow files, which the workflow token may not merge, so a person merges those.
