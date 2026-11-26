@@ -4,7 +4,7 @@ description: Walk the k3s reference environment (cluster/environments/k3s) throu
 disable-model-invocation: true
 ---
 
-`cluster/README.md` ("Deploying to k3s") is the source of truth: re-read it if it has changed. Work through the checklist, confirming each item with the user. **Stop and ask before every `apply`, `kubectl create/apply/delete` or `init -migrate-state`**, show the plan first, and never read or print `terraform.tfvars`, `backend.hcl`, the state or the passphrase.
+`cluster/README.md` ("Deploying to k3s") is the source of truth: re-read it if it has changed. Confirm each checklist item with the user. **Stop and ask before every `apply`, `kubectl create/apply/delete` or `init -migrate-state`**, show the plan first, and never read or print `terraform.tfvars`, `backend.hcl`, the state or the passphrase.
 
 ## Checklist
 
@@ -16,7 +16,7 @@ disable-model-invocation: true
    1. `docker build -f gateway/Dockerfile -t localhost/ignition-gateway:8.3-dev .`
    2. `docker save` the image, then `sudo k3s ctr images import` it on the node.
    3. Set `image_pull_policy = "Never"`.
-6. **tfvars:** `cp k3s.example.tfvars terraform.tfvars` in `infra/`. The **user** sets `accept_eula = true` after reading the EULA: never set it for them. They also set `image_tag` and `hostname` (resolvable from their machine and from inside the cluster; `<ip>.nip.io` works), and pass licensing as `TF_VAR_license_key`/`TF_VAR_activation_token`. Set `chart_path` only for an unreleased chart, after `helm dependency build` in it.
+6. **tfvars:** `cp k3s.example.tfvars terraform.tfvars` in `infra/`. The **user** sets `accept_eula = true` after reading the EULA: never set it for them. They also set `image_tag` and `hostname` (resolvable from their machine and from inside the cluster; `<ip>.nip.io` works), and pass licensing as `TF_VAR_license_key`/`TF_VAR_activation_token`. Set `chart_path` only for an unreleased chart; the module builds its `file://` dependencies itself.
 7. **Infra:**
 
    ```sh
@@ -30,8 +30,8 @@ disable-model-invocation: true
 
 ## Troubleshooting
 
-- **Pod Security rejects a pod** (`violates PodSecurity "restricted"`, e.g. the database or a CronJob): every container and pod needs `run_as_non_root = true`, among the rest of restricted's settings. The kubernetes provider 3.5 sends an unset field as `false`, which the namespace's restricted policy rejects. Add it in the module, along with a `tofu test` assertion.
-- **`ErrImageNeverPull`:** `image_pull_policy = "Never"` and the image isn't in the node's containerd under that exact name. Re-import it on every node that can run the pod: `sudo k3s ctr images ls | grep ignition-gateway`. The name must match `image_repository:image_tag` exactly (`localhost/ignition-gateway:8.3-dev`).
+- **Pod Security rejects a pod** (`violates PodSecurity "restricted"`, e.g. the database or a CronJob): set `run_as_non_root = true` on every container and pod, with restricted's other settings, as kubernetes provider 3.5 sends an unset one as `false`. Add it in the module, with a `tofu test` assertion.
+- **`ErrImageNeverPull`:** with `image_pull_policy = "Never"`, the node's containerd has no image named exactly `image_repository:image_tag` (`localhost/ignition-gateway:8.3-dev`). Check with `sudo k3s ctr images ls | grep ignition-gateway`, and import it on every node that can run the pod.
 - **`no matches for kind "Middleware"`** at plan: the Traefik CRDs (`traefik.io/v1alpha1`) are missing. Install Traefik's CRDs, or set `http_redirect = false` to leave port 80 unrouted.
 - **The config apply gets 401/403:** the key goes over HTTPS only. Check that the ingress has TLS, that the gateway restarted once after commissioning (the key's grants), and that `config` read infra's state with the same passphrase.
 - **State locked:** another apply holds the Lease. Only use `tofu force-unlock` once the user confirms that nothing else is running.

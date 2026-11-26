@@ -103,7 +103,7 @@ The projects are the same files the release's images run.
 
 ## Deploy
 
-Each environment is applied in two stages: `infra` (the platform and the gateway), then `config` (the gateway's configuration), with their state encrypted in a Secret in the cluster. On 8.3 both are required: `config` creates the database connection the sample project's named queries use. See [`cluster/`](cluster/README.md) for the k3s reference environment. CI deploys both to a throwaway k3d cluster and checks the result (the `e2e` pipeline, [`.github/WORKFLOWS.md`](.github/WORKFLOWS.md#e2e)).
+Each environment is applied in two stages, with their state encrypted in a Secret in the cluster: `infra` (the platform and the gateway), then `config` (the gateway's configuration). On 8.3 both are required, as `config` creates the database connection the project's named queries use. See [`cluster/`](cluster/README.md) for the k3s reference environment. CI's `e2e` pipeline deploys both to a throwaway k3d cluster and checks the result ([`.github/WORKFLOWS.md`](.github/WORKFLOWS.md#e2e)).
 
 ## Repository layout
 

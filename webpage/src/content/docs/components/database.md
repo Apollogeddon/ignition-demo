@@ -46,7 +46,7 @@ CREATE TABLE asset_event (                      -- notes, acknowledgements, stat
 );
 ```
 
-The seed generates readings every 15 minutes for the 72 hours before the database is created: a daily cycle with noise, seeded so every fresh database has the same shape, with the two offline assets reading zero for the last six hours. The views chart the 72 hours up to the latest reading, so the data still charts days later.
+The seed generates a reading every 15 minutes for the 72 hours before the database is created: a daily cycle with noise, the same on every fresh database. The two offline assets read zero for the last six hours. The views chart the 72 hours up to the latest reading, so the seeded data still charts days later.
 
 An asset's `kind` (`pump`, `blower`, `mixer`, `level`) matches one of the equipment UDTs in the `library` project (see [Projects](../projects/#udt-definitions)).
 
@@ -54,4 +54,4 @@ An asset's `kind` (`pump`, `blower`, `mixer`, `level`) matches one of the equipm
 
 The gateway reaches the database through the `demo` connection, which the `resources` OpenTofu module creates on 8.3 and the seed (`gateway/seed/seed.json`) creates on 8.1. The `project` project's named queries use that connection, and its `recordEvent` gateway message handler writes operator notes and acknowledgements to `asset_event` (see [Projects](../projects/#the-demo-application)).
 
-> **Note:** the init scripts only run when the database volume is first created: a database created before a change to them keeps its old tables and rows. To reload them locally, reset the develop stack with `docker compose -f develop/docker-compose.yml down -v`.
+> **Note:** the init scripts only run when the database volume is first created, so an existing database keeps its old tables and rows. To reload them locally, reset the develop stack with `docker compose -f develop/docker-compose.yml down -v`.

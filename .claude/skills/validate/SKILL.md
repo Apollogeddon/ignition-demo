@@ -7,13 +7,13 @@ Run from the repository root. Run every area unless the user named some. Never s
 
 ## 0. Tools
 
-`SCRATCH` is the session's scratchpad directory, or `mktemp -d`: nothing below writes into the tree beyond the git-ignored caches. Each Bash call starts a fresh shell, so set `SCRATCH` and `TF_CLI_CONFIG_FILE` in every call that needs them.
+Make a temporary directory once (`SCRATCH=$(mktemp -d)`) and reuse its path: nothing below writes into the tree beyond the git-ignored caches. Shell variables don't carry between Bash calls, so set `SCRATCH` and `TF_CLI_CONFIG_FILE` in every call that needs them.
 
-`command -v tofu uv shellcheck actionlint npx`. A missing tool marks its checks **skipped (not installed)**, never passed. If there's no `tofu`, say so: CI uses OpenTofu 1.13.1. A copy unzipped from `github.com/opentofu/opentofu/releases` into the scratchpad works, if the user agrees.
+`command -v tofu uv shellcheck actionlint npx`. A missing tool marks its checks **skipped (not installed)**, never passed. If there's no `tofu`, say so: CI uses OpenTofu 1.13.1. With the user's agreement, unzip a release from `github.com/opentofu/opentofu/releases` into `$SCRATCH`.
 
 ## 1. cluster / develop (OpenTofu)
 
-Write the Ignition provider's mirror to a scratch CLI config, as `infra.yml` does, and keep `.terraform/` out of the tree:
+Write the Ignition provider's mirror to a CLI config in `$SCRATCH`, as `infra.yml` does, and keep `.terraform/` out of the tree:
 
 ```sh
 cat >"$SCRATCH/tofurc" <<'EOF'
@@ -42,8 +42,8 @@ done
 ```
 
 - The stages' `.terraform.lock.hcl` are committed: `-lockfile=readonly` keeps `init` from rewriting them. The modules' lock files are git-ignored.
-- `doesn't match any of the checksums previously recorded`: a stale local module lock file. Validate a copy of `cluster/` in the scratchpad without it, or ask before deleting it.
-- **Sandboxes:** `registry.opentofu.org` or `apollogeddon.github.io` may be blocked by the proxy. Without the registry, nothing installs. Then mark tofu validate/test **skipped (registry blocked)** and keep `fmt`, which needs no providers. Without the mirror, only `resources`, `k3s/config` and `develop/config` fail. Either way, a filesystem mirror works:
+- `doesn't match any of the checksums previously recorded`: a stale local module lock file. Validate a copy of `cluster/` in `$SCRATCH` without it, or ask before deleting it.
+- **A registry is unreachable** (`registry.opentofu.org` or `apollogeddon.github.io`): without the registry nothing installs, so mark tofu validate/test **skipped (registry unreachable)** and keep `fmt`, which needs no providers. Without the mirror, only `resources`, `k3s/config` and `develop/config` fail. Either way, a filesystem mirror works:
   1. Somewhere with access, run `tofu providers mirror <dir>` in each stage.
   2. Copy `<dir>` over.
   3. Replace `network_mirror { url = ... }` with `filesystem_mirror { path = "<dir>" }` in the tofurc.
@@ -81,4 +81,4 @@ uv run --no-sync basedpyright && uv run --no-sync pytest -q
 
 ## 5. docs
 
-`npx markdownlint-cli2 "**/*.{md,mdx}"` (check only; `npm run lint:md` adds `--fix`). It needs `npm ci`, which needs a GitHub Packages token for `@apollogeddon/forgejs`. Without one: **skipped**. `webpage/` lint and build (`npm run lint`, `type`, `build` there) run only when the site changed.
+`npx markdownlint-cli2 "**/*.{md,mdx}"` (check only; `npm run lint:md` adds `--fix`). Without `node_modules` (`npm ci` needs a GitHub Packages token for `@apollogeddon/forgejs`), run `npx markdownlint-cli2@0.24.1`, the version `package.json` pins. `webpage/` lint and build (`npm run lint`, `type`, `build` there) run only when the site changed.

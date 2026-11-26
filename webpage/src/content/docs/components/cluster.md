@@ -16,9 +16,9 @@ Each environment is applied in two stages, because the Ignition provider can onl
 1. `environments/<env>/infra`: the platform and the gateway (kubernetes and helm providers).
 2. `environments/<env>/config`: the gateway's configuration (Ignition provider). It reads the database details and the API key from the `infra` state.
 
-On 8.3 both stages are required: the gateway's database connection, which the sample project's named queries use, comes from `config`. Until it's applied, the project's Assets page shows an ERROR in its table. On 8.1 there is no `config` stage, as the gateway seeds its own configuration.
+On 8.3 both stages are required, as `config` creates the database connection the project uses ([Config](#5-config)). On 8.1 there is no `config` stage: the gateway seeds its own configuration.
 
-Both stages keep their state in a Secret in the cluster, locked by a Lease, and encrypt it, and every plan, with a passphrase: the state holds every password ([State](#1-state)).
+Both stages keep their state in a Secret in the cluster, locked by a Lease, and encrypt it and every plan with a passphrase, as the state holds every password ([State](#1-state)).
 
 ## What the gateway module sets, and why
 
@@ -36,7 +36,7 @@ Both stages keep their state in a Secret in the cluster, locked by a Lease, and 
 | NetworkPolicy, with the ingress controller allowed in | Only the namespace and the ingress controller reach the gateway |
 | A deny-all NetworkPolicy for the chart's other pods | The active-routing labeller, the certificate-renewal job and the backup job only call out, so nothing may connect to them |
 | `-Dignition.projects.dir` | Projects come from the image (see [Gateway image](../gateway-image/)) |
-| An atomic install and upgrade, within a timeout sized to a pair's first start | A failed or timed-out first install is uninstalled, so the next apply installs again rather than failing on a name still in use; a failed upgrade rolls back ([A failed install](#a-failed-install)) |
+| An atomic install and upgrade, with a timeout sized to a pair's first start | A failed or timed-out first install is uninstalled, so the next apply retries instead of failing on the name; a failed upgrade rolls back ([A failed install](#a-failed-install)) |
 | A generated API key (8.3) | The `config` stage authenticates with it from the first start; nobody creates a key by hand |
 | A plan-time check that an ingress has TLS when the API key needs it | Otherwise the first `config` apply fails with 401 or 403 |
 | The seed environment (8.1) | The gateway seeds its own configuration (connection, users, journal, audit and so on) on start |
@@ -45,18 +45,18 @@ Both stages keep their state in a Secret in the cluster, locked by a Lease, and 
 
 ### The gateway's Secret
 
-The passwords, the license key and activation token, and the API key (8.3) or the seed's variables (8.1) all reach the gateway as environment variables from one Secret, never as plain chart values in the pod spec:
+The passwords, the license key and activation token, and the API key (8.3) or the seed's variables (8.1) reach the gateway as environment variables from one Secret, never as plain chart values in the pod spec:
 
-- With `chart_version` 4.x, the chart renders that Secret itself, `<name>-secrets`, from `ignition.secrets`.
-- With a chart from 5.0 on, or a local chart (`chart_path`), the module creates it as `<name>-gateway` (`kubernetes_secret_v1.gateway`) and passes it as `ignition.existingSecret`. The chart then renders none, and a hash of the Secret on the pod template rolls the gateways when it changes, as the chart has no pod annotations of its own. To keep the secrets out of OpenTofu altogether, replace that resource with an [External Secrets](https://external-secrets.io/) `ExternalSecret` that writes a Secret of the same name, with the same keys.
+- With `chart_version` 4.x, the chart renders it as `<name>-secrets` from `ignition.secrets`.
+- With a chart from 5.0, or a local chart (`chart_path`), the module creates it as `<name>-gateway` (`kubernetes_secret_v1.gateway`) and passes it as `ignition.existingSecret`. The chart renders none and doesn't watch it, so the module puts a hash of it on the pod template, which rolls the gateways when it changes. To keep the secrets out of OpenTofu, replace that resource with an [External Secrets](https://external-secrets.io/) `ExternalSecret` that writes a Secret of the same name and keys.
 
 ### A local chart (`chart_path`)
 
 `chart_path` installs a chart from a directory instead of the chart repository, to test an unreleased chart. Point it at an [ignition-helm](https://github.com/apollogeddon/ignition-helm) checkout's `charts/failover`:
 
-- The module builds the chart's `file://` dependencies, the `charts/common` library beside it, on every install and upgrade (`dependency_update`), so there's no `helm dependency build` to run first.
-- Helm upgrades a release only when the chart's version changes, so an edited chart at the same version would plan no change. The module puts a hash of the chart's files, and of its `file://` dependencies' files, in the release's description, so an edit to either changes the plan, and `tofu apply` upgrades the release.
-- The hash leaves out what Helm doesn't render or rebuilds itself: `charts/`, `Chart.lock`, `tests/` and `ci/`. A dependency from a chart repository, rather than a `file://` path, isn't hashed: change its version in `Chart.yaml` to pick up a new one.
+- The module builds the chart's `file://` dependencies (the `charts/common` library beside it) on every install and upgrade (`dependency_update`), so there's no `helm dependency build` to run.
+- Helm upgrades a release only when the chart's version changes. So that an edit at the same version still upgrades, the module puts a hash of the chart's files, and its `file://` dependencies', in the release's description.
+- The hash leaves out what Helm doesn't render or rebuilds itself: `charts/`, `Chart.lock`, `tests/` and `ci/`. A dependency from a chart repository isn't hashed: change its version in `Chart.yaml` to pick up a new one.
 
 ## Module inputs
 
@@ -156,7 +156,7 @@ Prerequisites:
 
 ### 1. State
 
-Each stage keeps its state in the Secret `tfstate-default-<secret_suffix>` in a namespace of its own, and locks it with a Lease of the same name, so two applies can't run at once. Create that namespace, and each stage's partial backend configuration:
+Each stage keeps its state in the Secret `tfstate-default-<secret_suffix>`, locked by a Lease of the same name so two applies can't run at once. Create the namespace and each stage's partial backend configuration:
 
 ```sh
 kubectl create namespace tofu-state
@@ -164,21 +164,19 @@ cp cluster/environments/k3s/infra/backend.hcl.example cluster/environments/k3s/i
 cp cluster/environments/k3s/config/backend.hcl.example cluster/environments/k3s/config/backend.hcl
 ```
 
-`backend.hcl` names the state's `secret_suffix` and `namespace`, and the kubeconfig (`config_path`, `config_context`); it is git-ignored. If you change the infra stage's, give the config stage the same values as `infra_state`, which it reads the infra outputs with. Anyone who can read Secrets in that namespace can read the state's ciphertext, so keep it to the people who deploy.
+`backend.hcl` (git-ignored) sets `secret_suffix`, `namespace` and the kubeconfig (`config_path`, `config_context`). If you change the infra stage's, set the same values in the config stage's `infra_state`. Anyone who can read Secrets in that namespace can read the encrypted state, so limit it to the people who deploy.
 
 ### 2. Encryption
 
-The state holds every password, and so does a saved plan, so both stages encrypt both with AES-GCM, with a key derived (PBKDF2) from `state_passphrase`. Set it in the environment, never in a file, and keep it somewhere safe: the state can't be read without it.
+Both stages encrypt their state and saved plans, which hold every password, with AES-GCM and a key derived (PBKDF2) from `state_passphrase`. Set the same passphrase for both stages, as `config` decrypts the `infra` state with it. Set it in the environment, never in a file, and keep it safe: without it the state can't be read.
 
 ```sh
 export TF_VAR_state_passphrase='<at least 16 characters>'
 ```
 
-Both stages take the same passphrase, as `config` decrypts the `infra` state with it.
-
 #### Migrating local state
 
-Earlier releases kept each stage's state in an unencrypted local `terraform.tfstate`. Move it into the cluster, encrypting it, by adding an unencrypted fallback for reading it, for this one run only, through `TF_ENCRYPTION`:
+Earlier releases kept each stage's state in an unencrypted local `terraform.tfstate`. To move it into the cluster, add an unencrypted fallback for reading it, for this one run, through `TF_ENCRYPTION`:
 
 ```sh
 export TF_ENCRYPTION='
@@ -197,19 +195,19 @@ tofu init -migrate-state -backend-config=backend.hcl
 unset TF_ENCRYPTION
 ```
 
-`tofu init -migrate-state` copies the local state into the Secret, encrypting it on the way. Delete the local `terraform.tfstate` and `terraform.tfstate.backup` files once `tofu plan` reads the new state without `TF_ENCRYPTION`. The encryption is not `enforced`, as that would refuse the fallback this migration needs.
+Once `tofu plan` reads the new state without `TF_ENCRYPTION`, delete the local `terraform.tfstate` and `terraform.tfstate.backup`. The encryption isn't `enforced`, as that would refuse this fallback.
 
 ### 3. Choose the image
 
-By default the environment pulls a published image from `ghcr.io/apollogeddon/ignition-gateway` (`image_repository`, with `image_pull_policy = "IfNotPresent"`). Set `image_tag` to a release's `<ignition version>-<release version>`, such as `8.3.10-2.0.1` (see [Gateway image](../gateway-image/#published-images)). `latest` and `<ignition version>-main` are refused: CI re-pushes `-main` on every merge, so a restarted pod could run another build. To pin the tag to an exact image, also set `image_digest` from the release's `images-<version>.txt`, or:
+The default image is `ghcr.io/apollogeddon/ignition-gateway` (`image_repository`), with `image_pull_policy = "IfNotPresent"`. Set `image_tag` to a release's `<ignition version>-<release version>`, such as `8.3.10-2.0.1` (see [Gateway image](../gateway-image/#published-images)). `latest` and `<ignition version>-main` are refused: CI re-pushes `-main` on every merge, so a restarted pod could run another build. To pin the exact image, also set `image_digest` from the release's `images-<version>.txt`, or:
 
 ```sh
 docker buildx imagetools inspect ghcr.io/apollogeddon/ignition-gateway:8.3.10-2.0.1
 ```
 
-If the package is private, also set `ghcr_username` and `ghcr_token` (a GitHub token with `read:packages`) to create a pull secret.
+For a private package, also set `ghcr_username` and `ghcr_token` (a GitHub token with `read:packages`) to create a pull secret.
 
-To run a locally built image instead, import it into k3s's containerd directly:
+To run a local build, import it into k3s's containerd:
 
 ```sh
 docker build -f gateway/Dockerfile -t localhost/ignition-gateway:8.3-dev .
@@ -218,7 +216,7 @@ docker save localhost/ignition-gateway:8.3-dev -o gateway.tar
 sudo k3s ctr images import gateway.tar
 ```
 
-Then set `image_repository = "localhost/ignition-gateway"`, `image_tag = "8.3-dev"` and `image_pull_policy = "Never"`. Every tag must start with its Ignition version (`8.1` or `8.3`), as the environment reads the version from it.
+Then set `image_repository = "localhost/ignition-gateway"`, `image_tag = "8.3-dev"` and `image_pull_policy = "Never"`. Every tag must start with `8.1` or `8.3`, as the environment reads the Ignition version from it.
 
 ### 4. Infra
 
@@ -230,30 +228,35 @@ tofu apply
 tofu output -raw admin_password
 ```
 
-In `terraform.tfvars`:
+In `terraform.tfvars`, set:
 
 1. **`accept_eula = true`**, once you've read the [Ignition EULA](https://inductiveautomation.com/ignition/license). The module refuses to deploy without it.
-2. **`image_tag`** (and optionally `image_digest`), as above.
-3. **`hostname`**: any name that resolves to the k3s node, from your machine and from inside the cluster (the gateway backup goes through it). `nip.io` maps `<ip>.nip.io` to `<ip>`.
-4. **Licensing**, optional: `license_key` and, for a leased license, `activation_token`. They reach the gateway as `IGNITION_LICENSE_KEY` and `IGNITION_ACTIVATION_TOKEN` through its Secret, and it activates on start. Without them the gateway runs a trial. Pass them as `TF_VAR_license_key` and `TF_VAR_activation_token` rather than writing them to the file.
-5. **`admin_password`**, optional: generated when unset.
+2. **`image_tag`**, and optionally `image_digest` (above).
+3. **`hostname`**: a name that resolves to the k3s node from your machine and from inside the cluster, as the gateway backup goes through it. `<ip>.nip.io` resolves to `<ip>`.
+4. **Licensing** (optional): `license_key` and, for a leased license, `activation_token`. The gateway gets them from its Secret as `IGNITION_LICENSE_KEY` and `IGNITION_ACTIVATION_TOKEN` and activates on start; without them it runs a trial. Pass them as `TF_VAR_license_key` and `TF_VAR_activation_token`, not in the file.
+5. **`admin_password`** (optional): generated when unset.
 
-On 8.3, each gateway restarts itself once after its first start, to load the API key it installed (see [Gateway image](../gateway-image/#83-an-api-key-from-the-start)). Until it's back, `/data/perspective` and the gateway's API answer 503, for about 30 seconds once `tofu apply` returns. Wait for it before you open the project or apply `config`.
+On 8.3, each gateway restarts once after its first start, to load the API key it installed (see [Gateway image](../gateway-image/#83-an-api-key-from-the-start)). For about 30 seconds after `tofu apply` returns, `/data/perspective` and the gateway's API answer 503: wait before you open the project or apply `config`.
 
-**TLS.** The Ingress serves the gateway over HTTPS only, on Traefik's `websecure` entrypoint, with the `ignition-ingress-tls` certificate from your ClusterIssuer. Plain HTTP gets a permanent redirect to HTTPS (`http_redirect`), so no admin login crosses the network in the clear. `ingress_annotations` overrides any annotation, for another entrypoint name for instance. The gateway module fails the plan if the gateway would only take its API key over TLS (`api_token_require_tls`, the default) but the ingress has no `tls_secret`.
+**TLS.** The Ingress serves the gateway over HTTPS only, on Traefik's `websecure` entrypoint, with the `ignition-ingress-tls` certificate from your ClusterIssuer. Plain HTTP gets a permanent redirect to HTTPS (`http_redirect`), so no admin login crosses the network in the clear. `ingress_annotations` overrides any annotation, e.g. for another entrypoint name. The plan fails if the API key needs TLS (`api_token_require_tls`, the default) but the ingress has no `tls_secret`.
 
-**Backups.** Two CronJobs back up nightly into volumes of their own, keeping 7 days:
+**Backups.** Two CronJobs back up nightly into claims of their own, keeping 7 days:
 
-- `database-backup` runs `pg_dump -Fc` at 02:23 UTC into the `database-backup` claim. Restore one with `pg_restore`.
-- `ignition-backup` (8.3) downloads a gateway backup (`GET /data/api/v1/backup`, with the module's API key) at 02:47 UTC into the `ignition-backup` claim. It goes through the ingress's HTTPS URL, and checks the certificate against the `ca.crt` of the ingress's TLS Secret, which a private CA issuer writes. Restore a `.gwbk` from the gateway's web UI, or through the chart's `ignition.restore` on an empty data volume. 8.1 has no REST API, so there's no gateway backup there.
+| CronJob | Backs up | At | Restore with |
+| --- | --- | --- | --- |
+| `database-backup` | `pg_dump -Fc` | 02:23 | `pg_restore` |
+| `ignition-backup` (8.3) | a `.gwbk` from `GET /data/api/v1/backup`, with the module's API key | 02:47 | the gateway's web UI, or the chart's `ignition.restore` on an empty data volume |
 
-A backup stays on the cluster's own storage: copy the claims off the cluster too (with Velero, or `kubectl cp` from a pod that mounts them). `storage_class` sets the class of every volume; the gateway module's `persistence` and both modules' backup inputs set their sizes.
+- The times are in the cluster's time zone.
+- The gateway backup goes through the ingress's HTTPS URL, checking the certificate against the `ca.crt` a private CA issuer writes to the ingress's TLS Secret. 8.1 has no REST API, so it has no gateway backup.
+- The claims stay on the cluster's own storage: copy them off it too (with Velero, or `kubectl cp` from a pod that mounts them).
+- `storage_class` sets every volume's class; the gateway module's `persistence` and both modules' backup inputs set their sizes.
 
 #### A failed install
 
-A redundant pair's first install reports Ready once the Master runs and the Backup has synced, about 5 minutes on a k3s node. The module waits up to `timeout` (15 minutes; `gateway_timeout` in the k3s stage) for it, and for a rolling upgrade that restarts both. If an install fails or times out, the module uninstalls it (`atomic`), so the next `tofu apply` installs it again. Without that, OpenTofu wouldn't record the failed release while Helm kept it, and every later apply would fail with `cannot re-use a name that is still in use`. A failed upgrade rolls back to the last release instead, and `cleanup_on_fail` removes the resources it added.
+A redundant pair's first install is Ready once the Backup has synced, about 5 minutes on a k3s node. The module waits up to `timeout` (15 minutes; `gateway_timeout` in the k3s stage) for that, and for a rolling upgrade. With `atomic`, the default, a failed or timed-out install is uninstalled, so the next `tofu apply` installs again, and a failed upgrade rolls back (`cleanup_on_fail` removes what it added).
 
-**Atomic is the default, at a cost.** The uninstall removes the failed release's pods, and their events and logs with them. The alternative, keeping the failed release, leaves the stage unable to apply until someone removes it by hand. To see why an install fails, apply with `gateway_atomic = false` (the module's `atomic`), and look at the pods while they're still there; a longer `gateway_timeout` gives you more time:
+The uninstall also removes the failed pods' events and logs. To see why an install fails, apply with `gateway_atomic = false` (the module's `atomic`), with a longer `gateway_timeout` if you need the time:
 
 ```sh
 tofu apply -var gateway_atomic=false
@@ -262,22 +265,20 @@ kubectl -n ignition logs ignition-1 --all-containers
 helm -n ignition status ignition
 ```
 
-**Recovering a failed release.** With `gateway_atomic = false`, or after an earlier release of this module, a failed first install is left behind with Helm's status `failed`, and the next apply fails on the name still in use. Uninstall it, then apply again:
+**`cannot re-use a name that is still in use`:** a failed first install was left with Helm's status `failed` (with `gateway_atomic = false`, or by an earlier release of this module), which OpenTofu didn't record. Uninstall it and apply again:
 
 ```sh
 helm -n ignition uninstall ignition
-# optional, for a clean first start: the data volumes outlive the release
+# optional: the data volumes outlive the release, so delete a half-commissioned gateway's
 kubectl -n ignition delete pvc data-ignition-0 data-ignition-1
 tofu apply
 ```
 
-Neither `atomic` nor a manual uninstall removes the data volumes, so a retried install starts from what the failed one left on them; delete them as above if that's a half-commissioned gateway.
-
 ### 5. Config
 
-On 8.3 this stage is required, not optional: it creates the `demo` database connection the project's named queries use, and until it's applied the project's Assets page shows an ERROR in its table. With a private CA issuer, it also needs `SSL_CERT_FILE` (below).
+On 8.3 this stage is required: it creates the `demo` database connection the project's named queries use. Until it's applied, the Assets page shows an ERROR in its table.
 
-The Ignition provider is not published to a registry. Its docs site serves every release as a [provider network mirror](https://apollogeddon.github.io/ignition-tofu/docs/guides/installation/), so point OpenTofu at it once in your CLI configuration (`~/.tofurc`, or the file named by `TF_CLI_CONFIG_FILE`):
+The Ignition provider isn't published to a registry. Its docs site serves every release as a [provider network mirror](https://apollogeddon.github.io/ignition-tofu/docs/guides/installation/): point OpenTofu at it once in your CLI configuration (`~/.tofurc`, or the file named by `TF_CLI_CONFIG_FILE`):
 
 ```hcl
 provider_installation {
@@ -291,9 +292,9 @@ provider_installation {
 }
 ```
 
-`tofu init` then installs the provider for your platform, and each stage's `.terraform.lock.hcl` fixes the exact build and its checksums: commit it, and move it on with `tofu init -upgrade`. To use a provider built from source instead, see the provider's [installation guide](https://apollogeddon.github.io/ignition-tofu/docs/guides/installation/).
+`tofu init` then installs the provider for your platform. Each stage's `.terraform.lock.hcl` fixes the exact build and its checksums: commit it, and move it on with `tofu init -upgrade`. For a provider built from source, see its [installation guide](https://apollogeddon.github.io/ignition-tofu/docs/guides/installation/).
 
-**A private CA issuer needs `SSL_CERT_FILE`.** The provider checks the gateway's certificate, and the API key it sends is a gateway administrator's, so keep the check on. The ingress certificate comes from your ClusterIssuer: if that's a private CA (a cert-manager `ca` or self-signed issuer), the apply fails with `x509: certificate signed by unknown authority` until you give OpenTofu its certificate. On Linux, point `SSL_CERT_FILE` at a bundle that holds the system CAs and yours (on macOS and Windows, add the CA to the system's trust store). For a cert-manager `ca` issuer, the CA is in the ingress certificate's Secret:
+**A private CA issuer needs `SSL_CERT_FILE`.** With a private CA ClusterIssuer (a cert-manager `ca` or self-signed issuer), the apply fails with `x509: certificate signed by unknown authority`. Keep the check on, as the provider sends a gateway administrator's API key: on Linux, point `SSL_CERT_FILE` at a bundle of the system CAs and yours; on macOS and Windows, add the CA to the system's trust store. A `ca` issuer puts the CA in the ingress certificate's Secret:
 
 ```sh
 kubectl -n ignition get secret ignition-ingress-tls -o jsonpath='{.data.ca\.crt}' | base64 -d > my-ca.crt
@@ -301,7 +302,7 @@ cat /etc/ssl/certs/ca-certificates.crt my-ca.crt > ca-bundle.pem
 export SSL_CERT_FILE="$PWD/ca-bundle.pem"
 ```
 
-The provider authenticates with the API key the `infra` stage generated, which the gateway installed for itself. `config` reads it from the `infra` state, with the same passphrase; set the `ignition_token` variable to use another:
+The provider authenticates with the API key the `infra` stage generated, which `config` reads from the `infra` state with the same passphrase. Set `ignition_token` to use another key:
 
 ```sh
 cd cluster/environments/k3s/config
@@ -309,11 +310,13 @@ tofu init -backend-config=backend.hcl
 tofu apply
 ```
 
-If the apply fails with 503 straight after `infra`, the gateway is still restarting to load its API key: run it again a minute later.
+A 503 straight after `infra` means the gateway is still restarting to load its API key: apply again a minute later.
 
-On a throwaway local cluster you can skip the certificate check instead, with `allow_insecure_tls = true` in the stage's `terraform.tfvars`. Anyone who can intercept the connection then gets the key. The gateway also takes the key over HTTPS only, or through the ingress's TLS. For a gateway reached over plain HTTP, set the gateway module's `api_token_require_tls = false` (`develop/` does this, as its gateway is on loopback). The ingress's TLS reaches the gateway as an `X-Forwarded-Proto: https` header, which the gateway believes only when the module has an ingress. A pod that can reach the gateway's HTTP port could send that header too, and the NetworkPolicy admits only the ingress controller's namespace and the release's own namespace, so keep other workloads out of that namespace. The platform module's database, which shares it, can't open connections.
+On a throwaway local cluster only, `allow_insecure_tls = true` in the stage's `terraform.tfvars` skips the certificate check. Anyone who can intercept the connection then gets the key.
 
-On 8.1 there is no `config` stage to run: the gateway seeds itself on start from `gateway/seed/seed.json`. The seeded users' password is `tofu output -raw demo_users_password` in `infra`.
+The gateway takes the API key over HTTPS only, or through the ingress's TLS. For a gateway on plain HTTP, set the gateway module's `api_token_require_tls = false`, as `develop/` does for its loopback gateway. The ingress's TLS reaches the gateway as an `X-Forwarded-Proto: https` header, which the gateway trusts only when the module has an ingress. Any pod that reaches the gateway's HTTP port could send it too, and the NetworkPolicy admits only the ingress controller's namespace and the release's own: keep other workloads out of that namespace. The platform module's database, which shares it, can't open connections.
+
+On 8.1 there is no `config` stage: the gateway seeds itself on start from `gateway/seed/seed.json`. The seeded users' password is `tofu output -raw demo_users_password` in `infra`.
 
 ### From CI
 
@@ -329,4 +332,11 @@ tofu -chdir=cluster/modules/gateway init -backend=false && tofu -chdir=cluster/m
 
 The same goes for `cluster/modules/platform`, `cluster/modules/resources` (whose `init` needs the provider mirror above) and `cluster/environments/k3s/infra`.
 
-Those tests can't catch what only a cluster refuses, such as Pod Security rejecting a pod or a Backup that never syncs. The `e2e` pipeline does: it deploys both stages to a throwaway k3d cluster in CI, with cert-manager and a private CA issuer, and checks the result with `scripts/e2e-check.sh`. That covers both gateways Ready, the active Service, StatusPing through the ingress, the HTTP redirect, the database connection through the gateway API, the Assets page's named query, and the backup jobs. It runs on pull requests that change the cluster code, the image, the projects or the database, nightly, and on a manual run. Nightly it also deploys an ignition-helm branch through `chart_path` (see [`.github/WORKFLOWS.md`](https://github.com/apollogeddon/ignition-demo/blob/main/.github/WORKFLOWS.md#e2e)).
+Those tests can't catch what only a cluster refuses, such as Pod Security rejecting a pod or a Backup that never syncs. The `e2e` pipeline deploys both stages to a throwaway k3d cluster in CI, with cert-manager and a private CA issuer, and `scripts/e2e-check.sh` checks:
+
+- both gateways Ready, and the active Service;
+- StatusPing through the ingress, and the HTTP redirect;
+- the database connection through the gateway API, and the Assets page's named query;
+- the backup jobs.
+
+It runs on pull requests that change the cluster code, the image, the projects or the database, nightly, and on a manual run. Nightly it also deploys an ignition-helm branch through `chart_path` (see [`.github/WORKFLOWS.md`](https://github.com/apollogeddon/ignition-demo/blob/main/.github/WORKFLOWS.md#e2e)).

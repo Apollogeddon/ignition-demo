@@ -46,7 +46,7 @@ This builds the gateway image from `gateway/Dockerfile`, the same image every en
 
 ## 3. Create the gateway resources (8.3)
 
-On Ignition 8.3, apply the same `resources` module the cluster uses, so the local gateway gets the `demo` database connection, alarm journal and the rest. This step is required on 8.3: without the connection, the project's Assets page shows an ERROR in its table.
+On Ignition 8.3, apply the same `resources` module the cluster uses, so the local gateway gets the `demo` database connection, alarm journal and the rest. It's required: without the connection, the Assets page shows an ERROR in its table.
 
 1. Set `GATEWAY_API_TOKEN` in `develop/.env` (`.env.example` shows how to generate one) and restart the stack with `up -d`. The gateway installs the key for itself on start.
 2. Point OpenTofu at the Ignition provider's network mirror: see [Cluster](../../components/cluster/#5-config).
@@ -59,7 +59,7 @@ On Ignition 8.3, apply the same `resources` module the cluster uses, so the loca
    tofu init && tofu apply -var db_password="$DB_PASSWORD"
    ```
 
-On its first start with the key, the gateway restarts itself once to load it, so `/data/perspective` and the API answer 503 for about 30 seconds: if `tofu apply` fails with 503, run it again a minute later.
+On its first start with the key, the gateway restarts once to load it, and answers 503 for about 30 seconds: if `tofu apply` fails with 503, apply again a minute later.
 
 On 8.1 there is nothing to apply: the gateway has no REST API, and seeds the same configuration itself on start from `gateway/seed/seed.json`.
 

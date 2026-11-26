@@ -64,4 +64,4 @@ Every published tag starts with the Ignition version:
 | `<ignition version>-sha-<commit>` | Every push to `main` |
 | `<ignition version>-<release version>` | Each release |
 
-To deploy, set the new release's image tag (and optionally its digest) in the environment and apply it, by hand or with a manual run of `index`, whose `deploy / plan` and `deploy / apply` apply a plan the `k3s` environment's reviewers approved (see [Cluster](../../components/cluster/#from-ci)). Because the projects are in the image, a rollback is deploying the previous tag.
+To deploy, set the new release's image tag (and optionally its digest) in the environment and apply it: by hand, or with a manual run of `index`, whose `deploy / apply` applies the `deploy / plan` the `k3s` environment's reviewers approved (see [Cluster](../../components/cluster/#from-ci)). Because the projects are in the image, a rollback is deploying the previous tag.

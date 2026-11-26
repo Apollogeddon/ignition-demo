@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """PostToolUse hook (Edit|Write): formats and lints the edited file with the repository's own
 tools, exiting 2 with what it can't fix so it reaches Claude (plain stdout only reaches the
-transcript). A tool that isn't installed is skipped quietly: CI runs every check.
+transcript). A missing tofu, shellcheck or actionlint is skipped quietly, as CI runs every check;
+the Python files need uv.
 
     *.tf, *.tftest.hcl, *.tfvars    tofu fmt
     projects/**/*.py(i)             ruff check --fix, then ruff format (projects' uv env)
