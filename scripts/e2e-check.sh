@@ -11,6 +11,8 @@
 #   - the Assets page's named query returns rows: its SQL
 #     (projects/project/.../named-query/assets/list/query.sql), run in the
 #     database the connection points at;
+#   - the process timer is logging readings (one in the last 7 minutes: it
+#     logs every 5), and the SQL historian has registered the UDTs' tags;
 #   - each backup CronJob's job completes, when run once by hand (it reaches the
 #     gateway through the ingress host from inside the cluster).
 #
@@ -114,18 +116,31 @@ database_connection() {
   jq -e '.healthchecks.status.result.healthy == true' <<<"${body}" >/dev/null
 }
 
-named_query_rows() {
-  local sql rows
-  sql=$(sed -e 's/;[[:space:]]*$//' "${QUERY_FILE}")
+# count <SQL that returns one count>: prints it, and succeeds when it's above zero
+count() {
+  local rows
   # psql over the container's socket, as the database's own user, from the
   # container's environment
   # shellcheck disable=SC2016
   rows=$(kubectl -n "${NAMESPACE}" exec -i "${DATABASE_POD}" -c postgres -- \
-    sh -c 'psql -X -v ON_ERROR_STOP=1 -tA -U "$POSTGRES_USER" -d "$POSTGRES_DB"' \
-    <<<"SELECT count(*) FROM (${sql}) AS named_query;")
+    sh -c 'psql -X -v ON_ERROR_STOP=1 -tA -U "$POSTGRES_USER" -d "$POSTGRES_DB"' <<<"$1")
   rows=$(tr -d '[:space:]' <<<"${rows}")
   echo "${rows} row(s)"
   [[ "${rows}" =~ ^[0-9]+$ ]] && [ "${rows}" -gt 0 ]
+}
+
+named_query_rows() {
+  local sql
+  sql=$(sed -e 's/;[[:space:]]*$//' "${QUERY_FILE}")
+  count "SELECT count(*) FROM (${sql}) AS named_query;"
+}
+
+live_readings() {
+  count "SELECT count(*) FROM asset_reading WHERE ts > now() - interval '7 minutes';"
+}
+
+historian_tags() {
+  count "SELECT count(*) FROM sqlth_te;"
 }
 
 backup_job() {
@@ -141,6 +156,8 @@ check "https://${HOST}/StatusPing answers RUNNING through the ingress" status_pi
 check "plain HTTP redirects to HTTPS" http_redirect
 check "the gateway reports the ${CONNECTION} database connection valid" database_connection
 check "the Assets page's named query returns rows" named_query_rows
+check "the process timer logged readings in the last 7 minutes" live_readings
+check "the SQL historian has registered the UDTs' tags" historian_tags
 for cronjob in ${BACKUP_CRONJOBS}; do
   job="${cronjob}-e2e-$(date +%s)"
   if kubectl -n "${NAMESPACE}" create job "${job}" --from="cronjob/${cronjob}" >/dev/null; then

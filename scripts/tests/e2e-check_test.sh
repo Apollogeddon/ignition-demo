@@ -72,7 +72,7 @@ passed() { [ "$(cat "${work}/$1.rc")" = 0 ]; }
 failed() { [ "$(cat "${work}/$1.rc")" = 1 ] && grep -q "^FAIL $2" "${work}/$1.out"; }
 
 run healthy
-check "a healthy deployment passes every check" 'passed healthy && [ "$(grep -c "^ok " "${work}/healthy.out")" = 8 ]'
+check "a healthy deployment passes every check" 'passed healthy && [ "$(grep -c "^ok " "${work}/healthy.out")" = 10 ]'
 check "the named query runs as written, counted" 'grep -q "SELECT count(\*) FROM (SELECT id, name" "${work}/healthy/sql" && grep -q "ORDER BY name) AS named_query;" "${work}/healthy/sql"'
 check "the API key is sent as a header" 'grep -qx "X-Ignition-API-Token: iac:s3cret" "${work}/healthy/headers"'
 check "the API key is never on a command line" '! grep -q s3cret "${work}/healthy/curl" "${work}/healthy/kubectl"'
@@ -102,6 +102,9 @@ run refused STUB_DB='' STUB_DB_RC=22
 check "an API call the gateway refuses fails" 'failed refused "the gateway reports the demo database connection valid"'
 run no-rows STUB_ROWS=0
 check "a named query with no rows fails" 'failed no-rows "the Assets page.s named query returns rows: 0 row"'
+check "no recent readings fail the process timer check" 'failed no-rows "the process timer logged readings"'
+check "no history fails the historian check" 'failed no-rows "the SQL historian has registered"'
+check "the timer check looks back 7 minutes" 'grep -q "FROM asset_reading WHERE ts > now() - interval .7 minutes." "${work}/healthy/sql"'
 run bad-sql STUB_ROWS='ERROR:  relation "asset" does not exist' STUB_EXEC_RC=1
 check "a named query that errors fails" 'failed bad-sql "the Assets page.s named query returns rows"'
 run backup-failed STUB_JOB=/1
@@ -115,8 +118,9 @@ check "a missing backup CronJob fails" 'failed no-cronjob "the ignition-backup C
 run restart STUB_PING_CODES='503 503 200' WAIT_SECONDS=5
 check "a StatusPing that recovers within WAIT_SECONDS passes" 'passed restart && [ "$(cat "${work}/restart/pings")" = 3 ]'
 
+# the gateways, StatusPing and all three database checks
 run all-broken STUB_PODS='ignition-0=False\n' STUB_PING_CODES=503 STUB_ROWS=0
-check "every failed check is reported, with the count" 'grep -q "^3 check(s) failed" "${work}/all-broken.out"'
+check "every failed check is reported, with the count" 'grep -q "^5 check(s) failed" "${work}/all-broken.out"'
 
 rc=0; env -u HOST GATEWAY_API_TOKEN=x bash "${script}" > "${work}/no-host.out" 2>&1 || rc=$?
 check "HOST is required" '[ "${rc}" != 0 ] && grep -q "HOST must be" "${work}/no-host.out"'
