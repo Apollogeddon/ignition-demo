@@ -213,7 +213,7 @@
                   "style": {
                     "classes": "Layout/PageSubtitle"
                   },
-                  "text": "Live process schematic from intake to distribution, refreshed every 15 seconds; click any equipment for its detail"
+                  "text": "Live process schematic from intake to distribution: the symbols follow the asset tags; click any equipment for its detail, Start and Stop"
                 },
                 "type": "ia.display.label"
               }

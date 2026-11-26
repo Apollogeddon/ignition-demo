@@ -44,6 +44,7 @@
                 }
             ],
             "dataType": "Float4",
+            "documentation": "The tank level, %. It starts empty (null), not 0, so a new gateway neither stores a false 0 in the history nor trips the Low Level alarm before the process timer sets it.",
             "engHigh": 100.0,
             "engLow": 0.0,
             "engUnit": "%",
@@ -55,7 +56,7 @@
             "historyProvider": "demo",
             "name": "value",
             "tagType": "AtomicTag",
-            "value": 0.0,
+            "value": null,
             "valueSource": "memory"
         }
     ]
