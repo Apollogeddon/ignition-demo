@@ -1,5 +1,11 @@
 {
-  "custom": {},
+  "custom": {
+    "alarms": {
+      "active": 0,
+      "unacked": 0,
+      "high": 0
+    }
+  },
   "params": {},
   "props": {
     "defaultSize": {
@@ -189,6 +195,40 @@
               "url": "/events"
             },
             "type": "ia.navigation.link"
+          },
+          {
+            "meta": {
+              "name": "Alarms"
+            },
+            "position": {
+              "shrink": 0
+            },
+            "propConfig": {
+              "props.style.classes": {
+                "binding": {
+                  "config": {
+                    "expression": "if({page.props.path} = \"/alarms\", \"Shell/Nav Shell/NavActive\", \"Shell/Nav\")"
+                  },
+                  "type": "expr"
+                }
+              },
+              "props.text": {
+                "binding": {
+                  "config": {
+                    "expression": "if({view.custom.alarms.active} > 0, concat(\"Alarms \u00b7 \", {view.custom.alarms.active}), \"Alarms\")"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "style": {
+                "classes": "Shell/Nav"
+              },
+              "text": "Alarms",
+              "url": "/alarms"
+            },
+            "type": "ia.navigation.link"
           }
         ],
         "meta": {
@@ -293,5 +333,21 @@
       }
     },
     "type": "ia.container.flex"
+  },
+  "propConfig": {
+    "custom.alarms": {
+      "binding": {
+        "config": {
+          "expression": "now(5000)"
+        },
+        "transforms": [
+          {
+            "code": "\treturn project.alarms.getCounts()",
+            "type": "script"
+          }
+        ],
+        "type": "expr"
+      }
+    }
   }
 }

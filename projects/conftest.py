@@ -16,8 +16,10 @@ builtins.__dict__.update(unicode=str, basestring=str)
 
 SYSTEM_MODULES = (
 	"system",
+	"system.alarm",
 	"system.dataset",
 	"system.file",
+	"system.historian",
 	"system.date",
 	"system.db",
 	"system.perspective",

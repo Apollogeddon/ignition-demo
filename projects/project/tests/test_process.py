@@ -230,3 +230,26 @@ def test_a_failed_tick_is_logged_not_raised() -> None:
 	):
 		tick(NOON)
 	assert "database down" in logger.warn.call_args.args[0]
+
+
+def test_start_writes_the_command_and_resets_a_trip() -> None:
+	good = MagicMock()
+	good.isGood.return_value = True
+	with patch.object(code, "writeBlocking", return_value=[good, good]) as write:
+		assert code.command("[default]Assets/South/Mixer", run=True) == {
+			"ok": True,
+			"text": "Starting",
+		}
+	write.assert_called_once_with(
+		["[default]Assets/South/Mixer/motor/cmdRun", "[default]Assets/South/Mixer/motor/fault"],
+		[True, False],
+	)
+
+
+def test_stop_only_clears_the_command_and_reports_a_bad_write() -> None:
+	bad = MagicMock()
+	bad.isGood.return_value = False
+	with patch.object(code, "writeBlocking", return_value=[bad]) as write:
+		result = code.command("[default]Assets/South/Mixer", run=False)
+	write.assert_called_once_with(["[default]Assets/South/Mixer/motor/cmdRun"], [False])
+	assert result["ok"] is False

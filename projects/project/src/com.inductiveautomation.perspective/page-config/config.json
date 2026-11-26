@@ -4,6 +4,10 @@
       "title": "Overview",
       "viewPath": "Page/Overview"
     },
+    "/alarms": {
+      "title": "Alarms",
+      "viewPath": "Page/Alarms"
+    },
     "/analytics": {
       "title": "Analytics",
       "viewPath": "Page/Analytics"

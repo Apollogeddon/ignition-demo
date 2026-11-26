@@ -10,8 +10,10 @@ bars from assets/status.
 from library.data import toRows
 from library.db import namedQuery
 from library.format import EM_DASH, percent
+from library.history import averages
 from project.assets import getStatus
 from project.overview import areaColor, areaOrder
+from system.date import addMinutes, now
 
 MYPY = False
 if MYPY:
@@ -252,3 +254,21 @@ def getAnalytics():
 	# type: (...) -> Dict[str, Any]
 	"""Query the assets' status and hourly readings and shape them for the Analytics page."""
 	return analytics(getStatus(), toRows(namedQuery("readings/hourly")))
+
+
+# the tanks whose level history the Analytics page charts, from the demo SQL historian
+LEVELS = (
+	("Well", "[default]Assets/North/Intake well level/value"),
+	("Reservoir", "[default]Assets/East/Reservoir level/value"),
+)
+HISTORY_MINUTES = 60
+HISTORY_POINTS = 120
+
+
+def getLevelHistory():
+	# type: (...) -> List[Dict[str, Any]]
+	"""Query the last hour of the tanks' level history, averaged into HISTORY_POINTS points."""
+	end = now()
+	names = [name for name, _ in LEVELS]
+	paths = [path for _, path in LEVELS]
+	return averages(paths, names, addMinutes(end, -HISTORY_MINUTES), end, HISTORY_POINTS)

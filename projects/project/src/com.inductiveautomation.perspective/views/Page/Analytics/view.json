@@ -29,7 +29,8 @@
         "hours": 24,
         "volume": 0
       }
-    }
+    },
+    "levels": []
   },
   "params": {},
   "propConfig": {
@@ -41,6 +42,20 @@
         "transforms": [
           {
             "code": "\treturn project.analytics.getAnalytics()",
+            "type": "script"
+          }
+        ],
+        "type": "expr"
+      }
+    },
+    "custom.levels": {
+      "binding": {
+        "config": {
+          "expression": "now(30000)"
+        },
+        "transforms": [
+          {
+            "code": "\treturn project.analytics.getLevelHistory()",
             "type": "script"
           }
         ],
@@ -1504,6 +1519,394 @@
         },
         "position": {
           "basis": "380px",
+          "shrink": 0
+        },
+        "props": {
+          "direction": "column",
+          "style": {
+            "classes": "Card",
+            "gap": "12px"
+          }
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "meta": {
+                      "name": "Title"
+                    },
+                    "position": {
+                      "shrink": 0
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "Section/Title"
+                      },
+                      "text": "Tank levels, last hour"
+                    },
+                    "type": "ia.display.label"
+                  },
+                  {
+                    "meta": {
+                      "name": "Subtitle"
+                    },
+                    "position": {
+                      "shrink": 0
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "Section/Subtitle"
+                      },
+                      "text": "Hourly mean of the online pumps, the last 72 hours of readings"
+                    },
+                    "type": "ia.display.label",
+                    "propConfig": {
+                      "props.text": {
+                        "binding": {
+                          "config": {
+                            "expression": "\"Tag history: the level tags' averages from the demo SQL historian, refreshed every 30 seconds\""
+                          },
+                          "type": "expr"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "meta": {
+                  "name": "Titles"
+                },
+                "position": {
+                  "grow": 1
+                },
+                "props": {
+                  "direction": "column",
+                  "style": {
+                    "gap": "2px"
+                  }
+                },
+                "type": "ia.container.flex"
+              }
+            ],
+            "meta": {
+              "name": "Head"
+            },
+            "position": {
+              "shrink": 0
+            },
+            "props": {
+              "alignItems": "center",
+              "direction": "row",
+              "style": {}
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "meta": {
+              "name": "FlowChart"
+            },
+            "position": {
+              "basis": "260px",
+              "grow": 1
+            },
+            "propConfig": {
+              "props.series[0].data": {
+                "binding": {
+                  "config": {
+                    "path": "view.custom.levels"
+                  },
+                  "type": "property"
+                }
+              }
+            },
+            "props": {
+              "autoGenerateSeriesNames": false,
+              "enablePanZoom": false,
+              "legend": {
+                "position": "top",
+                "style": {
+                  "classes": ""
+                },
+                "visible": true
+              },
+              "plots": [
+                {
+                  "axes": [
+                    {
+                      "alignment": "left",
+                      "grid": {
+                        "color": "#E2E8F0",
+                        "dashArray": 0,
+                        "opacity": 0.9,
+                        "style": {
+                          "classes": ""
+                        },
+                        "visible": true
+                      },
+                      "label": {
+                        "font": {
+                          "color": "#64748B",
+                          "size": 11
+                        },
+                        "offset": 0,
+                        "style": {
+                          "classes": ""
+                        },
+                        "text": "%",
+                        "visible": true
+                      },
+                      "max": 100,
+                      "min": 0,
+                      "name": "value",
+                      "style": {
+                        "classes": ""
+                      },
+                      "tick": {
+                        "color": "#E2E8F0",
+                        "count": 5,
+                        "label": {
+                          "font": {
+                            "color": "#64748B",
+                            "size": 11
+                          },
+                          "format": ",.0f",
+                          "style": {
+                            "classes": ""
+                          }
+                        },
+                        "style": {
+                          "classes": ""
+                        }
+                      },
+                      "width": 52
+                    }
+                  ],
+                  "markers": [],
+                  "relativeWeight": 1,
+                  "trends": [
+                    {
+                      "axis": "value",
+                      "baselines": [],
+                      "breakLine": true,
+                      "columns": [
+                        {
+                          "color": "#2563EB",
+                          "key": "Well",
+                          "styles": {
+                            "highlighted": {
+                              "fill": {
+                                "color": "#2563EB",
+                                "opacity": 0.32
+                              },
+                              "stroke": {
+                                "color": "#2563EB",
+                                "dashArray": null,
+                                "opacity": 1,
+                                "width": 3
+                              }
+                            },
+                            "muted": {
+                              "fill": {
+                                "color": "",
+                                "opacity": null
+                              },
+                              "stroke": {
+                                "color": "",
+                                "dashArray": null,
+                                "opacity": null,
+                                "width": null
+                              }
+                            },
+                            "normal": {
+                              "fill": {
+                                "color": "#2563EB",
+                                "opacity": 0.08
+                              },
+                              "stroke": {
+                                "color": "#2563EB",
+                                "dashArray": null,
+                                "opacity": 1,
+                                "width": 2
+                              }
+                            },
+                            "selected": {
+                              "fill": {
+                                "color": "",
+                                "opacity": null
+                              },
+                              "stroke": {
+                                "color": "",
+                                "dashArray": null,
+                                "opacity": null,
+                                "width": null
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "color": "#0EA5E9",
+                          "key": "Reservoir",
+                          "styles": {
+                            "highlighted": {
+                              "fill": {
+                                "color": "#0EA5E9",
+                                "opacity": 0.32
+                              },
+                              "stroke": {
+                                "color": "#0EA5E9",
+                                "dashArray": null,
+                                "opacity": 1,
+                                "width": 3
+                              }
+                            },
+                            "muted": {
+                              "fill": {
+                                "color": "",
+                                "opacity": null
+                              },
+                              "stroke": {
+                                "color": "",
+                                "dashArray": null,
+                                "opacity": null,
+                                "width": null
+                              }
+                            },
+                            "normal": {
+                              "fill": {
+                                "color": "#0EA5E9",
+                                "opacity": 0.08
+                              },
+                              "stroke": {
+                                "color": "#0EA5E9",
+                                "dashArray": null,
+                                "opacity": 1,
+                                "width": 2
+                              }
+                            },
+                            "selected": {
+                              "fill": {
+                                "color": "",
+                                "opacity": null
+                              },
+                              "stroke": {
+                                "color": "",
+                                "dashArray": null,
+                                "opacity": null,
+                                "width": null
+                              }
+                            }
+                          }
+                        }
+                      ],
+                      "interpolation": "curveMonotoneX",
+                      "radius": 2,
+                      "series": "data",
+                      "stack": false,
+                      "type": "area",
+                      "visible": true
+                    }
+                  ]
+                }
+              ],
+              "series": [
+                {
+                  "data": [],
+                  "name": "data"
+                }
+              ],
+              "style": {
+                "classes": ""
+              },
+              "timeAxis": {
+                "color": "#E2E8F0",
+                "grid": {
+                  "color": "#E2E8F0",
+                  "dashArray": 0,
+                  "opacity": 0.9,
+                  "style": {
+                    "classes": ""
+                  },
+                  "visible": false
+                },
+                "height": 30,
+                "style": {
+                  "classes": ""
+                },
+                "tick": {
+                  "color": "#E2E8F0",
+                  "label": {
+                    "angled": false,
+                    "font": {
+                      "color": "#64748B",
+                      "size": 11
+                    },
+                    "format": "ddd HH:mm",
+                    "style": {
+                      "classes": ""
+                    }
+                  },
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "tickCount": 6,
+                "visible": true
+              },
+              "timeRange": {
+                "dateFormat": "D MMM",
+                "timeFormat": "HH:mm",
+                "visible": false
+              },
+              "title": {
+                "font": {
+                  "color": "",
+                  "size": 18
+                },
+                "height": 25,
+                "style": {
+                  "classes": ""
+                },
+                "text": "",
+                "visible": false
+              },
+              "xTrace": {
+                "infoBox": {
+                  "dataFormat": "0.0",
+                  "dateFormat": "ddd D MMM",
+                  "showTime": true,
+                  "style": {
+                    "classes": ""
+                  },
+                  "timeFormat": "HH:mm",
+                  "visible": true,
+                  "width": "auto"
+                },
+                "line": {
+                  "color": "#94A3B8",
+                  "dashArray": 3,
+                  "opacity": 0.8,
+                  "style": {
+                    "classes": ""
+                  },
+                  "visible": true,
+                  "width": 1
+                },
+                "value": "",
+                "visible": true
+              }
+            },
+            "type": "ia.chart.timeseries"
+          }
+        ],
+        "meta": {
+          "name": "LevelsCard"
+        },
+        "position": {
+          "basis": "360px",
           "shrink": 0
         },
         "props": {

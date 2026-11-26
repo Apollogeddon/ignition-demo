@@ -6,12 +6,14 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
+from project.assets import code
 from project.assets.code import (
 	buildInstances,
 	detail,
 	getDetail,
 	getSummary,
 	getTable,
+	live,
 	reading,
 	summarise,
 	syncInstances,
@@ -187,3 +189,35 @@ def test_get_detail_without_an_asset_queries_nothing() -> None:
 	with patch("project.assets.code.namedQuery") as namedQuery:
 		assert getDetail(None)["found"] is False
 	namedQuery.assert_not_called()
+
+
+def test_live_overlays_the_tags_on_the_database_rows() -> None:
+	rows = [
+		{"name": "Blower 2", "kind": "blower", "online": True, "value": 1300.0},
+		{"name": "Reservoir level", "kind": "level", "online": True, "value": 64.0},
+		{"name": "Old sensor", "kind": "sensor", "online": True, "value": 1.0},
+	]
+	values = {
+		"Blower 2": {"value": 0.0, "fault": True, "running": False},
+		"Reservoir level": {"value": 71.5},
+	}
+	blower, reservoir, sensor = live(rows, values)
+	assert blower["value"] == 0.0
+	assert blower["online"] is False
+	assert blower["running"] is False
+	assert reservoir == {**rows[1], "value": 71.5}
+	assert sensor == rows[2]
+	# the database's rows are left as they were
+	assert rows[0]["online"] is True
+
+
+def test_status_falls_back_to_the_database_when_tags_fail() -> None:
+	rows = [{"name": "Mixer", "area": "South", "kind": "mixer", "online": True, "value": 58.0}]
+	with (
+		patch.object(code, "namedQuery"),
+		patch.object(code, "toRows", return_value=rows),
+		patch.object(code, "readValues", side_effect=RuntimeError("provider down")),
+		patch.object(code, "LOGGER") as logger,
+	):
+		assert code.getStatus() == rows
+	assert "provider down" in logger.warn.call_args.args[0]
