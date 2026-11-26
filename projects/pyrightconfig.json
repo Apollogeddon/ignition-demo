@@ -1,7 +1,7 @@
 {
   "extends": ".forgepy/pyrightconfig.json",
   "include": ["library", "project", "conftest.py"],
-  "exclude": ["*/src/ignition/startup", "*/src/ignition/update", "*/src/ignition/shutdown", "**/.venv*"],
+  "exclude": ["*/src/ignition/startup", "*/src/ignition/update", "*/src/ignition/shutdown", "*/src/ignition/message", "**/.venv*"],
   "extraPaths": ["library/src/ignition/script-python", "project/src/ignition/script-python"],
   "stubPath": "stubs",
   "venvPath": ".",
