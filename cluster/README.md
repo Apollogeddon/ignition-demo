@@ -99,13 +99,14 @@ Passwords, licensing, and the API key or seed variables reach the gateway from o
 
 ### `resources`
 
-Each optional block is off unless set; `{}` takes its defaults. The k3s `config` stage and `develop/config` set all four to `{}`.
+Each optional block is off unless set; `{}` takes its defaults. The k3s `config` stage and `develop/config` set all five to `{}`. The module needs provider 1.3.0 or later, for `ignition_historian_provider`.
 
 | Input | Default | Purpose |
 | --- | --- | --- |
 | `database` | required | The demo database to connect to (sensitive) |
 | `connection_name` | `demo` | Name of the connection the named queries use |
 | `alarm_journal` | none | Alarm events in the demo database |
+| `historian` | none | The `demo` SQL historian that stores the UDTs' tag history (`pruning_months`, 12) |
 | `user_source` | none | Internal user source and identity provider |
 | `audit_profile` | none | Audit profile in the demo database |
 | `smtp` | none | SMTP and email notification profiles (`{}` is `localhost:25`) |

@@ -20,7 +20,7 @@ docker compose -f develop/docker-compose.yml up -d --build
 
 ## Gateway configuration
 
-On 8.3, `config/` applies the cluster's `resources` module to this gateway. It's required: it creates the `demo` database connection the project's named queries use, and until it's applied the Assets page shows an ERROR in its table. It authenticates with `GATEWAY_API_TOKEN` from `.env` (`.env.example` shows how to generate one), which the gateway installs for itself on start (the compose file sets `GATEWAY_API_TOKEN_REQUIRE_TLS=false`, so the gateway takes it over plain HTTP on loopback):
+On 8.3, `config/` applies the cluster's `resources` module to this gateway. It's required: it creates the `demo` database connection the project's named queries use, the `demo` historian the tag history needs and the alarm journal, and until it's applied the Assets page shows an ERROR in its table. It authenticates with `GATEWAY_API_TOKEN` from `.env` (`.env.example` shows how to generate one), which the gateway installs for itself on start (the compose file sets `GATEWAY_API_TOKEN_REQUIRE_TLS=false`, so the gateway takes it over plain HTTP on loopback):
 
 ```sh
 set -a; . develop/.env; set +a     # load GATEWAY_API_TOKEN and DB_PASSWORD
