@@ -16,4 +16,4 @@ description: Move the repository to a new Ignition patch release on the 8.1 or 8
    - `gateway/tests/*_test.sh`.
 4. **API stubs.** `ignition-api-stubs` follows its own releases. If one exists for the new release, update the `ignition81`/`ignition83` group in `projects/pyproject.toml` and its comment, then `cd projects && uv lock`. If none exists, leave the group and update the comment.
 5. **Validate:** run `scripts/check-ignition-versions.sh` until it prints `Ignition versions match gateway/base`, then `bash scripts/tests/check-ignition-versions_test.sh` and `bash gateway/tests/*_test.sh`, and `tofu test` in `cluster/modules/gateway` and `cluster/environments/k3s/infra` if tftest files changed. Run the projects' checks if the stubs moved (see `/validate`). The image itself is smoke-tested by CI's `docker / test`, or locally with `gateway/tests/smoke.sh` when asked.
-6. **Commit:** `fix(gateway): move ignition 8.3 to 8.3.11, so the image runs the latest patch release` (stage the files by name).
+6. **Commit:** `fix(gateway): move ignition 8.3 to <new release>, so the image runs the latest patch release` (stage the files by name).
