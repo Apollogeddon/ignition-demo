@@ -80,6 +80,20 @@ variable "admin_password" {
   sensitive   = true
 }
 
+variable "license_key" {
+  description = "Ignition license key, which the gateway activates on start (IGNITION_LICENSE_KEY); null to license it by hand or run a trial"
+  type        = string
+  default     = null
+  sensitive   = true
+}
+
+variable "activation_token" {
+  description = "Activation token for a leased license key (IGNITION_ACTIVATION_TOKEN); null for none"
+  type        = string
+  default     = null
+  sensitive   = true
+}
+
 variable "redundancy" {
   description = "Run a Master/Backup pair with active routing and certificate-renewal restarts"
   type        = bool

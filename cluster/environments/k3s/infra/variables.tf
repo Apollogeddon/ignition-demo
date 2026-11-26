@@ -105,3 +105,24 @@ variable "accept_eula" {
   description = "Accept the Ignition EULA (https://inductiveautomation.com/ignition/license); the gateway module requires true"
   type        = bool
 }
+
+variable "admin_password" {
+  description = "Gateway admin password; null generates one (tofu output -raw admin_password)"
+  type        = string
+  default     = null
+  sensitive   = true
+}
+
+variable "license_key" {
+  description = "Ignition license key the gateway activates on start; null to license it by hand or run a trial"
+  type        = string
+  default     = null
+  sensitive   = true
+}
+
+variable "activation_token" {
+  description = "Activation token for a leased license key; null for none"
+  type        = string
+  default     = null
+  sensitive   = true
+}

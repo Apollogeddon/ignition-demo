@@ -38,12 +38,6 @@ locals {
         "-Dignition.projects.dir=${local.projects_dir}",
         "-Dignition.projects.scanFrequency=60",
       ])
-      secrets = merge({
-        GATEWAY_ADMIN_USERNAME         = "admin"
-        GATEWAY_ADMIN_PASSWORD         = local.admin_password
-        IGNITION_GAN_KEYSTORE_PASSWORD = random_password.keystore["gan"].result
-        IGNITION_WEB_KEYSTORE_PASSWORD = random_password.keystore["web"].result
-      }, local.gateway_environment)
       redundancy = { enabled = var.redundancy }
       # user traffic only ever reaches the Active gateway
       activeRouting = { enabled = var.redundancy }
@@ -113,6 +107,44 @@ resource "random_password" "keystore" {
 
 locals {
   admin_password = coalesce(var.admin_password, try(random_password.admin[0].result, null))
+
+  # The gateway's secret environment: passwords, licensing, and the API key (8.3)
+  # or the seed's variables (8.1)
+  secret_environment = merge(
+    {
+      GATEWAY_ADMIN_USERNAME         = "admin"
+      GATEWAY_ADMIN_PASSWORD         = local.admin_password
+      IGNITION_GAN_KEYSTORE_PASSWORD = random_password.keystore["gan"].result
+      IGNITION_WEB_KEYSTORE_PASSWORD = random_password.keystore["web"].result
+    },
+    # the variables the Ignition image reads to activate a license on start
+    var.license_key == null ? {} : { IGNITION_LICENSE_KEY = var.license_key },
+    var.activation_token == null ? {} : { IGNITION_ACTIVATION_TOKEN = var.activation_token },
+    local.gateway_environment,
+  )
+
+  # From chart 5 (or a local chart) the gateway reads a Secret this module owns
+  # (ignition.existingSecret), which External Secrets can replace; an earlier chart
+  # renders its own from ignition.secrets, with the same values
+  existing_secret = var.chart_path != null || tonumber(regex("^[0-9]+", var.chart_version)) >= 5
+  secret_name     = local.existing_secret ? "${var.name}-gateway" : "${var.name}-secrets"
+  secret_values = (local.existing_secret
+    ? yamlencode({ ignition = { existingSecret = local.secret_name } })
+    : yamlencode({ ignition = { secrets = local.secret_environment } })
+  )
+}
+
+resource "kubernetes_secret_v1" "gateway" {
+  count = local.existing_secret ? 1 : 0
+  metadata {
+    name      = local.secret_name
+    namespace = var.namespace
+    labels = {
+      "app.kubernetes.io/part-of"    = "ignition"
+      "app.kubernetes.io/managed-by" = "opentofu"
+    }
+  }
+  data = local.secret_environment
 }
 
 resource "helm_release" "gateway" {
@@ -123,7 +155,9 @@ resource "helm_release" "gateway" {
   chart      = coalesce(var.chart_path, "ignition-failover")
   version    = var.chart_path == null ? var.chart_version : null
 
-  values = [yamlencode(local.values), yamlencode(var.values)]
+  values = [yamlencode(local.values), local.secret_values, yamlencode(var.values)]
+  # the chart's gateways start with the Secret's environment
+  depends_on = [kubernetes_secret_v1.gateway]
 
   # a redundant pair commissions, syncs and only then reports Ready
   timeout = 1200
