@@ -30,7 +30,7 @@ ignore = [
 "*/src/ignition/script-python/library/gateway81/code.py" = ["D102", "D107"]
 # gateway event scripts and message handlers (8.3 format): Ignition supplies the project packages
 # and expects these exact function definitions
-"*/src/ignition/{startup,update,shutdown,message}/**/*.py" = ["D100", "D103", "F821", "N802", "INP001"]
+"*/src/ignition/{startup,update,shutdown,timer,message}/**/*.py" = ["D100", "D103", "F821", "N802", "INP001"]
 # the gateway's records and managers are Java objects the scripts use dynamically
 "stubs/**" = ["ANN401"]
 "*/tests/**" = ["S101", "ANN", "D", "EM101", "FBT001", "PLR2004", "TC003", "TRY003"]

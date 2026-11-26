@@ -5,7 +5,7 @@
         {
             "alarms": [
                 {
-                    "ackMode": "Auto",
+                    "ackMode": "Manual",
                     "activeCondition": {
                         "bindType": "Expression",
                         "value": "{Value} > 90"
@@ -21,14 +21,39 @@
                     "mode": "OnCondition",
                     "name": "High Level",
                     "priority": "Medium",
-                    "timeOnDelaySeconds": 5.0
+                    "timeOnDelaySeconds": 2.0
+                },
+                {
+                    "ackMode": "Manual",
+                    "activeCondition": {
+                        "bindType": "Expression",
+                        "value": "{Value} < 15"
+                    },
+                    "displayPath": {
+                        "bindType": "Expression",
+                        "value": "concat({RootInstanceName}, \":\", {TagName})"
+                    },
+                    "label": {
+                        "bindType": "Expression",
+                        "value": "concat({RootInstanceName}, \": level below 15%\")"
+                    },
+                    "mode": "OnCondition",
+                    "name": "Low Level",
+                    "priority": "Medium",
+                    "timeOnDelaySeconds": 2.0
                 }
             ],
             "dataType": "Float4",
             "engHigh": 100.0,
             "engLow": 0.0,
             "engUnit": "%",
-            "name": "level",
+            "historicalDeadband": 0.5,
+            "historicalDeadbandStyle": "Analog",
+            "historyEnabled": true,
+            "historyMaxAge": 1,
+            "historyMaxAgeUnits": "MIN",
+            "historyProvider": "demo",
+            "name": "value",
             "tagType": "AtomicTag",
             "value": 0.0,
             "valueSource": "memory"

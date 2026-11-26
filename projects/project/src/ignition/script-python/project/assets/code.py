@@ -1,9 +1,11 @@
 """Asset queries and summaries for the overview views."""
 
+from java.lang import Throwable
 from library.data import toRows
 from library.db import namedQuery
 from library.format import EM_DASH
 from project.events import tableRows as eventRows
+from project.process import MOTORS, readValues, role
 from system.tag import configure
 from system.util import getLogger
 
@@ -38,10 +40,43 @@ def getSummary():
 	return summary
 
 
+def live(
+	rows,  # type: List[Dict[str, Any]]
+	values,  # type: Dict[str, Dict[str, Any]]
+):
+	# type: (...) -> List[Dict[str, Any]]
+	"""Overlay each asset's tags on its assets/status row.
+
+	value becomes the tag's live reading, and a motor is online unless its
+	motor/fault is set; running says whether it runs. Assets without tags keep
+	the database's values.
+	"""
+	result = []
+	for source in rows:
+		row = dict(source)
+		tags = values.get(row["name"])
+		if tags is not None:
+			row["value"] = tags.get("value")
+			if row["kind"] in MOTORS:
+				row["online"] = not tags.get("fault")
+				row["running"] = bool(tags.get("running"))
+		result.append(row)
+	return result
+
+
 def getStatus():
 	# type: (...) -> List[Dict[str, Any]]
-	"""Run assets/status: every enabled asset with its latest reading and event."""
-	return toRows(namedQuery("assets/status"))
+	"""Return every enabled asset with its live reading (its tags) and latest event.
+
+	The rows come from assets/status, with the tags overlaid; if the tags can't
+	be read, the database's latest reading and online flag stand.
+	"""
+	rows = toRows(namedQuery("assets/status"))
+	try:
+		return live(rows, readValues([row for row in rows if role(row)]))
+	except (Exception, Throwable) as e:  # noqa: BLE001 - the database's values still show
+		LOGGER.warn("Asset tags not read; showing the database's readings: {}".format(e))
+		return rows
 
 
 def reading(

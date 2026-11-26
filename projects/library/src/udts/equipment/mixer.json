@@ -6,6 +6,29 @@
             "name": "motor",
             "tagType": "UdtInstance",
             "typeId": "subTypes/motor"
+        },
+        {
+            "dataType": "String",
+            "expression": "if({[.]motor/fault}, \"faulted\", if({[.]motor/running}, \"running\", \"stopped\"))",
+            "name": "state",
+            "tagType": "AtomicTag",
+            "valueSource": "expr"
+        },
+        {
+            "dataType": "Float4",
+            "engHigh": 80.0,
+            "engLow": 0.0,
+            "engUnit": "rpm",
+            "historicalDeadband": 0.5,
+            "historicalDeadbandStyle": "Analog",
+            "historyEnabled": true,
+            "historyMaxAge": 1,
+            "historyMaxAgeUnits": "MIN",
+            "historyProvider": "demo",
+            "name": "value",
+            "tagType": "AtomicTag",
+            "value": 0.0,
+            "valueSource": "memory"
         }
     ]
 }

@@ -163,7 +163,7 @@
     "custom.plant": {
       "binding": {
         "config": {
-          "expression": "now(15000)"
+          "expression": "now(5000)"
         },
         "transforms": [
           {
@@ -1096,7 +1096,7 @@
                       "dom": {
                         "onClick": {
                           "config": {
-                            "script": "\tslot = self.view.custom.plant.slots.well\n\tproject.plant.openEquipment(slot.id, slot.name)"
+                            "script": "\tslot = self.view.custom.plant.slots.well\n\tproject.plant.openEquipment(slot.id, slot.name, slot.path)"
                           },
                           "scope": "G",
                           "type": "script"
@@ -1124,9 +1124,11 @@
                       "props.value": {
                         "binding": {
                           "config": {
-                            "expression": "{view.custom.plant.slots.well.value}"
+                            "fallbackDelay": 2.5,
+                            "mode": "direct",
+                            "tagPath": "[default]Assets/North/Intake well level/value"
                           },
-                          "type": "expr"
+                          "type": "tag"
                         }
                       }
                     },
@@ -1222,7 +1224,7 @@
                       "dom": {
                         "onClick": {
                           "config": {
-                            "script": "\tslot = self.view.custom.plant.slots.intake1\n\tproject.plant.openEquipment(slot.id, slot.name)"
+                            "script": "\tslot = self.view.custom.plant.slots.intake1\n\tproject.plant.openEquipment(slot.id, slot.name, slot.path)"
                           },
                           "scope": "G",
                           "type": "script"
@@ -1242,9 +1244,11 @@
                       "props.state": {
                         "binding": {
                           "config": {
-                            "expression": "{view.custom.plant.slots.intake1.state}"
+                            "fallbackDelay": 2.5,
+                            "mode": "direct",
+                            "tagPath": "[default]Assets/North/Intake pump 1/state"
                           },
-                          "type": "expr"
+                          "type": "tag"
                         }
                       }
                     },
@@ -1329,7 +1333,7 @@
                       "dom": {
                         "onClick": {
                           "config": {
-                            "script": "\tslot = self.view.custom.plant.slots.intake2\n\tproject.plant.openEquipment(slot.id, slot.name)"
+                            "script": "\tslot = self.view.custom.plant.slots.intake2\n\tproject.plant.openEquipment(slot.id, slot.name, slot.path)"
                           },
                           "scope": "G",
                           "type": "script"
@@ -1349,9 +1353,11 @@
                       "props.state": {
                         "binding": {
                           "config": {
-                            "expression": "{view.custom.plant.slots.intake2.state}"
+                            "fallbackDelay": 2.5,
+                            "mode": "direct",
+                            "tagPath": "[default]Assets/North/Intake pump 2/state"
                           },
-                          "type": "expr"
+                          "type": "tag"
                         }
                       }
                     },
@@ -1436,7 +1442,7 @@
                       "dom": {
                         "onClick": {
                           "config": {
-                            "script": "\tslot = self.view.custom.plant.slots.intake3\n\tproject.plant.openEquipment(slot.id, slot.name)"
+                            "script": "\tslot = self.view.custom.plant.slots.intake3\n\tproject.plant.openEquipment(slot.id, slot.name, slot.path)"
                           },
                           "scope": "G",
                           "type": "script"
@@ -1456,9 +1462,11 @@
                       "props.state": {
                         "binding": {
                           "config": {
-                            "expression": "{view.custom.plant.slots.intake3.state}"
+                            "fallbackDelay": 2.5,
+                            "mode": "direct",
+                            "tagPath": "[default]Assets/North/Intake pump 3/state"
                           },
-                          "type": "expr"
+                          "type": "tag"
                         }
                       }
                     },
@@ -1799,7 +1807,7 @@
                       "dom": {
                         "onClick": {
                           "config": {
-                            "script": "\tslot = self.view.custom.plant.slots.dosing\n\tproject.plant.openEquipment(slot.id, slot.name)"
+                            "script": "\tslot = self.view.custom.plant.slots.dosing\n\tproject.plant.openEquipment(slot.id, slot.name, slot.path)"
                           },
                           "scope": "G",
                           "type": "script"
@@ -1819,9 +1827,11 @@
                       "props.state": {
                         "binding": {
                           "config": {
-                            "expression": "{view.custom.plant.slots.dosing.state}"
+                            "fallbackDelay": 2.5,
+                            "mode": "direct",
+                            "tagPath": "[default]Assets/South/Dosing pump/state"
                           },
-                          "type": "expr"
+                          "type": "tag"
                         }
                       }
                     },
@@ -2003,7 +2013,7 @@
                       "dom": {
                         "onClick": {
                           "config": {
-                            "script": "\tslot = self.view.custom.plant.slots.mixer\n\tproject.plant.openEquipment(slot.id, slot.name)"
+                            "script": "\tslot = self.view.custom.plant.slots.mixer\n\tproject.plant.openEquipment(slot.id, slot.name, slot.path)"
                           },
                           "scope": "G",
                           "type": "script"
@@ -2023,9 +2033,11 @@
                       "props.state": {
                         "binding": {
                           "config": {
-                            "expression": "{view.custom.plant.slots.mixer.state}"
+                            "fallbackDelay": 2.5,
+                            "mode": "direct",
+                            "tagPath": "[default]Assets/South/Mixer/state"
                           },
-                          "type": "expr"
+                          "type": "tag"
                         }
                       }
                     },
@@ -2116,7 +2128,7 @@
                       "dom": {
                         "onClick": {
                           "config": {
-                            "script": "\tslot = self.view.custom.plant.slots.blower1\n\tproject.plant.openEquipment(slot.id, slot.name)"
+                            "script": "\tslot = self.view.custom.plant.slots.blower1\n\tproject.plant.openEquipment(slot.id, slot.name, slot.path)"
                           },
                           "scope": "G",
                           "type": "script"
@@ -2136,9 +2148,11 @@
                       "props.state": {
                         "binding": {
                           "config": {
-                            "expression": "{view.custom.plant.slots.blower1.state}"
+                            "fallbackDelay": 2.5,
+                            "mode": "direct",
+                            "tagPath": "[default]Assets/South/Blower 1/state"
                           },
-                          "type": "expr"
+                          "type": "tag"
                         }
                       }
                     },
@@ -2223,7 +2237,7 @@
                       "dom": {
                         "onClick": {
                           "config": {
-                            "script": "\tslot = self.view.custom.plant.slots.blower2\n\tproject.plant.openEquipment(slot.id, slot.name)"
+                            "script": "\tslot = self.view.custom.plant.slots.blower2\n\tproject.plant.openEquipment(slot.id, slot.name, slot.path)"
                           },
                           "scope": "G",
                           "type": "script"
@@ -2243,9 +2257,11 @@
                       "props.state": {
                         "binding": {
                           "config": {
-                            "expression": "{view.custom.plant.slots.blower2.state}"
+                            "fallbackDelay": 2.5,
+                            "mode": "direct",
+                            "tagPath": "[default]Assets/South/Blower 2/state"
                           },
-                          "type": "expr"
+                          "type": "tag"
                         }
                       }
                     },
@@ -2694,7 +2710,7 @@
                       "dom": {
                         "onClick": {
                           "config": {
-                            "script": "\tslot = self.view.custom.plant.slots.reservoir\n\tproject.plant.openEquipment(slot.id, slot.name)"
+                            "script": "\tslot = self.view.custom.plant.slots.reservoir\n\tproject.plant.openEquipment(slot.id, slot.name, slot.path)"
                           },
                           "scope": "G",
                           "type": "script"
@@ -2722,9 +2738,11 @@
                       "props.value": {
                         "binding": {
                           "config": {
-                            "expression": "{view.custom.plant.slots.reservoir.value}"
+                            "fallbackDelay": 2.5,
+                            "mode": "direct",
+                            "tagPath": "[default]Assets/East/Reservoir level/value"
                           },
-                          "type": "expr"
+                          "type": "tag"
                         }
                       }
                     },
@@ -2820,7 +2838,7 @@
                       "dom": {
                         "onClick": {
                           "config": {
-                            "script": "\tslot = self.view.custom.plant.slots.transfer1\n\tproject.plant.openEquipment(slot.id, slot.name)"
+                            "script": "\tslot = self.view.custom.plant.slots.transfer1\n\tproject.plant.openEquipment(slot.id, slot.name, slot.path)"
                           },
                           "scope": "G",
                           "type": "script"
@@ -2840,9 +2858,11 @@
                       "props.state": {
                         "binding": {
                           "config": {
-                            "expression": "{view.custom.plant.slots.transfer1.state}"
+                            "fallbackDelay": 2.5,
+                            "mode": "direct",
+                            "tagPath": "[default]Assets/East/Transfer pump 1/state"
                           },
-                          "type": "expr"
+                          "type": "tag"
                         }
                       }
                     },
@@ -2927,7 +2947,7 @@
                       "dom": {
                         "onClick": {
                           "config": {
-                            "script": "\tslot = self.view.custom.plant.slots.transfer2\n\tproject.plant.openEquipment(slot.id, slot.name)"
+                            "script": "\tslot = self.view.custom.plant.slots.transfer2\n\tproject.plant.openEquipment(slot.id, slot.name, slot.path)"
                           },
                           "scope": "G",
                           "type": "script"
@@ -2947,9 +2967,11 @@
                       "props.state": {
                         "binding": {
                           "config": {
-                            "expression": "{view.custom.plant.slots.transfer2.state}"
+                            "fallbackDelay": 2.5,
+                            "mode": "direct",
+                            "tagPath": "[default]Assets/East/Transfer pump 2/state"
                           },
-                          "type": "expr"
+                          "type": "tag"
                         }
                       }
                     },

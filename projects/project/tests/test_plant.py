@@ -143,14 +143,20 @@ def test_gauge_bands() -> None:
 	]
 
 
-def test_trend_keeps_the_last_day() -> None:
-	readings = [{"time": index, "value": float(index)} for index in range(200)]
-	result = trend(readings, "L/s")
-	assert len(result["points"]) == 96
-	assert result["points"][0] == 104.0
-	assert result["low"] == "104 L/s"
-	assert result["high"] == "199 L/s"
-	assert result["mean"] == "152 L/s"
+def test_trend_keeps_the_day_up_to_the_newest_reading() -> None:
+	# 15-minute readings over two days, then live 5-minute ones
+	quarter, five = 15 * 60 * 1000, 5 * 60 * 1000
+	seeded = [{"time": i * quarter, "value": float(i)} for i in range(192)]
+	end = seeded[-1]["time"]
+	live = [{"time": end + (i + 1) * five, "value": 500.0} for i in range(12)]
+	result = trend(seeded + live, "L/s")
+	newest = live[-1]["time"]
+	kept = [r for r in seeded + live if r["time"] > newest - 24 * 3600 * 1000]
+	assert result["points"] == [r["value"] for r in kept]
+	assert result["points"][-1] == 500.0
+	assert result["low"] == "100 L/s"
+	assert result["high"] == "500 L/s"
+	assert result["mean"] == "186 L/s"
 	assert trend([], "L/s")["low"] == "—"
 
 
@@ -207,12 +213,12 @@ def test_get_equipment_without_an_id() -> None:
 
 
 def test_open_equipment_opens_the_popup(system) -> None:
-	openEquipment(4, "Dosing pump")
+	openEquipment(4, "Dosing pump", "[default]Assets/South/Dosing pump")
 	openPopup = system["system.perspective"].openPopup
 	openPopup.assert_called_once()
 	args, kwargs = openPopup.call_args
 	assert args == ("equipment", "Popup/Equipment")
-	assert kwargs["params"] == {"assetId": 4}
+	assert kwargs["params"] == {"assetId": 4, "tagPath": "[default]Assets/South/Dosing pump"}
 	assert kwargs["title"] == "Dosing pump"
 	assert kwargs["modal"]
 

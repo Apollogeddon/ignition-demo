@@ -13,6 +13,7 @@ from library.db import namedQuery
 from library.format import EM_DASH, duration, percent
 from project.assets import getStatus, reading, status
 from project.events import LABELS
+from project.process import MOTORS, basePath
 
 MYPY = False
 if MYPY:
@@ -39,11 +40,10 @@ AIR = "#A5B4FC"
 DOSE = "#34D399"
 IDLE = "#CBD5E1"
 
-# kinds that run, and so have a running, stopped or faulted symbol state
-MOVING = ("pump", "blower", "mixer")
 
-# the popup's trend covers the last day of 15-minute readings
-TREND_POINTS = 96
+# the popup's trend covers the day up to the newest reading: the seeded
+# 15-minute readings and the process timer's live ones
+TREND_MS = 24 * 3600 * 1000
 # share of the rated capacity above which the gauge's band turns amber
 HIGH = 0.85
 # below this share a tank's level is low
@@ -60,7 +60,7 @@ def symbolState(
 ):
 	# type: (...) -> str
 	"""Return a Perspective symbol state: faulted offline, running with a reading."""
-	if row["kind"] not in MOVING:
+	if row["kind"] not in MOTORS:
 		return "default"
 	if not row["online"]:
 		return "faulted"
@@ -96,6 +96,7 @@ def slot(
 	return {
 		"id": row["id"],
 		"name": row["name"],
+		"path": basePath(row),
 		"state": state,
 		"running": state == "running",
 		"status": stateLabel(state) or status(row["online"]),
@@ -114,6 +115,7 @@ def emptySlot(
 	return {
 		"id": None,
 		"name": name,
+		"path": "",
 		"state": "stopped",
 		"running": False,
 		"status": "No data",
@@ -221,7 +223,9 @@ def trend(
 ):
 	# type: (...) -> Dict[str, Any]
 	"""Return the last day of readings as sparkline points, with their low, mean and high."""
-	values = [row["value"] for row in readings][-TREND_POINTS:]
+	readings = list(readings)
+	newest = readings[-1]["time"] if readings else 0
+	values = [row["value"] for row in readings if row["time"] > newest - TREND_MS]
 	if not values:
 		return {"points": [], "low": EM_DASH, "mean": EM_DASH, "high": EM_DASH}
 	return {
@@ -277,6 +281,7 @@ def equipment(
 		else "Pill/Base Pill/Bad",
 		"unit": unit,
 		"reading": item["reading"],
+		"motor": row["kind"] in MOTORS,
 		"rated": "Rated " + reading(capacity, unit),
 		"load": percent(share(row["value"], capacity)) + " of rated",
 		"gauge": gauge(row["value"], capacity, row["kind"]),
@@ -302,9 +307,14 @@ def getEquipment(
 def openEquipment(
 	assetId,  # type: Any
 	name,  # type: str
+	path="",  # type: str
 ):
 	# type: (...) -> None
-	"""Open the equipment popup for a schematic slot; a slot with no asset opens none."""
+	"""Open the equipment popup for a schematic slot; a slot with no asset opens none.
+
+	path is the asset's UDT instance, which the popup binds its live reading,
+	state and Start/Stop to.
+	"""
 	if assetId is None:
 		return
 	from system.perspective import openPopup
@@ -312,7 +322,7 @@ def openEquipment(
 	openPopup(
 		"equipment",
 		"Popup/Equipment",
-		params={"assetId": assetId},
+		params={"assetId": assetId, "tagPath": path},
 		title=name,
 		showCloseIcon=True,
 		draggable=True,

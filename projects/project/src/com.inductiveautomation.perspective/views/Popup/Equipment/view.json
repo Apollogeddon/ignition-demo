@@ -17,10 +17,13 @@
     "result": {
       "ok": true,
       "text": ""
-    }
+    },
+    "live": null,
+    "state": null
   },
   "params": {
-    "assetId": 0
+    "assetId": 0,
+    "tagPath": ""
   },
   "propConfig": {
     "custom.asset": {
@@ -40,6 +43,36 @@
     "params.assetId": {
       "paramDirection": "input",
       "persistent": true
+    },
+    "params.tagPath": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "custom.live": {
+      "binding": {
+        "config": {
+          "fallbackDelay": 2.5,
+          "mode": "indirect",
+          "references": {
+            "path": "{view.params.tagPath}"
+          },
+          "tagPath": "{path}/value"
+        },
+        "type": "tag"
+      }
+    },
+    "custom.state": {
+      "binding": {
+        "config": {
+          "fallbackDelay": 2.5,
+          "mode": "indirect",
+          "references": {
+            "path": "{view.params.tagPath}"
+          },
+          "tagPath": "{path}/state"
+        },
+        "type": "tag"
+      }
     }
   },
   "props": {
@@ -88,7 +121,7 @@
               "props.style.classes": {
                 "binding": {
                   "config": {
-                    "expression": "{view.custom.asset.pill}"
+                    "expression": "case({view.custom.state}, \"running\", \"Pill/Base Pill/Ok\", \"stopped\", \"Pill/Base Pill/Bad\", \"faulted\", \"Pill/Base Pill/Bad\", {view.custom.asset.pill})"
                   },
                   "type": "expr"
                 }
@@ -96,7 +129,7 @@
               "props.text": {
                 "binding": {
                   "config": {
-                    "expression": "{view.custom.asset.status}"
+                    "expression": "case({view.custom.state}, \"running\", \"Running\", \"stopped\", \"Stopped\", \"faulted\", \"Fault\", {view.custom.asset.status})"
                   },
                   "type": "expr"
                 }
@@ -162,7 +195,7 @@
               "props.secondaryValue": {
                 "binding": {
                   "config": {
-                    "expression": "{view.custom.asset.gauge.value}"
+                    "expression": "coalesce({view.custom.live}, {view.custom.asset.gauge.value})"
                   },
                   "type": "expr"
                 }
@@ -170,7 +203,7 @@
               "props.value": {
                 "binding": {
                   "config": {
-                    "expression": "{view.custom.asset.gauge.value}"
+                    "expression": "coalesce({view.custom.live}, {view.custom.asset.gauge.value})"
                   },
                   "type": "expr"
                 }
@@ -255,7 +288,7 @@
                   "props.text": {
                     "binding": {
                       "config": {
-                        "expression": "{view.custom.asset.reading}"
+                        "expression": "if(isNull({view.custom.live}), {view.custom.asset.reading}, concat(numberFormat({view.custom.live}, if({view.custom.live} >= 100, \"#,##0\", \"0.0\")), \" \", {view.custom.asset.unit}))"
                       },
                       "type": "expr"
                     }
@@ -280,7 +313,7 @@
                   "props.text": {
                     "binding": {
                       "config": {
-                        "expression": "{view.custom.asset.load}"
+                        "expression": "if(isNull({view.custom.live}) || {view.custom.asset.gauge.max} <= 0, {view.custom.asset.load}, concat(numberFormat({view.custom.live} / {view.custom.asset.gauge.max} * 100, \"0\"), \"% of rated\"))"
                       },
                       "type": "expr"
                     }
@@ -769,6 +802,76 @@
                 "classes": "Plant/Button"
               },
               "text": "Close"
+            },
+            "type": "ia.input.button"
+          },
+          {
+            "events": {
+              "component": {
+                "onActionPerformed": {
+                  "config": {
+                    "script": "\t# Stop clears the run command; Start sets it and resets a trip\n\trun = self.view.custom.state != \"running\"\n\tself.view.custom.result = project.process.command(self.view.params.tagPath, run)"
+                  },
+                  "scope": "G",
+                  "type": "script"
+                }
+              }
+            },
+            "meta": {
+              "name": "Run"
+            },
+            "position": {
+              "basis": "0px",
+              "grow": 1
+            },
+            "propConfig": {
+              "position.display": {
+                "binding": {
+                  "config": {
+                    "expression": "{view.custom.asset.found} && {view.custom.asset.motor}"
+                  },
+                  "type": "expr"
+                }
+              },
+              "props.text": {
+                "binding": {
+                  "config": {
+                    "expression": "if({view.custom.state} = \"running\", \"Stop\", \"Start\")"
+                  },
+                  "type": "expr"
+                }
+              },
+              "props.image.icon.path": {
+                "binding": {
+                  "config": {
+                    "expression": "if({view.custom.state} = \"running\", \"material/stop\", \"material/play_arrow\")"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "align": "center",
+              "enabled": true,
+              "image": {
+                "height": 18,
+                "icon": {
+                  "color": "",
+                  "path": "material/play_arrow"
+                },
+                "position": "left",
+                "source": "",
+                "style": {
+                  "classes": ""
+                },
+                "width": 18
+              },
+              "justify": "center",
+              "primary": false,
+              "style": {
+                "classes": "Plant/Button"
+              },
+              "text": "Start"
             },
             "type": "ia.input.button"
           },

@@ -1,0 +1,20 @@
+{
+  "attributes": {
+    "delay": 5000,
+    "enabled": true,
+    "fixedDelay": true,
+    "lastModification": {
+      "actor": "system",
+      "timestamp": "2025-01-01T00:00:00Z"
+    },
+    "lastModificationSignature": "0000000000000000000000000000000000000000000000000000000000000000",
+    "sharedThread": false
+  },
+  "files": [
+    "handleTimerEvent.py"
+  ],
+  "overridable": true,
+  "restricted": false,
+  "scope": "G",
+  "version": 1
+}
