@@ -1,0 +1,856 @@
+{
+  "custom": {
+    "asset": {
+      "found": false,
+      "gauge": {
+        "max": 100,
+        "ranges": [],
+        "value": 0
+      },
+      "trend": {
+        "high": "",
+        "low": "",
+        "mean": "",
+        "points": []
+      }
+    },
+    "result": {
+      "ok": true,
+      "text": ""
+    }
+  },
+  "params": {
+    "assetId": 0
+  },
+  "propConfig": {
+    "custom.asset": {
+      "binding": {
+        "config": {
+          "expression": "{view.params.assetId}"
+        },
+        "transforms": [
+          {
+            "code": "\treturn project.plant.getEquipment(value)",
+            "type": "script"
+          }
+        ],
+        "type": "expr"
+      }
+    },
+    "params.assetId": {
+      "paramDirection": "input",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 480,
+      "width": 440
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "children": [
+          {
+            "meta": {
+              "name": "Subtitle"
+            },
+            "position": {
+              "grow": 1
+            },
+            "propConfig": {
+              "props.text": {
+                "binding": {
+                  "config": {
+                    "expression": "{view.custom.asset.subtitle}"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "style": {
+                "classes": "Section/Subtitle"
+              },
+              "text": ""
+            },
+            "type": "ia.display.label"
+          },
+          {
+            "meta": {
+              "name": "Status"
+            },
+            "position": {
+              "shrink": 0
+            },
+            "propConfig": {
+              "props.style.classes": {
+                "binding": {
+                  "config": {
+                    "expression": "{view.custom.asset.pill}"
+                  },
+                  "type": "expr"
+                }
+              },
+              "props.text": {
+                "binding": {
+                  "config": {
+                    "expression": "{view.custom.asset.status}"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "style": {
+                "classes": "Pill/Base"
+              },
+              "text": ""
+            },
+            "type": "ia.display.label"
+          }
+        ],
+        "meta": {
+          "name": "Head"
+        },
+        "position": {
+          "shrink": 0
+        },
+        "props": {
+          "alignItems": "center",
+          "direction": "row",
+          "style": {}
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "children": [
+          {
+            "meta": {
+              "name": "Gauge"
+            },
+            "position": {
+              "basis": "210px",
+              "shrink": 0
+            },
+            "propConfig": {
+              "props.innerAxis.maxValue": {
+                "binding": {
+                  "config": {
+                    "expression": "{view.custom.asset.gauge.max}"
+                  },
+                  "type": "expr"
+                }
+              },
+              "props.outerAxis.maxValue": {
+                "binding": {
+                  "config": {
+                    "expression": "{view.custom.asset.gauge.max}"
+                  },
+                  "type": "expr"
+                }
+              },
+              "props.outerAxis.ranges": {
+                "binding": {
+                  "config": {
+                    "path": "view.custom.asset.gauge.ranges"
+                  },
+                  "type": "property"
+                }
+              },
+              "props.secondaryValue": {
+                "binding": {
+                  "config": {
+                    "expression": "{view.custom.asset.gauge.value}"
+                  },
+                  "type": "expr"
+                }
+              },
+              "props.value": {
+                "binding": {
+                  "config": {
+                    "expression": "{view.custom.asset.gauge.value}"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "animate": true,
+              "backgroundColor": "",
+              "endAngle": 405,
+              "innerAxis": {
+                "color": "",
+                "maxValue": 100,
+                "minValue": 0,
+                "needle": {
+                  "color": "#0F172A",
+                  "origin": 0,
+                  "reach": 82
+                },
+                "percentRadius": 70,
+                "ranges": [],
+                "show": false,
+                "tickMarks": {
+                  "color": "",
+                  "length": 0,
+                  "thickness": 0
+                },
+                "width": 0
+              },
+              "outerAxis": {
+                "color": "rgba(0, 0, 0, 0)",
+                "maxValue": 100,
+                "minValue": 0,
+                "needle": {
+                  "color": "#0F172A",
+                  "origin": 0,
+                  "reach": 82
+                },
+                "percentRadius": 100,
+                "ranges": [],
+                "show": true,
+                "tickMarks": {
+                  "color": "#94A3B8",
+                  "length": 8,
+                  "thickness": 1
+                },
+                "width": 1
+              },
+              "secondaryValue": 0,
+              "startAngle": 135,
+              "style": {
+                "classes": ""
+              },
+              "value": 0
+            },
+            "type": "ia.chart.gauge"
+          },
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "Label"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "props": {
+                  "style": {
+                    "classes": "Kpi/Label"
+                  },
+                  "text": "Latest reading"
+                },
+                "type": "ia.display.label"
+              },
+              {
+                "meta": {
+                  "name": "Value"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "config": {
+                        "expression": "{view.custom.asset.reading}"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                },
+                "props": {
+                  "style": {
+                    "classes": "Kpi/Value"
+                  },
+                  "text": ""
+                },
+                "type": "ia.display.label"
+              },
+              {
+                "meta": {
+                  "name": "Load"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "config": {
+                        "expression": "{view.custom.asset.load}"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                },
+                "props": {
+                  "style": {
+                    "classes": "Text/Strong"
+                  },
+                  "text": ""
+                },
+                "type": "ia.display.label"
+              },
+              {
+                "meta": {
+                  "name": "Rated"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "config": {
+                        "expression": "{view.custom.asset.rated}"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                },
+                "props": {
+                  "style": {
+                    "classes": "Text/Muted"
+                  },
+                  "text": ""
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "meta": {
+              "name": "Reading"
+            },
+            "position": {
+              "basis": "0px",
+              "grow": 1
+            },
+            "props": {
+              "direction": "column",
+              "justify": "center",
+              "style": {
+                "gap": "4px"
+              }
+            },
+            "type": "ia.container.flex"
+          }
+        ],
+        "meta": {
+          "name": "Gauge"
+        },
+        "position": {
+          "basis": "170px",
+          "shrink": 0
+        },
+        "props": {
+          "alignItems": "center",
+          "direction": "row",
+          "style": {
+            "gap": "16px"
+          }
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "children": [
+          {
+            "meta": {
+              "name": "Label"
+            },
+            "position": {
+              "shrink": 0
+            },
+            "props": {
+              "style": {
+                "classes": "Kpi/Label"
+              },
+              "text": "Last 24 hours"
+            },
+            "type": "ia.display.label"
+          },
+          {
+            "meta": {
+              "name": "Sparkline"
+            },
+            "position": {
+              "basis": "56px",
+              "shrink": 0
+            },
+            "propConfig": {
+              "props.points": {
+                "binding": {
+                  "config": {
+                    "path": "view.custom.asset.trend.points"
+                  },
+                  "type": "property"
+                }
+              }
+            },
+            "props": {
+              "color": "#0EA5E9",
+              "marker": {
+                "first": {
+                  "size": 0
+                },
+                "high": {
+                  "size": 0
+                },
+                "last": {
+                  "fill": {
+                    "color": "#0EA5E9",
+                    "opacity": 1
+                  },
+                  "shape": "circle",
+                  "size": 6,
+                  "stroke": {
+                    "color": "#FFFFFF",
+                    "opacity": 1,
+                    "width": 1
+                  }
+                },
+                "low": {
+                  "size": 0
+                }
+              },
+              "opacity": 1,
+              "points": [],
+              "style": {
+                "classes": "Plant/Spark"
+              },
+              "width": 1.5
+            },
+            "type": "ia.display.sparkline"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "meta": {
+                      "name": "Label"
+                    },
+                    "position": {
+                      "shrink": 0
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "Text/Muted"
+                      },
+                      "text": "Low"
+                    },
+                    "type": "ia.display.label"
+                  },
+                  {
+                    "meta": {
+                      "name": "Value"
+                    },
+                    "position": {
+                      "shrink": 0
+                    },
+                    "propConfig": {
+                      "props.text": {
+                        "binding": {
+                          "config": {
+                            "expression": "{view.custom.asset.trend.low}"
+                          },
+                          "type": "expr"
+                        }
+                      }
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "Text/Strong"
+                      },
+                      "text": ""
+                    },
+                    "type": "ia.display.label"
+                  }
+                ],
+                "meta": {
+                  "name": "Low"
+                },
+                "position": {
+                  "basis": "0px",
+                  "grow": 1
+                },
+                "props": {
+                  "direction": "column",
+                  "style": {}
+                },
+                "type": "ia.container.flex"
+              },
+              {
+                "children": [
+                  {
+                    "meta": {
+                      "name": "Label"
+                    },
+                    "position": {
+                      "shrink": 0
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "Text/Muted"
+                      },
+                      "text": "Mean"
+                    },
+                    "type": "ia.display.label"
+                  },
+                  {
+                    "meta": {
+                      "name": "Value"
+                    },
+                    "position": {
+                      "shrink": 0
+                    },
+                    "propConfig": {
+                      "props.text": {
+                        "binding": {
+                          "config": {
+                            "expression": "{view.custom.asset.trend.mean}"
+                          },
+                          "type": "expr"
+                        }
+                      }
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "Text/Strong"
+                      },
+                      "text": ""
+                    },
+                    "type": "ia.display.label"
+                  }
+                ],
+                "meta": {
+                  "name": "Mean"
+                },
+                "position": {
+                  "basis": "0px",
+                  "grow": 1
+                },
+                "props": {
+                  "direction": "column",
+                  "style": {}
+                },
+                "type": "ia.container.flex"
+              },
+              {
+                "children": [
+                  {
+                    "meta": {
+                      "name": "Label"
+                    },
+                    "position": {
+                      "shrink": 0
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "Text/Muted"
+                      },
+                      "text": "High"
+                    },
+                    "type": "ia.display.label"
+                  },
+                  {
+                    "meta": {
+                      "name": "Value"
+                    },
+                    "position": {
+                      "shrink": 0
+                    },
+                    "propConfig": {
+                      "props.text": {
+                        "binding": {
+                          "config": {
+                            "expression": "{view.custom.asset.trend.high}"
+                          },
+                          "type": "expr"
+                        }
+                      }
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "Text/Strong"
+                      },
+                      "text": ""
+                    },
+                    "type": "ia.display.label"
+                  }
+                ],
+                "meta": {
+                  "name": "High"
+                },
+                "position": {
+                  "basis": "0px",
+                  "grow": 1
+                },
+                "props": {
+                  "direction": "column",
+                  "style": {}
+                },
+                "type": "ia.container.flex"
+              }
+            ],
+            "meta": {
+              "name": "Stats"
+            },
+            "position": {
+              "shrink": 0
+            },
+            "props": {
+              "direction": "row",
+              "style": {
+                "gap": "8px"
+              }
+            },
+            "type": "ia.container.flex"
+          }
+        ],
+        "meta": {
+          "name": "Trend"
+        },
+        "position": {
+          "shrink": 0
+        },
+        "props": {
+          "direction": "column",
+          "style": {
+            "classes": "Plant/Panel",
+            "gap": "8px"
+          }
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "children": [
+          {
+            "meta": {
+              "name": "Icon"
+            },
+            "position": {
+              "basis": "18px",
+              "shrink": 0
+            },
+            "props": {
+              "color": "#94A3B8",
+              "path": "material/history",
+              "style": {}
+            },
+            "type": "ia.display.icon"
+          },
+          {
+            "meta": {
+              "name": "Text"
+            },
+            "position": {
+              "grow": 1
+            },
+            "propConfig": {
+              "props.text": {
+                "binding": {
+                  "config": {
+                    "expression": "{view.custom.asset.lastEvent}"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "style": {
+                "classes": "Text/Muted"
+              },
+              "text": ""
+            },
+            "type": "ia.display.label"
+          }
+        ],
+        "meta": {
+          "name": "LastEvent"
+        },
+        "position": {
+          "shrink": 0
+        },
+        "propConfig": {
+          "position.display": {
+            "binding": {
+              "config": {
+                "expression": "!(!{view.custom.result.ok} && len({view.custom.result.text}) > 0)"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "alignItems": "center",
+          "direction": "row",
+          "style": {
+            "gap": "8px"
+          }
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "meta": {
+          "name": "Result"
+        },
+        "position": {
+          "shrink": 0
+        },
+        "propConfig": {
+          "position.display": {
+            "binding": {
+              "config": {
+                "expression": "!{view.custom.result.ok} && len({view.custom.result.text}) > 0"
+              },
+              "type": "expr"
+            }
+          },
+          "props.text": {
+            "binding": {
+              "config": {
+                "expression": "{view.custom.result.text}"
+              },
+              "type": "expr"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "classes": "Banner/Bad"
+          },
+          "text": ""
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "children": [
+          {
+            "events": {
+              "component": {
+                "onActionPerformed": {
+                  "config": {
+                    "script": "\tsystem.perspective.closePopup(\"equipment\")"
+                  },
+                  "scope": "G",
+                  "type": "script"
+                }
+              }
+            },
+            "meta": {
+              "name": "Close"
+            },
+            "position": {
+              "basis": "0px",
+              "grow": 1
+            },
+            "props": {
+              "align": "center",
+              "enabled": true,
+              "image": {
+                "height": 16,
+                "icon": {
+                  "color": "",
+                  "path": "material/close"
+                },
+                "position": "left",
+                "source": "",
+                "style": {
+                  "classes": ""
+                },
+                "width": 16
+              },
+              "justify": "center",
+              "primary": false,
+              "style": {
+                "classes": "Plant/Button"
+              },
+              "text": "Close"
+            },
+            "type": "ia.input.button"
+          },
+          {
+            "events": {
+              "component": {
+                "onActionPerformed": {
+                  "config": {
+                    "script": "\tauth = self.session.props.auth\n\tuser = auth.user.userName if auth.authenticated else None\n\tresult = project.events.send(self.view.params.assetId, \"acknowledge\", \"\", user)\n\tself.view.custom.result = result\n\tif result.get(\"ok\"):\n\t\tself.view.refreshBinding(\"custom.asset\")\n\t\tsystem.perspective.sendMessage(\"eventRecorded\", {\"kind\": \"acknowledge\"}, scope=\"session\")\n"
+                  },
+                  "scope": "G",
+                  "type": "script"
+                }
+              }
+            },
+            "meta": {
+              "name": "Acknowledge"
+            },
+            "position": {
+              "basis": "0px",
+              "grow": 1
+            },
+            "propConfig": {
+              "props.enabled": {
+                "binding": {
+                  "config": {
+                    "expression": "{view.custom.asset.found}"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "align": "center",
+              "enabled": true,
+              "image": {
+                "height": 18,
+                "icon": {
+                  "color": "",
+                  "path": "material/done_all"
+                },
+                "position": "left",
+                "source": "",
+                "style": {
+                  "classes": ""
+                },
+                "width": 18
+              },
+              "justify": "center",
+              "primary": true,
+              "style": {
+                "classes": "Plant/Button"
+              },
+              "text": "Acknowledge"
+            },
+            "type": "ia.input.button"
+          }
+        ],
+        "meta": {
+          "name": "Actions"
+        },
+        "position": {
+          "shrink": 0
+        },
+        "props": {
+          "direction": "row",
+          "style": {
+            "gap": "10px"
+          }
+        },
+        "type": "ia.container.flex"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "direction": "column",
+      "style": {
+        "classes": "Plant/Popup",
+        "gap": "14px"
+      }
+    },
+    "type": "ia.container.flex"
+  }
+}

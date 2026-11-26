@@ -1,0 +1,11 @@
+{
+  "base": {
+    "style": {
+      "color": "#475569",
+      "fontSize": "12px",
+      "lineHeight": "16px",
+      "textAlign": "center",
+      "whiteSpace": "nowrap"
+    }
+  }
+}

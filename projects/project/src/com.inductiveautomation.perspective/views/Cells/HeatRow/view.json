@@ -1,0 +1,105 @@
+{
+  "custom": {},
+  "params": {
+    "cells": [],
+    "label": ""
+  },
+  "propConfig": {
+    "params.cells": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.label": {
+      "paramDirection": "input",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 30,
+      "width": 800
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "meta": {
+          "name": "Day"
+        },
+        "position": {
+          "basis": "84px",
+          "shrink": 0
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.label"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "classes": "Heat/Day"
+          },
+          "text": ""
+        },
+        "type": "ia.display.label"
+      },
+      {
+        "meta": {
+          "name": "Cells"
+        },
+        "position": {
+          "basis": "0px",
+          "grow": 1
+        },
+        "propConfig": {
+          "props.instances": {
+            "binding": {
+              "config": {
+                "path": "view.params.cells"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "alignContent": "flex-start",
+          "alignItems": "stretch",
+          "direction": "row",
+          "elementPosition": {
+            "basis": "0px",
+            "grow": 1,
+            "shrink": 1
+          },
+          "elementStyle": {
+            "classes": ""
+          },
+          "instances": [],
+          "justify": "flex-start",
+          "path": "Cells/HeatCell",
+          "style": {
+            "classes": "",
+            "gap": "2px"
+          },
+          "useDefaultViewHeight": true,
+          "useDefaultViewWidth": false,
+          "wrap": "nowrap"
+        },
+        "type": "ia.display.flex-repeater"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "alignItems": "center",
+      "direction": "row",
+      "style": {}
+    },
+    "type": "ia.container.flex"
+  }
+}

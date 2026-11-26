@@ -1,0 +1,18 @@
+/*
+ * What style classes can't express: the gateway drops CSS variables and
+ * filters from them. Kept to the Plant page's symbols; every other style is a
+ * style class.
+ */
+
+/* the symbols' running state: green, pulsing while it animates */
+.psc-Plant\/Equipment {
+  --symbolFill--running: #F0FDF4;
+  --symbolFillAnimation--running: #86EFAC;
+  --symbolStroke--running: #15803D;
+  transition: filter 120ms;
+}
+
+/* a clickable symbol glows on hover */
+.psc-Plant\/Equipment:hover {
+  filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.75));
+}

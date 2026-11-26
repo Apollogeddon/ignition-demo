@@ -4,6 +4,10 @@
       "title": "Overview",
       "viewPath": "Page/Overview"
     },
+    "/analytics": {
+      "title": "Analytics",
+      "viewPath": "Page/Analytics"
+    },
     "/assets": {
       "title": "Assets",
       "viewPath": "Page/Assets"
@@ -11,6 +15,10 @@
     "/events": {
       "title": "Events",
       "viewPath": "Page/Events"
+    },
+    "/plant": {
+      "title": "Plant",
+      "viewPath": "Page/Plant"
     }
   },
   "sharedDocks": {

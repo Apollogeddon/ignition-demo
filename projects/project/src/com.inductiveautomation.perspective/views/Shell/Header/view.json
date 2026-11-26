@@ -88,6 +88,58 @@
           },
           {
             "meta": {
+              "name": "Plant"
+            },
+            "position": {
+              "shrink": 0
+            },
+            "propConfig": {
+              "props.style.classes": {
+                "binding": {
+                  "config": {
+                    "expression": "if({page.props.path} = \"/plant\", \"Shell/Nav Shell/NavActive\", \"Shell/Nav\")"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "style": {
+                "classes": "Shell/Nav"
+              },
+              "text": "Plant",
+              "url": "/plant"
+            },
+            "type": "ia.navigation.link"
+          },
+          {
+            "meta": {
+              "name": "Analytics"
+            },
+            "position": {
+              "shrink": 0
+            },
+            "propConfig": {
+              "props.style.classes": {
+                "binding": {
+                  "config": {
+                    "expression": "if({page.props.path} = \"/analytics\", \"Shell/Nav Shell/NavActive\", \"Shell/Nav\")"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "style": {
+                "classes": "Shell/Nav"
+              },
+              "text": "Analytics",
+              "url": "/analytics"
+            },
+            "type": "ia.navigation.link"
+          },
+          {
+            "meta": {
               "name": "Assets"
             },
             "position": {

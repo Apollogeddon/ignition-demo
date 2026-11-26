@@ -1,0 +1,8 @@
+{
+  "base": {
+    "style": {
+      "borderRadius": "10px",
+      "padding": "6px 12px"
+    }
+  }
+}
