@@ -20,7 +20,7 @@ docker compose -f develop/docker-compose.yml up -d --build
 
 ## Gateway configuration
 
-On 8.3, `config/` applies the cluster's `resources` module to this gateway. It authenticates with `GATEWAY_API_TOKEN` from `.env` (`.env.example` shows how to generate one), which the gateway installs for itself on start (the compose file sets `GATEWAY_API_TOKEN_REQUIRE_TLS=false`, so the gateway takes it over plain HTTP on loopback):
+On 8.3, `config/` applies the cluster's `resources` module to this gateway. It's required, not optional: it creates the `demo` database connection the project's named queries use, and until it's applied the project's Assets page shows an ERROR in its table. It authenticates with `GATEWAY_API_TOKEN` from `.env` (`.env.example` shows how to generate one), which the gateway installs for itself on start (the compose file sets `GATEWAY_API_TOKEN_REQUIRE_TLS=false`, so the gateway takes it over plain HTTP on loopback):
 
 ```sh
 set -a; . develop/.env; set +a     # load GATEWAY_API_TOKEN and DB_PASSWORD
@@ -29,7 +29,9 @@ export IGNITION_TOKEN="$GATEWAY_API_TOKEN"
 tofu init && tofu apply -var db_password="$DB_PASSWORD"
 ```
 
-The Ignition provider isn't on a registry; see [`cluster/README.md`](../cluster/README.md#3-config) for installing it from its network mirror.
+The Ignition provider isn't on a registry; see [`cluster/README.md`](../cluster/README.md#5-config) for installing it from its network mirror.
+
+On its first start with an API key, the gateway restarts itself once to load it (the key's grants only apply after commissioning), so `/data/perspective` and the API answer 503 for about 30 seconds. If `tofu apply` fails with 503 then, run it again a minute later.
 
 On 8.1 there is no REST API; the gateway seeds itself from `gateway/seed/seed.json` on start (mounted live from the repository).
 
