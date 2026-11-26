@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = ">=3.12"
 conflicts = [[
     { package = "ignition-projects", group = "ignition81" },
@@ -348,8 +348,8 @@ wheels = [
 
 [[package]]
 name = "forgepy"
-version = "1.0.0"
-source = { git = "https://github.com/apollogeddon/forgepy?tag=v1.0.0#147ec1c3266d3b6984f04bbcf5e4e4f8a1888ab3" }
+version = "1.1.1"
+source = { git = "https://github.com/apollogeddon/forgepy?tag=v1.1.1#73ff9a69fe6318833b7f11334d2dec5c6d2f36f9" }
 dependencies = [
     { name = "tomlkit" },
 ]
@@ -406,6 +406,7 @@ wheels = [
 name = "ignition-projects"
 version = "0.1.0"
 source = { virtual = "." }
+default-groups = ["dev", "ignition83"]
 
 [package.dev-dependencies]
 dev = [
@@ -423,7 +424,7 @@ ignition83 = [
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "forgepy", extras = ["toolchain"], git = "https://github.com/apollogeddon/forgepy?tag=v1.0.0" },
+    { name = "forgepy", extras = ["toolchain"], git = "https://github.com/apollogeddon/forgepy?tag=v1.1.1" },
     { name = "vermin", specifier = ">=1.8" },
 ]
 ignition81 = [{ name = "ignition-api-stubs", specifier = "==8.1.55" }]
@@ -688,7 +689,7 @@ name = "pytest"
 version = "9.1.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'group-17-ignition-projects-ignition81' and extra == 'group-17-ignition-projects-ignition83')" },
+    { name = "colorama", marker = "sys_platform == 'win32'" },
     { name = "iniconfig" },
     { name = "packaging" },
     { name = "pluggy" },
