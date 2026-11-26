@@ -36,6 +36,8 @@ module "gateway" {
   name               = local.gateway_name
   accept_eula        = var.accept_eula
   chart_path         = var.chart_path
+  timeout            = var.gateway_timeout
+  atomic             = var.gateway_atomic
   admin_password     = var.admin_password
   license_key        = var.license_key
   activation_token   = var.activation_token

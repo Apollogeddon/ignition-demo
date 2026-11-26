@@ -105,11 +105,11 @@ run "no_licensing_unless_set" {
 
 run "a_local_chart_takes_the_modules_secret" {
   variables {
-    chart_path  = "../../../ignition-helm/charts/failover"
+    chart_path  = "tests/fixtures/base/charts/failover"
     license_key = "license-key"
   }
   assert {
-    condition     = helm_release.gateway.chart == "../../../ignition-helm/charts/failover" && helm_release.gateway.repository == null
+    condition     = helm_release.gateway.chart == "tests/fixtures/base/charts/failover" && helm_release.gateway.repository == null
     error_message = "chart_path does not replace the repository chart."
   }
   assert {
@@ -124,6 +124,90 @@ run "a_local_chart_takes_the_modules_secret" {
     condition     = length(kubernetes_annotations.secret_checksum[0].template_annotations["checksum/secret"]) == 64
     error_message = "A changed Secret would not roll the gateways."
   }
+}
+
+# The fixtures stand in for an ignition-helm checkout (charts/failover beside
+# charts/common), at the same chart versions: base, then the same with a change
+# to the common library, and with changes only to files Helm doesn't render
+run "a_local_chart_is_upgraded_when_its_files_change" {
+  command = plan
+  variables {
+    chart_path = "tests/fixtures/base/charts/failover"
+  }
+  assert {
+    condition     = helm_release.gateway.description == "chart_path sha256:1dd86fde515e8d67c2ea059b1126c5a2a8bd4192e762c6ad338c11b602b56e78"
+    error_message = "The release's description is not the hash of the local chart and its common dependency (recompute it if the base fixture changed)."
+  }
+  assert {
+    condition     = helm_release.gateway.dependency_update == true
+    error_message = "A local chart must build its file:// dependencies, so an edit to charts/common deploys."
+  }
+}
+
+run "a_local_chart_is_upgraded_when_its_dependency_changes" {
+  command = plan
+  variables {
+    chart_path = "tests/fixtures/edited-common/charts/failover"
+  }
+  assert {
+    condition     = startswith(helm_release.gateway.description, "chart_path sha256:") && helm_release.gateway.description != "chart_path sha256:1dd86fde515e8d67c2ea059b1126c5a2a8bd4192e762c6ad338c11b602b56e78"
+    error_message = "An edit to the chart's file:// dependency (charts/common) does not change the release's description, so it would not upgrade."
+  }
+}
+
+run "a_local_chart_ignores_files_helm_does_not_render" {
+  command = plan
+  variables {
+    chart_path = "tests/fixtures/edited-unrendered/charts/failover"
+  }
+  assert {
+    condition     = helm_release.gateway.description == "chart_path sha256:1dd86fde515e8d67c2ea059b1126c5a2a8bd4192e762c6ad338c11b602b56e78"
+    error_message = "Changes to charts/, Chart.lock, tests/ or ci/ alone must not upgrade the release."
+  }
+}
+
+run "a_published_chart_builds_no_dependencies" {
+  command = plan
+  assert {
+    condition     = helm_release.gateway.dependency_update == false
+    error_message = "A published chart is upgraded by its version and ships its dependencies: no dependency build."
+  }
+}
+
+run "chart_path_must_be_a_chart" {
+  command = plan
+  variables {
+    chart_path = "tests/fixtures/missing"
+  }
+  expect_failures = [helm_release.gateway]
+}
+
+run "a_failed_install_is_undone" {
+  command = plan
+  assert {
+    condition     = helm_release.gateway.atomic == true && helm_release.gateway.cleanup_on_fail == true && helm_release.gateway.timeout == 900
+    error_message = "A failed or timed-out install must be uninstalled (atomic), so the next apply can install again, within a timeout sized to a redundant pair's first start."
+  }
+}
+
+run "a_failed_install_can_be_kept_to_debug" {
+  command = plan
+  variables {
+    atomic  = false
+    timeout = 1800
+  }
+  assert {
+    condition     = helm_release.gateway.atomic == false && helm_release.gateway.timeout == 1800
+    error_message = "atomic and timeout are not passed to the release."
+  }
+}
+
+run "timeout_covers_a_first_start" {
+  command = plan
+  variables {
+    timeout = 60
+  }
+  expect_failures = [var.timeout]
 }
 
 run "chart_5_takes_the_modules_secret" {

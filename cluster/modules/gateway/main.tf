@@ -152,6 +152,29 @@ resource "kubernetes_secret_v1" "gateway" {
   data = local.secret_environment
 }
 
+# A local chart (chart_path) is upgraded only when its version changes, so an
+# edit at the same version would plan no change: a hash of its files, and of
+# the file:// dependencies it builds from (the ignition-helm checkout's
+# charts/common), goes in the release's description, whose change upgrades it.
+# Left out: charts/ (built from those dependencies on each install and upgrade),
+# Chart.lock (rewritten by that build), and the unrendered tests/ and ci/.
+locals {
+  chart_manifest = var.chart_path == null ? null : try(yamldecode(file("${var.chart_path}/Chart.yaml")), null)
+  chart_sources = local.chart_manifest == null ? {} : merge(
+    { for dep in try(local.chart_manifest.dependencies, []) :
+      dep.name => "${var.chart_path}/${trimprefix(dep.repository, "file://")}"
+      if startswith(try(dep.repository, ""), "file://")
+    },
+    { "." = var.chart_path },
+  )
+  chart_digest = local.chart_manifest == null ? null : sha256(join("\n", flatten([
+    for name, dir in local.chart_sources : [
+      for file in sort(fileset(dir, "**")) : "${name}/${file} ${filesha256("${dir}/${file}")}"
+      if !can(regex("^(charts/|tests/|ci/|Chart\\.lock$)", file))
+    ]
+  ])))
+}
+
 resource "helm_release" "gateway" {
   name      = var.name
   namespace = var.namespace
@@ -159,16 +182,30 @@ resource "helm_release" "gateway" {
   repository = var.chart_path == null ? "https://apollogeddon.github.io/ignition-helm" : null
   chart      = coalesce(var.chart_path, "ignition-failover")
   version    = var.chart_path == null ? var.chart_version : null
+  # a local chart's file:// dependencies are built from their sources, so an
+  # edit to charts/common deploys without a helm dependency build first
+  dependency_update = var.chart_path != null
+  description       = local.chart_digest == null ? null : "chart_path sha256:${local.chart_digest}"
 
   values = [yamlencode(local.values), local.secret_values, yamlencode(var.values)]
   # the chart's gateways start with the Secret's environment
   depends_on = [kubernetes_secret_v1.gateway]
 
-  # a redundant pair commissions, syncs and only then reports Ready
-  timeout = 1200
-  wait    = true
+  # A redundant pair commissions, syncs and only then reports Ready. atomic
+  # uninstalls a first install that fails or times out, which OpenTofu doesn't
+  # record, so the next apply installs again instead of failing on a name still
+  # in use; a failed upgrade rolls back to the last release, and cleanup_on_fail
+  # removes what it added (cluster/README.md, "A failed install").
+  timeout         = var.timeout
+  wait            = true
+  atomic          = var.atomic
+  cleanup_on_fail = true
 
   lifecycle {
+    precondition {
+      condition     = var.chart_path == null || local.chart_manifest != null
+      error_message = "chart_path must be a chart directory with a Chart.yaml, such as an ignition-helm checkout's charts/failover."
+    }
     # The gateway would refuse the API key over the ingress, so the first
     # resources apply would fail with 401/403 instead
     precondition {

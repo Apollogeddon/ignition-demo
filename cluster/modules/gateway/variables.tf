@@ -21,6 +21,23 @@ variable "chart_path" {
   default     = null
 }
 
+variable "timeout" {
+  description = "Seconds the chart's install or upgrade may take until every gateway is Ready: a redundant pair's first start (the Backup synced in about 5 minutes on k3s), or a rolling upgrade restarting both, with headroom for a slow image pull"
+  type        = number
+  default     = 900
+
+  validation {
+    condition     = var.timeout >= 300
+    error_message = "timeout must be at least 300 seconds: a redundant pair takes about 5 minutes to report Ready."
+  }
+}
+
+variable "atomic" {
+  description = "Uninstall a first install that fails or times out, and roll back a failed upgrade, so the next apply starts clean. false keeps a failed release's pods and events to debug, but the next apply then fails on the name still in use until you helm uninstall it (cluster/README.md)"
+  type        = bool
+  default     = true
+}
+
 variable "accept_eula" {
   description = <<-EOT
     Accept the Ignition End User License Agreement, which the chart then passes to

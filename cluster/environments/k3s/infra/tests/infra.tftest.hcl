@@ -39,6 +39,26 @@ run "no_redirect_when_off" {
   }
 }
 
+run "undoes_a_failed_install_unless_debugging" {
+  command = plan
+  assert {
+    condition     = module.gateway.release.atomic == true && module.gateway.release.timeout == 900
+    error_message = "The gateway install is not atomic within the module's default timeout."
+  }
+}
+
+run "keeps_a_failed_install_to_debug" {
+  command = plan
+  variables {
+    gateway_atomic  = false
+    gateway_timeout = 1800
+  }
+  assert {
+    condition     = module.gateway.release.atomic == false && module.gateway.release.timeout == 1800
+    error_message = "gateway_atomic and gateway_timeout do not reach the gateway's release."
+  }
+}
+
 run "reads_8_1_from_the_tag" {
   command = plan
   variables {

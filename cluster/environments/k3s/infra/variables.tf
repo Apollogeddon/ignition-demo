@@ -138,3 +138,15 @@ variable "chart_path" {
   type        = string
   default     = null
 }
+
+variable "gateway_timeout" {
+  description = "Seconds the gateway chart's install or upgrade may take until both gateways are Ready (the gateway module's timeout)"
+  type        = number
+  default     = 900
+}
+
+variable "gateway_atomic" {
+  description = "Uninstall a gateway install that fails or times out, and roll back a failed upgrade (the gateway module's atomic); false keeps a failed release's pods to debug, which you then helm uninstall (cluster/README.md)"
+  type        = bool
+  default     = true
+}
