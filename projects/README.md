@@ -46,12 +46,18 @@ Every page follows the same pattern, so a new one starts from a copy of another:
 - **Custom properties fetch.** A page view's root is an `ia.container.flex` with the `Layout/Page` class, its sections nested flex containers with the `Card` class. The page's data sits in view custom properties, such as `view.custom.plant`, each bound to an expression that ticks (`now(15000)`) with a script transform that makes one call: `return project.plant.getPlant()`. Components only bind to parts of them, with property and expression bindings such as `{view.custom.plant.slots.intake1.state}`.
 - **Script modules and named queries.** Each page has a module in `ignition/script-python/project/<module>/code.py`. It runs named queries through `library.db.namedQuery` and shapes the rows into plain dictionaries and lists, down to the text, symbol states and colours the view shows, so the view holds no logic and the shaping is unit-tested in `project/tests` with the `system.*` mocks in `conftest.py`. A named query is `ignition/named-query/<group>/<name>/query.sql` plus its `resource.json`, on the `demo` connection; the readings queries cover the 72 hours up to the latest reading.
 - **Style classes.** Components name classes from the `library` project (`Card`, `Kpi/*`, `Section/*`, `Pill/*`, `Text/*`, `Plant/*`, `Heat/*`, `Progress/*`) rather than carry styles; inline styles are kept to layout gaps and colours that come from data, such as an area's swatch or a heatmap cell. The gateway drops what a class can't hold as a plain property (CSS variables, `filter`, the `border` shorthand), so `library`'s `stylesheet.css`, Perspective's advanced stylesheet, holds the rules that need them: the symbols' running colours and their hover glow, on `.psc-Plant\/Equipment`.
-- **Small screens.** A class can't restyle its children, so the stylesheet's media queries also hold the layout below desktop width. They key on layout classes that carry no style of their own (`Layout/Kpis`, `Layout/Row`, `Layout/ChartRow`, `Layout/Gauges`, `Shell/Links`, `Plant/Canvas`). Up to 1100px, the header's clock is hidden. Up to 640px:
-  - rows stack, and KPI cards go two to a row;
-  - gauges take the full width, and heatmap cells drop their numbers;
-  - the header keeps only the page links.
+- **Small screens.** A class can't restyle its children, so the stylesheet's media queries also hold the layout below desktop width. They key on layout classes that carry no style of their own (`Layout/Kpis`, `Layout/Row`, `Layout/ChartRow`, `Layout/CardHead`, `Layout/Gauges`, `Shell/Links`, `Plant/Canvas`, `Plant/GaugeRow`).
+  - **Up to 1240px:** the Plant schematic's three stages wrap, scaled to 82%. It's one coordinate container per stage, with each pipe ending at its stage's edge, so on desktop the stages join into one diagram.
+  - **Up to 1200px:** KPI rows wrap, four cards two by two and five three over two.
+  - **Up to 1100px:** the header's clock is hidden.
+  - **Up to 640px:**
+    - rows stack, KPI cards go two to a row without icons, and a card's legend or button goes below its title;
+    - gauges take the full width, and heatmap cells drop their numbers;
+    - the schematic shows one stage per row;
+    - the equipment popup fits the screen;
+    - the header keeps only the page links.
 
-  The Plant schematic keeps its size and scrolls sideways once it doesn't fit. A container's position is an inline style, so these rules need `!important`.
+  A container's position is an inline style, so these rules need `!important`.
 - **Repeated cells.** A Flex Repeater draws one small view per item of a list: `Cells/HeatRow` and `Cells/HeatCell` make the heatmap, `Cells/AreaLoad` an area's load bar. Tables draw `Cells/Pill` in their status and kind columns.
 - **Messages.** View message handlers sit on a component (`scripts.messageHandlers`). `areaSelected` and `assetSelected` are page-scoped: a card or table row on the page sends one with `system.perspective.sendMessage` and a panel on the same page handles it. `eventRecorded` is session-scoped, so recording an event refreshes the Events and Plant pages in every tab of the session. Writes go through the gateway: `project.events.send` calls `system.util.sendRequest`, which the `recordEvent` gateway message handler answers.
 - **Popups.** A schematic symbol's `onClick` calls `project.plant.openEquipment`, which opens the `Popup/Equipment` view with `system.perspective.openPopup`, passing `assetId` as a view parameter. The popup binds its data to that parameter, acknowledges through `recordEvent`, and closes itself with `system.perspective.closePopup`.

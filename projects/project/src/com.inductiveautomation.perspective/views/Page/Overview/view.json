@@ -2502,7 +2502,9 @@
             "props": {
               "alignItems": "center",
               "direction": "row",
-              "style": {}
+              "style": {
+                "classes": "Layout/CardHead"
+              }
             },
             "type": "ia.container.flex"
           },

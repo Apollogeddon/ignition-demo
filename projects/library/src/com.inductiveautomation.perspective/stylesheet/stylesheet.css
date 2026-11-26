@@ -19,17 +19,62 @@
   filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.75));
 }
 
-/* the schematic keeps its size; it centres while it fits and scrolls once it doesn't */
+/* the three stages of the schematic sit side by side, centred while they fit */
 .psc-Plant\/Canvas {
   justify-content: flex-start !important;
 }
-.psc-Plant\/Canvas > * {
-  margin: 0 auto;
+.psc-Plant\/Canvas > :first-child {
+  margin-left: auto;
+}
+.psc-Plant\/Canvas > :last-child {
+  margin-right: auto;
+}
+
+/* narrower: the stages wrap, scaled so two fit a tablet and one a phone; a
+   stage's pipes end at its edge, so the next stage carries on the flow */
+@media (max-width: 1240px) {
+  .psc-Plant\/Canvas {
+    flex: 0 0 auto !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    align-items: flex-start !important;
+    row-gap: 16px;
+    zoom: 0.82;
+  }
+  .psc-Plant\/Canvas > * {
+    height: 470px;
+    margin: 0 !important;
+  }
+}
+
+/* the gauge clips its tick labels to its own box, so a scale like 0 to 2,000
+   lost the ends of its labels; they may spill into the popup's padding */
+.psc-Plant\/GaugeRow {
+  overflow: visible !important;
+}
+.psc-Plant\/GaugeRow g[clip-path] {
+  clip-path: none !important;
 }
 
 /* the page links scroll sideways rather than push the header off the screen */
 .psc-Shell\/Links {
   scrollbar-width: none;
+}
+
+/* below desktop width a KPI value no longer fits a quarter or a fifth of the
+   row: four cards go two by two and five go three over two */
+@media (max-width: 1200px) {
+  .psc-Layout\/Kpis {
+    flex-wrap: wrap !important;
+  }
+  .psc-Layout\/Kpis > * {
+    flex: 1 1 calc(33.333% - 11px) !important;
+    min-width: 0;
+  }
+  /* :where keeps it to one class's weight, so the phone rules below still win */
+  .psc-Layout\/Kpis:where(:has(> :nth-child(4):last-child)) > * {
+    flex-basis: calc(50% - 8px) !important;
+  }
 }
 
 /* tablets: the clock gives the page links its room */
@@ -68,6 +113,18 @@
   .psc-Layout\/Kpis .psc-Kpi\/Value {
     font-size: 22px !important;
   }
+  /* the label needs the icon's room */
+  .psc-Layout\/Kpis [data-component="ia.display.icon"] {
+    display: none !important;
+  }
+  /* a card's title takes the full width, and its legend or button goes below */
+  .psc-Layout\/CardHead {
+    flex-wrap: wrap !important;
+    row-gap: 8px;
+  }
+  .psc-Layout\/CardHead > :first-child {
+    flex-basis: 100% !important;
+  }
   .psc-Layout\/Kpis .psc-Kpi\/Label {
     font-size: 11px !important;
     letter-spacing: 0.02em !important;
@@ -80,6 +137,26 @@
   .psc-Heat\/Text,
   .psc-Heat\/TextDark {
     color: transparent !important;
+  }
+  .psc-Plant\/Canvas {
+    zoom: 0.78;
+  }
+  /* the equipment popup fits the screen, with a smaller gauge */
+  .ia_popup:has(.psc-Plant\/Popup) {
+    max-width: calc(100vw - 16px);
+  }
+  .psc-Plant\/Popup {
+    min-width: 0 !important;
+  }
+  .psc-Plant\/GaugeRow {
+    gap: 28px !important;
+  }
+  .psc-Plant\/GaugeRow > :first-child {
+    flex-basis: 170px !important;
+  }
+  .psc-Plant\/GaugeRow .psc-Kpi\/Value {
+    font-size: 22px !important;
+    line-height: 28px !important;
   }
   .psc-Layout\/Row,
   .psc-Layout\/ChartRow {

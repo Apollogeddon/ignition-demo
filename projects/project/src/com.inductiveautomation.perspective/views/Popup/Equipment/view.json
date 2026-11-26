@@ -348,7 +348,8 @@
           "alignItems": "center",
           "direction": "row",
           "style": {
-            "gap": "16px"
+            "gap": "16px",
+            "classes": "Plant/GaugeRow"
           }
         },
         "type": "ia.container.flex"

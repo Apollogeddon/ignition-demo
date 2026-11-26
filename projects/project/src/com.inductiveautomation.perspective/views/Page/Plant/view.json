@@ -848,13 +848,161 @@
             "props": {
               "alignItems": "center",
               "direction": "row",
-              "style": {}
+              "style": {
+                "classes": "Layout/CardHead"
+              }
             },
             "type": "ia.container.flex"
           },
           {
             "children": [
               {
+                "type": "ia.container.coord",
+                "version": 0,
+                "meta": {
+                  "name": "StageIntake"
+                },
+                "position": {
+                  "basis": "391px",
+                  "shrink": 0
+                },
+                "props": {
+                  "mode": "fixed",
+                  "aspectRatio": "",
+                  "pipes": [
+                    {
+                      "appearance": "simple",
+                      "fill": "#CBD5E1",
+                      "name": "Intake",
+                      "origin": {
+                        "connections": [
+                          {
+                            "connections": [
+                              {
+                                "connections": [
+                                  {
+                                    "connections": [],
+                                    "x": 216,
+                                    "y": 101.2
+                                  }
+                                ],
+                                "x": 176,
+                                "y": 101.2
+                              },
+                              {
+                                "connections": [
+                                  {
+                                    "connections": [],
+                                    "x": 216,
+                                    "y": 341.2
+                                  }
+                                ],
+                                "x": 176,
+                                "y": 341.2
+                              },
+                              {
+                                "connections": [
+                                  {
+                                    "connections": [],
+                                    "x": 216,
+                                    "y": 221.2
+                                  }
+                                ],
+                                "x": 176,
+                                "y": 221.2
+                              }
+                            ],
+                            "x": 176,
+                            "y": 310
+                          }
+                        ],
+                        "x": 136,
+                        "y": 310
+                      },
+                      "stroke": "#94A3B8",
+                      "visible": true,
+                      "width": 8
+                    },
+                    {
+                      "appearance": "simple",
+                      "fill": "#CBD5E1",
+                      "name": "Delivery",
+                      "origin": {
+                        "connections": [
+                          {
+                            "connections": [
+                              {
+                                "connections": [
+                                  {
+                                    "connections": [],
+                                    "x": 391,
+                                    "y": 222.0
+                                  }
+                                ],
+                                "x": 330,
+                                "y": 222.0
+                              }
+                            ],
+                            "x": 330,
+                            "y": 71.2
+                          }
+                        ],
+                        "x": 272,
+                        "y": 71.2
+                      },
+                      "stroke": "#94A3B8",
+                      "visible": true,
+                      "width": 8
+                    },
+                    {
+                      "appearance": "simple",
+                      "fill": "#CBD5E1",
+                      "name": "Delivery2",
+                      "origin": {
+                        "connections": [
+                          {
+                            "connections": [],
+                            "x": 330,
+                            "y": 191.2
+                          }
+                        ],
+                        "x": 272,
+                        "y": 191.2
+                      },
+                      "stroke": "#94A3B8",
+                      "visible": true,
+                      "width": 8
+                    },
+                    {
+                      "appearance": "simple",
+                      "fill": "#CBD5E1",
+                      "name": "Delivery3",
+                      "origin": {
+                        "connections": [
+                          {
+                            "connections": [
+                              {
+                                "connections": [],
+                                "x": 330,
+                                "y": 222.0
+                              }
+                            ],
+                            "x": 330,
+                            "y": 311.2
+                          }
+                        ],
+                        "x": 272,
+                        "y": 311.2
+                      },
+                      "stroke": "#94A3B8",
+                      "visible": true,
+                      "width": 8
+                    }
+                  ],
+                  "style": {
+                    "classes": "Plant/Schematic"
+                  }
+                },
                 "children": [
                   {
                     "meta": {
@@ -932,180 +1080,6 @@
                       "height": 24,
                       "width": 352,
                       "x": 16,
-                      "y": 12
-                    },
-                    "props": {
-                      "alignItems": "center",
-                      "direction": "row",
-                      "style": {
-                        "gap": "8px"
-                      }
-                    },
-                    "type": "ia.container.flex"
-                  },
-                  {
-                    "meta": {
-                      "name": "BandTreatment"
-                    },
-                    "position": {
-                      "height": 470,
-                      "width": 418,
-                      "x": 398,
-                      "y": 0
-                    },
-                    "props": {
-                      "style": {
-                        "classes": "Plant/Band"
-                      },
-                      "text": ""
-                    },
-                    "type": "ia.display.label"
-                  },
-                  {
-                    "children": [
-                      {
-                        "meta": {
-                          "name": "Swatch"
-                        },
-                        "position": {
-                          "basis": "10px",
-                          "shrink": 0
-                        },
-                        "props": {
-                          "style": {
-                            "backgroundColor": "#0D9488",
-                            "borderRadius": "3px",
-                            "height": "10px"
-                          },
-                          "text": ""
-                        },
-                        "type": "ia.display.label"
-                      },
-                      {
-                        "meta": {
-                          "name": "Title"
-                        },
-                        "position": {
-                          "shrink": 0
-                        },
-                        "props": {
-                          "style": {
-                            "classes": "Kpi/Label"
-                          },
-                          "text": "Treatment"
-                        },
-                        "type": "ia.display.label"
-                      },
-                      {
-                        "meta": {
-                          "name": "Area"
-                        },
-                        "position": {
-                          "shrink": 0
-                        },
-                        "props": {
-                          "style": {
-                            "classes": "Text/Muted"
-                          },
-                          "text": "South"
-                        },
-                        "type": "ia.display.label"
-                      }
-                    ],
-                    "meta": {
-                      "name": "StageTreatment"
-                    },
-                    "position": {
-                      "height": 24,
-                      "width": 386,
-                      "x": 414,
-                      "y": 12
-                    },
-                    "props": {
-                      "alignItems": "center",
-                      "direction": "row",
-                      "style": {
-                        "gap": "8px"
-                      }
-                    },
-                    "type": "ia.container.flex"
-                  },
-                  {
-                    "meta": {
-                      "name": "BandStorage"
-                    },
-                    "position": {
-                      "height": 470,
-                      "width": 350,
-                      "x": 830,
-                      "y": 0
-                    },
-                    "props": {
-                      "style": {
-                        "classes": "Plant/Band"
-                      },
-                      "text": ""
-                    },
-                    "type": "ia.display.label"
-                  },
-                  {
-                    "children": [
-                      {
-                        "meta": {
-                          "name": "Swatch"
-                        },
-                        "position": {
-                          "basis": "10px",
-                          "shrink": 0
-                        },
-                        "props": {
-                          "style": {
-                            "backgroundColor": "#D97706",
-                            "borderRadius": "3px",
-                            "height": "10px"
-                          },
-                          "text": ""
-                        },
-                        "type": "ia.display.label"
-                      },
-                      {
-                        "meta": {
-                          "name": "Title"
-                        },
-                        "position": {
-                          "shrink": 0
-                        },
-                        "props": {
-                          "style": {
-                            "classes": "Kpi/Label"
-                          },
-                          "text": "Storage and transfer"
-                        },
-                        "type": "ia.display.label"
-                      },
-                      {
-                        "meta": {
-                          "name": "Area"
-                        },
-                        "position": {
-                          "shrink": 0
-                        },
-                        "props": {
-                          "style": {
-                            "classes": "Text/Muted"
-                          },
-                          "text": "East"
-                        },
-                        "type": "ia.display.label"
-                      }
-                    ],
-                    "meta": {
-                      "name": "StageStorage"
-                    },
-                    "position": {
-                      "height": 24,
-                      "width": 318,
-                      "x": 846,
                       "y": 12
                     },
                     "props": {
@@ -1563,6 +1537,262 @@
                       "style": {}
                     },
                     "type": "ia.container.flex"
+                  }
+                ],
+                "propConfig": {
+                  "props.pipes[0].fill": {
+                    "binding": {
+                      "config": {
+                        "expression": "{view.custom.plant.pipes.intake}"
+                      },
+                      "type": "expr"
+                    }
+                  },
+                  "props.pipes[1].fill": {
+                    "binding": {
+                      "config": {
+                        "expression": "{view.custom.plant.pipes.intake}"
+                      },
+                      "type": "expr"
+                    }
+                  },
+                  "props.pipes[2].fill": {
+                    "binding": {
+                      "config": {
+                        "expression": "{view.custom.plant.pipes.intake}"
+                      },
+                      "type": "expr"
+                    }
+                  },
+                  "props.pipes[3].fill": {
+                    "binding": {
+                      "config": {
+                        "expression": "{view.custom.plant.pipes.intake}"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "ia.container.coord",
+                "version": 0,
+                "meta": {
+                  "name": "StageTreatment"
+                },
+                "position": {
+                  "basis": "432px",
+                  "shrink": 0
+                },
+                "props": {
+                  "mode": "fixed",
+                  "aspectRatio": "",
+                  "pipes": [
+                    {
+                      "appearance": "simple",
+                      "fill": "#CBD5E1",
+                      "name": "Delivery",
+                      "origin": {
+                        "connections": [
+                          {
+                            "connections": [],
+                            "x": 199,
+                            "y": 222.0
+                          }
+                        ],
+                        "x": 0,
+                        "y": 222.0
+                      },
+                      "stroke": "#94A3B8",
+                      "visible": true,
+                      "width": 8
+                    },
+                    {
+                      "appearance": "simple",
+                      "fill": "#CBD5E1",
+                      "name": "Dosing",
+                      "origin": {
+                        "connections": [
+                          {
+                            "connections": [],
+                            "x": 157.0,
+                            "y": 222.0
+                          }
+                        ],
+                        "x": 157.0,
+                        "y": 108
+                      },
+                      "stroke": "#94A3B8",
+                      "visible": true,
+                      "width": 5
+                    },
+                    {
+                      "appearance": "simple",
+                      "fill": "#CBD5E1",
+                      "name": "Air",
+                      "origin": {
+                        "connections": [
+                          {
+                            "connections": [
+                              {
+                                "connections": [
+                                  {
+                                    "connections": [],
+                                    "x": 264.0,
+                                    "y": 294
+                                  }
+                                ],
+                                "x": 264.0,
+                                "y": 316
+                              }
+                            ],
+                            "x": 183.0,
+                            "y": 316
+                          }
+                        ],
+                        "x": 183.0,
+                        "y": 356
+                      },
+                      "stroke": "#94A3B8",
+                      "visible": true,
+                      "width": 6
+                    },
+                    {
+                      "appearance": "simple",
+                      "fill": "#CBD5E1",
+                      "name": "Air2",
+                      "origin": {
+                        "connections": [
+                          {
+                            "connections": [
+                              {
+                                "connections": [],
+                                "x": 349.0,
+                                "y": 356
+                              }
+                            ],
+                            "x": 349.0,
+                            "y": 316
+                          }
+                        ],
+                        "x": 264.0,
+                        "y": 316
+                      },
+                      "stroke": "#94A3B8",
+                      "visible": true,
+                      "width": 6
+                    },
+                    {
+                      "appearance": "simple",
+                      "fill": "#CBD5E1",
+                      "name": "Outlet",
+                      "origin": {
+                        "connections": [
+                          {
+                            "connections": [],
+                            "x": 432,
+                            "y": 222.0
+                          }
+                        ],
+                        "x": 329,
+                        "y": 222.0
+                      },
+                      "stroke": "#94A3B8",
+                      "visible": true,
+                      "width": 8
+                    }
+                  ],
+                  "style": {
+                    "classes": "Plant/Schematic"
+                  }
+                },
+                "children": [
+                  {
+                    "meta": {
+                      "name": "BandTreatment"
+                    },
+                    "position": {
+                      "height": 470,
+                      "width": 418,
+                      "x": 7,
+                      "y": 0
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "Plant/Band"
+                      },
+                      "text": ""
+                    },
+                    "type": "ia.display.label"
+                  },
+                  {
+                    "children": [
+                      {
+                        "meta": {
+                          "name": "Swatch"
+                        },
+                        "position": {
+                          "basis": "10px",
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "backgroundColor": "#0D9488",
+                            "borderRadius": "3px",
+                            "height": "10px"
+                          },
+                          "text": ""
+                        },
+                        "type": "ia.display.label"
+                      },
+                      {
+                        "meta": {
+                          "name": "Title"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Kpi/Label"
+                          },
+                          "text": "Treatment"
+                        },
+                        "type": "ia.display.label"
+                      },
+                      {
+                        "meta": {
+                          "name": "Area"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Text/Muted"
+                          },
+                          "text": "South"
+                        },
+                        "type": "ia.display.label"
+                      }
+                    ],
+                    "meta": {
+                      "name": "StageTreatment"
+                    },
+                    "position": {
+                      "height": 24,
+                      "width": 386,
+                      "x": 23,
+                      "y": 12
+                    },
+                    "props": {
+                      "alignItems": "center",
+                      "direction": "row",
+                      "style": {
+                        "gap": "8px"
+                      }
+                    },
+                    "type": "ia.container.flex"
                   },
                   {
                     "events": {
@@ -1582,7 +1812,7 @@
                     "position": {
                       "height": 48,
                       "width": 48,
-                      "x": 524,
+                      "x": 133,
                       "y": 60
                     },
                     "propConfig": {
@@ -1662,7 +1892,7 @@
                     "position": {
                       "height": 40,
                       "width": 88,
-                      "x": 432,
+                      "x": 41,
                       "y": 66
                     },
                     "props": {
@@ -1679,7 +1909,7 @@
                     "position": {
                       "height": 52,
                       "width": 52,
-                      "x": 436,
+                      "x": 45,
                       "y": 196
                     },
                     "propConfig": {
@@ -1758,7 +1988,7 @@
                     "position": {
                       "height": 40,
                       "width": 100,
-                      "x": 412,
+                      "x": 21,
                       "y": 252
                     },
                     "props": {
@@ -1786,7 +2016,7 @@
                     "position": {
                       "height": 210,
                       "width": 130,
-                      "x": 590,
+                      "x": 199,
                       "y": 90
                     },
                     "propConfig": {
@@ -1871,7 +2101,7 @@
                     "position": {
                       "height": 40,
                       "width": 120,
-                      "x": 595.0,
+                      "x": 204.0,
                       "y": 46
                     },
                     "props": {
@@ -1899,7 +2129,7 @@
                     "position": {
                       "height": 52,
                       "width": 52,
-                      "x": 548,
+                      "x": 157,
                       "y": 356
                     },
                     "propConfig": {
@@ -1978,7 +2208,7 @@
                     "position": {
                       "height": 40,
                       "width": 100,
-                      "x": 524,
+                      "x": 133,
                       "y": 412
                     },
                     "props": {
@@ -2006,7 +2236,7 @@
                     "position": {
                       "height": 52,
                       "width": 52,
-                      "x": 714,
+                      "x": 323,
                       "y": 356
                     },
                     "propConfig": {
@@ -2085,7 +2315,7 @@
                     "position": {
                       "height": 40,
                       "width": 100,
-                      "x": 690,
+                      "x": 299,
                       "y": 412
                     },
                     "props": {
@@ -2102,7 +2332,7 @@
                     "position": {
                       "height": 48,
                       "width": 48,
-                      "x": 742,
+                      "x": 351,
                       "y": 188
                     },
                     "propConfig": {
@@ -2181,13 +2411,281 @@
                     "position": {
                       "height": 40,
                       "width": 108,
-                      "x": 712,
+                      "x": 321,
                       "y": 244
                     },
                     "props": {
                       "alignItems": "center",
                       "direction": "column",
                       "style": {}
+                    },
+                    "type": "ia.container.flex"
+                  }
+                ],
+                "propConfig": {
+                  "props.pipes[0].fill": {
+                    "binding": {
+                      "config": {
+                        "expression": "{view.custom.plant.pipes.intake}"
+                      },
+                      "type": "expr"
+                    }
+                  },
+                  "props.pipes[1].fill": {
+                    "binding": {
+                      "config": {
+                        "expression": "{view.custom.plant.pipes.dosing}"
+                      },
+                      "type": "expr"
+                    }
+                  },
+                  "props.pipes[2].fill": {
+                    "binding": {
+                      "config": {
+                        "expression": "{view.custom.plant.pipes.air}"
+                      },
+                      "type": "expr"
+                    }
+                  },
+                  "props.pipes[3].fill": {
+                    "binding": {
+                      "config": {
+                        "expression": "{view.custom.plant.pipes.air}"
+                      },
+                      "type": "expr"
+                    }
+                  },
+                  "props.pipes[4].fill": {
+                    "binding": {
+                      "config": {
+                        "expression": "{view.custom.plant.pipes.intake}"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "ia.container.coord",
+                "version": 0,
+                "meta": {
+                  "name": "StageStorage"
+                },
+                "position": {
+                  "basis": "357px",
+                  "shrink": 0
+                },
+                "props": {
+                  "mode": "fixed",
+                  "aspectRatio": "",
+                  "pipes": [
+                    {
+                      "appearance": "simple",
+                      "fill": "#CBD5E1",
+                      "name": "Outlet",
+                      "origin": {
+                        "connections": [
+                          {
+                            "connections": [
+                              {
+                                "connections": [
+                                  {
+                                    "connections": [],
+                                    "x": 116.0,
+                                    "y": 150
+                                  }
+                                ],
+                                "x": 31,
+                                "y": 150
+                              }
+                            ],
+                            "x": 31,
+                            "y": 222.0
+                          }
+                        ],
+                        "x": 0,
+                        "y": 222.0
+                      },
+                      "stroke": "#94A3B8",
+                      "visible": true,
+                      "width": 8
+                    },
+                    {
+                      "appearance": "simple",
+                      "fill": "#CBD5E1",
+                      "name": "Transfer",
+                      "origin": {
+                        "connections": [
+                          {
+                            "connections": [
+                              {
+                                "connections": [
+                                  {
+                                    "connections": [],
+                                    "x": 233,
+                                    "y": 157.2
+                                  }
+                                ],
+                                "x": 207,
+                                "y": 157.2
+                              },
+                              {
+                                "connections": [
+                                  {
+                                    "connections": [],
+                                    "x": 233,
+                                    "y": 287.2
+                                  }
+                                ],
+                                "x": 207,
+                                "y": 287.2
+                              }
+                            ],
+                            "x": 207,
+                            "y": 310
+                          }
+                        ],
+                        "x": 171,
+                        "y": 310
+                      },
+                      "stroke": "#94A3B8",
+                      "visible": true,
+                      "width": 8
+                    },
+                    {
+                      "appearance": "simple",
+                      "fill": "#CBD5E1",
+                      "name": "Network",
+                      "origin": {
+                        "connections": [
+                          {
+                            "connections": [
+                              {
+                                "connections": [],
+                                "x": 337,
+                                "y": 360
+                              }
+                            ],
+                            "x": 337,
+                            "y": 127.2
+                          }
+                        ],
+                        "x": 289,
+                        "y": 127.2
+                      },
+                      "stroke": "#94A3B8",
+                      "visible": true,
+                      "width": 8
+                    },
+                    {
+                      "appearance": "simple",
+                      "fill": "#CBD5E1",
+                      "name": "Network2",
+                      "origin": {
+                        "connections": [
+                          {
+                            "connections": [],
+                            "x": 337,
+                            "y": 257.2
+                          }
+                        ],
+                        "x": 289,
+                        "y": 257.2
+                      },
+                      "stroke": "#94A3B8",
+                      "visible": true,
+                      "width": 8
+                    }
+                  ],
+                  "style": {
+                    "classes": "Plant/Schematic"
+                  }
+                },
+                "children": [
+                  {
+                    "meta": {
+                      "name": "BandStorage"
+                    },
+                    "position": {
+                      "height": 470,
+                      "width": 350,
+                      "x": 7,
+                      "y": 0
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "Plant/Band"
+                      },
+                      "text": ""
+                    },
+                    "type": "ia.display.label"
+                  },
+                  {
+                    "children": [
+                      {
+                        "meta": {
+                          "name": "Swatch"
+                        },
+                        "position": {
+                          "basis": "10px",
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "backgroundColor": "#D97706",
+                            "borderRadius": "3px",
+                            "height": "10px"
+                          },
+                          "text": ""
+                        },
+                        "type": "ia.display.label"
+                      },
+                      {
+                        "meta": {
+                          "name": "Title"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Kpi/Label"
+                          },
+                          "text": "Storage and transfer"
+                        },
+                        "type": "ia.display.label"
+                      },
+                      {
+                        "meta": {
+                          "name": "Area"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Text/Muted"
+                          },
+                          "text": "East"
+                        },
+                        "type": "ia.display.label"
+                      }
+                    ],
+                    "meta": {
+                      "name": "StageStorage"
+                    },
+                    "position": {
+                      "height": 24,
+                      "width": 318,
+                      "x": 23,
+                      "y": 12
+                    },
+                    "props": {
+                      "alignItems": "center",
+                      "direction": "row",
+                      "style": {
+                        "gap": "8px"
+                      }
                     },
                     "type": "ia.container.flex"
                   },
@@ -2209,7 +2707,7 @@
                     "position": {
                       "height": 220,
                       "width": 110,
-                      "x": 884,
+                      "x": 61,
                       "y": 120
                     },
                     "propConfig": {
@@ -2307,7 +2805,7 @@
                     "position": {
                       "height": 40,
                       "width": 134,
-                      "x": 872,
+                      "x": 49,
                       "y": 346
                     },
                     "props": {
@@ -2335,7 +2833,7 @@
                     "position": {
                       "height": 60,
                       "width": 60,
-                      "x": 1056,
+                      "x": 233,
                       "y": 120
                     },
                     "propConfig": {
@@ -2414,7 +2912,7 @@
                     "position": {
                       "height": 40,
                       "width": 100,
-                      "x": 1036,
+                      "x": 213,
                       "y": 182
                     },
                     "props": {
@@ -2442,7 +2940,7 @@
                     "position": {
                       "height": 60,
                       "width": 60,
-                      "x": 1056,
+                      "x": 233,
                       "y": 250
                     },
                     "propConfig": {
@@ -2521,7 +3019,7 @@
                     "position": {
                       "height": 40,
                       "width": 100,
-                      "x": 1036,
+                      "x": 213,
                       "y": 312
                     },
                     "props": {
@@ -2580,7 +3078,7 @@
                     "position": {
                       "height": 40,
                       "width": 104,
-                      "x": 1070,
+                      "x": 247,
                       "y": 368
                     },
                     "props": {
@@ -2591,13 +3089,6 @@
                     "type": "ia.container.flex"
                   }
                 ],
-                "meta": {
-                  "name": "Schematic"
-                },
-                "position": {
-                  "basis": "1180px",
-                  "shrink": 0
-                },
                 "propConfig": {
                   "props.pipes[0].fill": {
                     "binding": {
@@ -2607,18 +3098,10 @@
                       "type": "expr"
                     }
                   },
-                  "props.pipes[10].fill": {
-                    "binding": {
-                      "config": {
-                        "expression": "{view.custom.plant.pipes.transfer}"
-                      },
-                      "type": "expr"
-                    }
-                  },
                   "props.pipes[1].fill": {
                     "binding": {
                       "config": {
-                        "expression": "{view.custom.plant.pipes.intake}"
+                        "expression": "{view.custom.plant.pipes.transfer}"
                       },
                       "type": "expr"
                     }
@@ -2626,7 +3109,7 @@
                   "props.pipes[2].fill": {
                     "binding": {
                       "config": {
-                        "expression": "{view.custom.plant.pipes.intake}"
+                        "expression": "{view.custom.plant.pipes.transfer}"
                       },
                       "type": "expr"
                     }
@@ -2634,390 +3117,12 @@
                   "props.pipes[3].fill": {
                     "binding": {
                       "config": {
-                        "expression": "{view.custom.plant.pipes.intake}"
-                      },
-                      "type": "expr"
-                    }
-                  },
-                  "props.pipes[4].fill": {
-                    "binding": {
-                      "config": {
-                        "expression": "{view.custom.plant.pipes.dosing}"
-                      },
-                      "type": "expr"
-                    }
-                  },
-                  "props.pipes[5].fill": {
-                    "binding": {
-                      "config": {
-                        "expression": "{view.custom.plant.pipes.air}"
-                      },
-                      "type": "expr"
-                    }
-                  },
-                  "props.pipes[6].fill": {
-                    "binding": {
-                      "config": {
-                        "expression": "{view.custom.plant.pipes.air}"
-                      },
-                      "type": "expr"
-                    }
-                  },
-                  "props.pipes[7].fill": {
-                    "binding": {
-                      "config": {
-                        "expression": "{view.custom.plant.pipes.intake}"
-                      },
-                      "type": "expr"
-                    }
-                  },
-                  "props.pipes[8].fill": {
-                    "binding": {
-                      "config": {
-                        "expression": "{view.custom.plant.pipes.transfer}"
-                      },
-                      "type": "expr"
-                    }
-                  },
-                  "props.pipes[9].fill": {
-                    "binding": {
-                      "config": {
                         "expression": "{view.custom.plant.pipes.transfer}"
                       },
                       "type": "expr"
                     }
                   }
-                },
-                "props": {
-                  "aspectRatio": "",
-                  "mode": "fixed",
-                  "pipes": [
-                    {
-                      "appearance": "simple",
-                      "fill": "#CBD5E1",
-                      "name": "Intake",
-                      "origin": {
-                        "connections": [
-                          {
-                            "connections": [
-                              {
-                                "connections": [
-                                  {
-                                    "connections": [],
-                                    "x": 216,
-                                    "y": 101.2
-                                  }
-                                ],
-                                "x": 176,
-                                "y": 101.2
-                              },
-                              {
-                                "connections": [
-                                  {
-                                    "connections": [],
-                                    "x": 216,
-                                    "y": 341.2
-                                  }
-                                ],
-                                "x": 176,
-                                "y": 341.2
-                              },
-                              {
-                                "connections": [
-                                  {
-                                    "connections": [],
-                                    "x": 216,
-                                    "y": 221.2
-                                  }
-                                ],
-                                "x": 176,
-                                "y": 221.2
-                              }
-                            ],
-                            "x": 176,
-                            "y": 310
-                          }
-                        ],
-                        "x": 136,
-                        "y": 310
-                      },
-                      "stroke": "#94A3B8",
-                      "visible": true,
-                      "width": 8
-                    },
-                    {
-                      "appearance": "simple",
-                      "fill": "#CBD5E1",
-                      "name": "Delivery",
-                      "origin": {
-                        "connections": [
-                          {
-                            "connections": [
-                              {
-                                "connections": [
-                                  {
-                                    "connections": [],
-                                    "x": 590,
-                                    "y": 222.0
-                                  }
-                                ],
-                                "x": 330,
-                                "y": 222.0
-                              }
-                            ],
-                            "x": 330,
-                            "y": 71.2
-                          }
-                        ],
-                        "x": 272,
-                        "y": 71.2
-                      },
-                      "stroke": "#94A3B8",
-                      "visible": true,
-                      "width": 8
-                    },
-                    {
-                      "appearance": "simple",
-                      "fill": "#CBD5E1",
-                      "name": "Delivery2",
-                      "origin": {
-                        "connections": [
-                          {
-                            "connections": [],
-                            "x": 330,
-                            "y": 191.2
-                          }
-                        ],
-                        "x": 272,
-                        "y": 191.2
-                      },
-                      "stroke": "#94A3B8",
-                      "visible": true,
-                      "width": 8
-                    },
-                    {
-                      "appearance": "simple",
-                      "fill": "#CBD5E1",
-                      "name": "Delivery3",
-                      "origin": {
-                        "connections": [
-                          {
-                            "connections": [
-                              {
-                                "connections": [],
-                                "x": 330,
-                                "y": 222.0
-                              }
-                            ],
-                            "x": 330,
-                            "y": 311.2
-                          }
-                        ],
-                        "x": 272,
-                        "y": 311.2
-                      },
-                      "stroke": "#94A3B8",
-                      "visible": true,
-                      "width": 8
-                    },
-                    {
-                      "appearance": "simple",
-                      "fill": "#CBD5E1",
-                      "name": "Dosing",
-                      "origin": {
-                        "connections": [
-                          {
-                            "connections": [],
-                            "x": 548.0,
-                            "y": 222.0
-                          }
-                        ],
-                        "x": 548.0,
-                        "y": 108
-                      },
-                      "stroke": "#94A3B8",
-                      "visible": true,
-                      "width": 5
-                    },
-                    {
-                      "appearance": "simple",
-                      "fill": "#CBD5E1",
-                      "name": "Air",
-                      "origin": {
-                        "connections": [
-                          {
-                            "connections": [
-                              {
-                                "connections": [
-                                  {
-                                    "connections": [],
-                                    "x": 655.0,
-                                    "y": 294
-                                  }
-                                ],
-                                "x": 655.0,
-                                "y": 316
-                              }
-                            ],
-                            "x": 574.0,
-                            "y": 316
-                          }
-                        ],
-                        "x": 574.0,
-                        "y": 356
-                      },
-                      "stroke": "#94A3B8",
-                      "visible": true,
-                      "width": 6
-                    },
-                    {
-                      "appearance": "simple",
-                      "fill": "#CBD5E1",
-                      "name": "Air2",
-                      "origin": {
-                        "connections": [
-                          {
-                            "connections": [
-                              {
-                                "connections": [],
-                                "x": 655.0,
-                                "y": 316
-                              }
-                            ],
-                            "x": 740.0,
-                            "y": 316
-                          }
-                        ],
-                        "x": 740.0,
-                        "y": 356
-                      },
-                      "stroke": "#94A3B8",
-                      "visible": true,
-                      "width": 6
-                    },
-                    {
-                      "appearance": "simple",
-                      "fill": "#CBD5E1",
-                      "name": "Outlet",
-                      "origin": {
-                        "connections": [
-                          {
-                            "connections": [
-                              {
-                                "connections": [
-                                  {
-                                    "connections": [],
-                                    "x": 939.0,
-                                    "y": 150
-                                  }
-                                ],
-                                "x": 854,
-                                "y": 150
-                              }
-                            ],
-                            "x": 854,
-                            "y": 222.0
-                          }
-                        ],
-                        "x": 720,
-                        "y": 222.0
-                      },
-                      "stroke": "#94A3B8",
-                      "visible": true,
-                      "width": 8
-                    },
-                    {
-                      "appearance": "simple",
-                      "fill": "#CBD5E1",
-                      "name": "Transfer",
-                      "origin": {
-                        "connections": [
-                          {
-                            "connections": [
-                              {
-                                "connections": [
-                                  {
-                                    "connections": [],
-                                    "x": 1056,
-                                    "y": 157.2
-                                  }
-                                ],
-                                "x": 1030,
-                                "y": 157.2
-                              },
-                              {
-                                "connections": [
-                                  {
-                                    "connections": [],
-                                    "x": 1056,
-                                    "y": 287.2
-                                  }
-                                ],
-                                "x": 1030,
-                                "y": 287.2
-                              }
-                            ],
-                            "x": 1030,
-                            "y": 310
-                          }
-                        ],
-                        "x": 994,
-                        "y": 310
-                      },
-                      "stroke": "#94A3B8",
-                      "visible": true,
-                      "width": 8
-                    },
-                    {
-                      "appearance": "simple",
-                      "fill": "#CBD5E1",
-                      "name": "Network",
-                      "origin": {
-                        "connections": [
-                          {
-                            "connections": [
-                              {
-                                "connections": [],
-                                "x": 1160,
-                                "y": 360
-                              }
-                            ],
-                            "x": 1160,
-                            "y": 127.2
-                          }
-                        ],
-                        "x": 1112,
-                        "y": 127.2
-                      },
-                      "stroke": "#94A3B8",
-                      "visible": true,
-                      "width": 8
-                    },
-                    {
-                      "appearance": "simple",
-                      "fill": "#CBD5E1",
-                      "name": "Network2",
-                      "origin": {
-                        "connections": [
-                          {
-                            "connections": [],
-                            "x": 1160,
-                            "y": 257.2
-                          }
-                        ],
-                        "x": 1112,
-                        "y": 257.2
-                      },
-                      "stroke": "#94A3B8",
-                      "visible": true,
-                      "width": 8
-                    }
-                  ],
-                  "style": {
-                    "classes": "Plant/Schematic"
-                  }
-                },
-                "type": "ia.container.coord"
+                }
               }
             ],
             "meta": {
