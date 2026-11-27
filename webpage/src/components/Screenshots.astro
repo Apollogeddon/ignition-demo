@@ -72,8 +72,8 @@ const pages = [
     image: alarms,
     alt: "Alarms page: counts of active, unacknowledged and high-priority alarms, the alarm status table with two motor faults, and the alarm journal",
     caption:
-      "The UDTs' motor-fault and tank-level alarms, acknowledged in the Alarm Status Table and kept by a database alarm journal. The header shows the active count.",
-    components: ["ia.display.alarmstatustable", "ia.display.alarmjournaltable", "system.alarm"],
+      "The UDTs' motor-fault and tank-level alarms in a Tab Container: acknowledge them in Active, and the Journal keeps every event. The header shows the active count.",
+    components: ["ia.container.tab", "ia.display.alarmstatustable", "ia.display.alarmjournaltable"],
   },
 ];
 
