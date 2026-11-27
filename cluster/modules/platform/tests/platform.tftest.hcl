@@ -63,6 +63,10 @@ run "backs_up_the_database" {
     error_message = "The backup job does not keep retention_days of dumps."
   }
   assert {
+    condition     = strcontains(kubernetes_cron_job_v1.db_backup[0].spec[0].job_template[0].spec[0].template[0].spec[0].container[0].command[2], "until pg_isready")
+    error_message = "The backup job must wait for the database, as a network policy can refuse a new pod for a few seconds."
+  }
+  assert {
     condition     = kubernetes_cron_job_v1.db_backup[0].spec[0].job_template[0].spec[0].template[0].spec[0].container[0].image == "docker.io/library/postgres:17.12"
     error_message = "The backup job's pg_dump must match the server's image."
   }

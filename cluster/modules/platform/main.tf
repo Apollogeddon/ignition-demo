@@ -319,9 +319,17 @@ resource "kubernetes_cron_job_v1" "db_backup" {
                 value = kubernetes_service_v1.db.metadata[0].name
               }
               # a dump is written under a temporary name and renamed once complete,
-              # so a failed run never leaves a truncated dump to restore
+              # so a failed run never leaves a truncated dump to restore. It waits up
+              # to a minute for the database first: a network policy can refuse a new
+              # pod's connections for a few seconds (k3s takes about 5 to admit it).
               command = ["sh", "-ec", <<-EOT
                 rm -f /backups/*.partial
+                tries=0
+                until pg_isready -q -t 2; do
+                  tries=$((tries + 1))
+                  [ "$tries" -lt 30 ] || { echo "the database did not answer within a minute"; exit 1; }
+                  sleep 2
+                done
                 f="/backups/$POSTGRES_DB-$(date -u +%Y%m%dT%H%M%SZ).dump"
                 PGPASSWORD="$POSTGRES_PASSWORD" pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc -f "$f.partial"
                 mv "$f.partial" "$f"

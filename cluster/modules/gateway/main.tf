@@ -345,11 +345,13 @@ resource "kubernetes_cron_job_v1" "backup" {
                 }
               }
               # written under a temporary name and renamed once complete, so a
-              # failed run never leaves a truncated backup to restore
+              # failed run never leaves a truncated backup to restore. curl retries
+              # a refused connection (a network policy can hold a new pod for a few
+              # seconds) and a transient answer such as a 503 during a failover.
               command = ["sh", "-ec", <<-EOT
                 rm -f /backups/*.partial
                 f="/backups/gateway-$(date -u +%Y%m%dT%H%M%SZ).gwbk"
-                set -- -sSf --max-time 900 -o "$f.partial" -H "X-Ignition-API-Token: $GATEWAY_API_TOKEN"
+                set -- -sSf --max-time 900 --retry 6 --retry-delay 10 --retry-connrefused -o "$f.partial" -H "X-Ignition-API-Token: $GATEWAY_API_TOKEN"
                 if [ -s /ca/ca.crt ]; then set -- "$@" --cacert /ca/ca.crt; fi
                 curl "$@" "$GATEWAY_URL/data/api/v1/backup"
                 mv "$f.partial" "$f"

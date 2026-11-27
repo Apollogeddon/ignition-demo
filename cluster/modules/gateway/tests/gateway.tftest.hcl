@@ -236,6 +236,10 @@ run "backs_up_through_the_ingress" {
     condition     = strcontains(kubernetes_cron_job_v1.backup[0].spec[0].job_template[0].spec[0].template[0].spec[0].container[0].command[2], "-mmin +10080")
     error_message = "The backup job does not keep 7 days of backups."
   }
+  assert {
+    condition     = strcontains(kubernetes_cron_job_v1.backup[0].spec[0].job_template[0].spec[0].template[0].spec[0].container[0].command[2], "--retry-connrefused")
+    error_message = "The backup job must retry a refused connection and a transient answer such as a 503."
+  }
 }
 
 run "backs_up_in_cluster_without_tls" {
