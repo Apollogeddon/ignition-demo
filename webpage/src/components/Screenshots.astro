@@ -1,5 +1,6 @@
 ---
 import { Image } from "astro:assets";
+import alarms from "../assets/screens/desktop-alarms.webp";
 import analytics from "../assets/screens/desktop-analytics.webp";
 import assets from "../assets/screens/desktop-assets.webp";
 import events from "../assets/screens/desktop-events.webp";
@@ -26,8 +27,8 @@ const pages = [
     image: plant,
     alt: "Plant page: a process schematic with tanks, pumps, blowers, a mixer and a valve joined by pipes that are coloured while their stage flows",
     caption:
-      "A process schematic in a coordinate container. Symbols run, stop or fault from the database, and a pipe is coloured while its stage flows.",
-    components: ["ia.container.coord", "ia.symbol.*", "ia.display.cylindrical-tank"],
+      "A schematic in coordinate containers, one per stage. Its symbols bind straight to the asset tags a gateway timer drives, and a pipe is coloured while its stage flows.",
+    components: ["ia.container.coord", "ia.symbol.*", "tag bindings"],
   },
   {
     id: "popup",
@@ -35,8 +36,8 @@ const pages = [
     image: plantPopup,
     alt: "Equipment popup over the plant schematic: a gauge, the latest reading against the rated value, a 24-hour sparkline and an Acknowledge button",
     caption:
-      "Clicking any equipment opens a popup with a gauge, a 24-hour sparkline and Acknowledge, which records an event through a gateway message handler.",
-    components: ["ia.chart.gauge", "ia.display.sparkline", "system.perspective.openPopup"],
+      "Clicking any equipment opens a popup bound indirectly to its UDT instance: a live gauge, a 24-hour sparkline, Start or Stop, and Acknowledge.",
+    components: ["ia.chart.gauge", "indirect tag bindings", "system.tag.writeBlocking"],
   },
   {
     id: "analytics",
@@ -44,8 +45,8 @@ const pages = [
     image: analytics,
     alt: "Analytics page: three simple gauges, an LED display, an XY chart of delivered water against reservoir level, an hourly heatmap and load bars per area",
     caption:
-      "Simple gauges, an LED display, an XY chart with two axes, a day-by-hour heatmap built from flex repeaters, and load bars per area.",
-    components: ["ia.chart.simple-gauge", "ia.chart.xy", "ia.display.flex-repeater"],
+      "Simple gauges, an LED display, an XY chart with two axes, the tanks' level history from the SQL historian, a heatmap built from flex repeaters, and load bars.",
+    components: ["ia.chart.xy", "tag history", "ia.display.flex-repeater"],
   },
   {
     id: "assets",
@@ -65,6 +66,15 @@ const pages = [
       "The event log. It refreshes whenever any page in the session records an event, through the eventRecorded session message.",
     components: ["ia.display.table", "session messages"],
   },
+  {
+    id: "alarms",
+    label: "Alarms",
+    image: alarms,
+    alt: "Alarms page: counts of active, unacknowledged and high-priority alarms, the alarm status table with two motor faults, and the alarm journal",
+    caption:
+      "The UDTs' motor-fault and tank-level alarms, acknowledged in the Alarm Status Table and kept by a database alarm journal. The header shows the active count.",
+    components: ["ia.display.alarmstatustable", "ia.display.alarmjournaltable", "system.alarm"],
+  },
 ];
 
 const phones = [
@@ -78,8 +88,9 @@ const phones = [
   <div class="header">
     <h2 id="screens-title">See it <span class="text-gradient">running</span></h2>
     <p class="lede">
-      The sample project, Demo Waterworks, is five Perspective pages over a seeded PostgreSQL database. It uses built-in
-      components only, and the same files run on Ignition 8.1 and 8.3.
+      The sample project, Demo Waterworks, is six Perspective pages over a live plant: a gateway timer runs a process
+      model on UDT tags, with alarms and tag history. It uses built-in components only, and the same files run on
+      Ignition 8.1 and 8.3.
     </p>
   </div>
 
