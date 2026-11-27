@@ -34,8 +34,8 @@ variable "historian" {
   })
   default = null
   validation {
-    condition     = var.historian == null || try(var.historian.pruning_months >= 1, false)
-    error_message = "historian.pruning_months must be at least 1."
+    condition     = var.historian == null || try(var.historian.pruning_months >= 1 && floor(var.historian.pruning_months) == var.historian.pruning_months, false)
+    error_message = "historian.pruning_months must be a whole number, at least 1."
   }
 }
 

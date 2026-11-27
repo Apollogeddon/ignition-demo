@@ -62,3 +62,11 @@ run "historian_pruning_at_least_a_month" {
   }
   expect_failures = [var.historian]
 }
+
+run "historian_pruning_in_whole_months" {
+  command = plan
+  variables {
+    historian = { pruning_months = 1.5 }
+  }
+  expect_failures = [var.historian]
+}
