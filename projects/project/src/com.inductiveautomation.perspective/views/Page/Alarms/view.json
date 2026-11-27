@@ -485,7 +485,7 @@
                       "style": {
                         "classes": "Section/Title"
                       },
-                      "text": "Active alarms"
+                      "text": "Alarms"
                     },
                     "type": "ia.display.label"
                   },
@@ -507,7 +507,7 @@
                       "props.text": {
                         "binding": {
                           "config": {
-                            "expression": "\"Motor faults and tank levels from the asset UDTs; select one to acknowledge it\""
+                            "expression": "\"Select an active alarm to acknowledge it; the journal keeps every activation, acknowledgement and clearing\""
                           },
                           "type": "expr"
                         }
@@ -544,143 +544,468 @@
           },
           {
             "meta": {
-              "name": "Status"
+              "name": "Tabs"
             },
             "position": {
-              "basis": "260px",
+              "basis": "0px",
               "grow": 1
             },
+            "type": "ia.container.tab",
             "props": {
-              "enableShelve": false,
-              "enableUnshelve": false,
-              "refreshRate": 2500
+              "menuType": "modern",
+              "currentTabIndex": 0,
+              "tabs": [
+                {
+                  "text": "Active"
+                },
+                {
+                  "text": "Journal"
+                }
+              ],
+              "tabSize": {
+                "width": 150,
+                "height": 40
+              },
+              "menuStyle": {
+                "borderBottom": "1px solid #E2E8F0",
+                "fontFamily": "Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+              },
+              "tabStyle": {
+                "active": {
+                  "color": "#0F172A",
+                  "fontWeight": "600",
+                  "fontSize": "14px"
+                },
+                "inactive": {
+                  "color": "#64748B",
+                  "fontWeight": "500",
+                  "fontSize": "14px"
+                },
+                "disabled": {}
+              },
+              "contentStyle": {
+                "paddingTop": "12px",
+                "borderStyle": "none",
+                "backgroundColor": "#FFFFFF"
+              },
+              "style": {
+                "classes": ""
+              }
             },
-            "type": "ia.display.alarmstatustable"
-          }
-        ],
-        "meta": {
-          "name": "ActiveCard"
-        },
-        "position": {
-          "basis": "340px",
-          "shrink": 0
-        },
-        "props": {
-          "direction": "column",
-          "style": {
-            "classes": "Card",
-            "gap": "12px"
-          }
-        },
-        "scripts": {
-          "customMethods": [],
-          "extensionFunctions": null,
-          "messageHandlers": [
-            {
-              "messageType": "eventRecorded",
-              "pageScope": false,
-              "script": "\tself.view.refreshBinding(\"custom.events\")",
-              "sessionScope": true,
-              "viewScope": false
-            }
-          ]
-        },
-        "type": "ia.container.flex"
-      },
-      {
-        "children": [
-          {
+            "propConfig": {
+              "props.tabs[0].text": {
+                "binding": {
+                  "config": {
+                    "expression": "if({view.custom.alarms.active} > 0, concat(\"Active \u00b7 \", {view.custom.alarms.active}), \"Active\")"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
             "children": [
               {
-                "children": [
-                  {
-                    "meta": {
-                      "name": "Title"
-                    },
-                    "position": {
-                      "shrink": 0
-                    },
-                    "props": {
-                      "style": {
-                        "classes": "Section/Title"
-                      },
-                      "text": "Alarm journal"
-                    },
-                    "type": "ia.display.label"
+                "meta": {
+                  "name": "Status"
+                },
+                "position": {
+                  "tabIndex": 0
+                },
+                "type": "ia.display.alarmstatustable",
+                "props": {
+                  "enableShelve": false,
+                  "enableUnshelve": false,
+                  "refreshRate": 2500,
+                  "style": {
+                    "classes": "Layout/Table Alarm/Table",
+                    "fontFamily": "Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
                   },
-                  {
-                    "meta": {
-                      "name": "Subtitle"
-                    },
-                    "position": {
-                      "shrink": 0
-                    },
-                    "props": {
-                      "style": {
-                        "classes": "Section/Subtitle"
+                  "toolbar": {
+                    "enabled": true,
+                    "enableActiveTab": true,
+                    "enableShelvedTab": false,
+                    "enableFilter": true,
+                    "toggleableFilter": true,
+                    "enableFilterResults": true,
+                    "enablePreFilters": false,
+                    "enableConfiguration": false
+                  },
+                  "columns": {
+                    "active": {
+                      "activeTime": {
+                        "enabled": true,
+                        "sort": "none",
+                        "width": 150,
+                        "strictWidth": false,
+                        "order": 0
                       },
-                      "text": "Refreshes when any page of this session records an event (the eventRecorded session message)"
+                      "label": {
+                        "enabled": true,
+                        "sort": "none",
+                        "width": 320,
+                        "strictWidth": false,
+                        "order": 1
+                      },
+                      "priority": {
+                        "enabled": true,
+                        "sort": "none",
+                        "width": 100,
+                        "strictWidth": false,
+                        "order": 2
+                      },
+                      "state": {
+                        "enabled": true,
+                        "sort": "none",
+                        "width": 190,
+                        "strictWidth": false,
+                        "order": 3
+                      },
+                      "ackUser": {
+                        "enabled": true,
+                        "sort": "none",
+                        "width": 120,
+                        "strictWidth": false,
+                        "order": 4
+                      },
+                      "displayPath": {
+                        "enabled": false,
+                        "sort": "none",
+                        "width": 150,
+                        "strictWidth": false,
+                        "order": 5
+                      },
+                      "source": {
+                        "enabled": false,
+                        "sort": "none",
+                        "width": 150,
+                        "strictWidth": false,
+                        "order": 6
+                      },
+                      "name": {
+                        "enabled": false,
+                        "sort": "none",
+                        "width": 150,
+                        "strictWidth": false,
+                        "order": 7
+                      }
+                    }
+                  },
+                  "rowStyles": {
+                    "activeUnacked": {
+                      "base": {
+                        "backgroundColor": "#FEF2F2",
+                        "color": "#991B1B",
+                        "classes": "",
+                        "fontWeight": "600"
+                      },
+                      "priorities": {
+                        "diagnostic": {
+                          "backgroundColor": "#FEF2F2",
+                          "color": "#991B1B"
+                        },
+                        "low": {
+                          "backgroundColor": "#FEF2F2",
+                          "color": "#991B1B"
+                        },
+                        "medium": {
+                          "backgroundColor": "#FEF2F2",
+                          "color": "#991B1B"
+                        },
+                        "high": {
+                          "backgroundColor": "#FEF2F2",
+                          "color": "#991B1B"
+                        },
+                        "critical": {
+                          "backgroundColor": "#FEF2F2",
+                          "color": "#991B1B"
+                        }
+                      }
                     },
-                    "type": "ia.display.label",
-                    "propConfig": {
-                      "props.text": {
-                        "binding": {
-                          "config": {
-                            "expression": "\"Every alarm's activation, acknowledgement and clearing, from the demo journal in PostgreSQL\""
-                          },
-                          "type": "expr"
+                    "activeAcked": {
+                      "base": {
+                        "backgroundColor": "#FFFFFF",
+                        "color": "#B91C1C",
+                        "classes": ""
+                      },
+                      "priorities": {
+                        "diagnostic": {
+                          "backgroundColor": "#FFFFFF",
+                          "color": "#B91C1C"
+                        },
+                        "low": {
+                          "backgroundColor": "#FFFFFF",
+                          "color": "#B91C1C"
+                        },
+                        "medium": {
+                          "backgroundColor": "#FFFFFF",
+                          "color": "#B91C1C"
+                        },
+                        "high": {
+                          "backgroundColor": "#FFFFFF",
+                          "color": "#B91C1C"
+                        },
+                        "critical": {
+                          "backgroundColor": "#FFFFFF",
+                          "color": "#B91C1C"
+                        }
+                      }
+                    },
+                    "clearUnacked": {
+                      "base": {
+                        "backgroundColor": "#EFF6FF",
+                        "color": "#1E40AF",
+                        "classes": "",
+                        "fontWeight": "600"
+                      },
+                      "priorities": {
+                        "diagnostic": {
+                          "backgroundColor": "#EFF6FF",
+                          "color": "#1E40AF"
+                        },
+                        "low": {
+                          "backgroundColor": "#EFF6FF",
+                          "color": "#1E40AF"
+                        },
+                        "medium": {
+                          "backgroundColor": "#EFF6FF",
+                          "color": "#1E40AF"
+                        },
+                        "high": {
+                          "backgroundColor": "#EFF6FF",
+                          "color": "#1E40AF"
+                        },
+                        "critical": {
+                          "backgroundColor": "#EFF6FF",
+                          "color": "#1E40AF"
+                        }
+                      }
+                    },
+                    "clearAcked": {
+                      "base": {
+                        "backgroundColor": "#FFFFFF",
+                        "color": "#475569",
+                        "classes": ""
+                      },
+                      "priorities": {
+                        "diagnostic": {
+                          "backgroundColor": "#FFFFFF",
+                          "color": "#475569"
+                        },
+                        "low": {
+                          "backgroundColor": "#FFFFFF",
+                          "color": "#475569"
+                        },
+                        "medium": {
+                          "backgroundColor": "#FFFFFF",
+                          "color": "#475569"
+                        },
+                        "high": {
+                          "backgroundColor": "#FFFFFF",
+                          "color": "#475569"
+                        },
+                        "critical": {
+                          "backgroundColor": "#FFFFFF",
+                          "color": "#475569"
                         }
                       }
                     }
+                  },
+                  "responsive": {
+                    "enabled": true,
+                    "breakpoint": 640
                   }
-                ],
+                }
+              },
+              {
                 "meta": {
-                  "name": "Titles"
+                  "name": "Journal"
                 },
                 "position": {
-                  "grow": 1
+                  "tabIndex": 1
                 },
+                "type": "ia.display.alarmjournaltable",
                 "props": {
-                  "direction": "column",
+                  "name": "demo",
+                  "refreshRate": 5000,
                   "style": {
-                    "gap": "2px"
+                    "classes": "Layout/Table Alarm/Table",
+                    "fontFamily": "Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+                  },
+                  "toolbar": {
+                    "enabled": true,
+                    "enableFilter": true,
+                    "toggleableFilter": true,
+                    "enablePreFilters": false,
+                    "enableConfiguration": false
+                  },
+                  "columns": {
+                    "eventTime": {
+                      "enabled": true,
+                      "sort": "none",
+                      "width": 160,
+                      "strictWidth": false,
+                      "order": 0
+                    },
+                    "displayPath": {
+                      "enabled": true,
+                      "sort": "none",
+                      "width": 220,
+                      "strictWidth": false,
+                      "order": 1
+                    },
+                    "name": {
+                      "enabled": true,
+                      "sort": "none",
+                      "width": 160,
+                      "strictWidth": false,
+                      "order": 2
+                    },
+                    "eventState": {
+                      "enabled": true,
+                      "sort": "none",
+                      "width": 110,
+                      "strictWidth": false,
+                      "order": 3
+                    },
+                    "priority": {
+                      "enabled": true,
+                      "sort": "none",
+                      "width": 100,
+                      "strictWidth": false,
+                      "order": 4
+                    },
+                    "ackUser": {
+                      "enabled": true,
+                      "sort": "none",
+                      "width": 120,
+                      "strictWidth": false,
+                      "order": 5
+                    },
+                    "eventId": {
+                      "enabled": false,
+                      "sort": "none",
+                      "width": 150,
+                      "strictWidth": false,
+                      "order": 6
+                    },
+                    "source": {
+                      "enabled": false,
+                      "sort": "none",
+                      "width": 150,
+                      "strictWidth": false,
+                      "order": 7
+                    },
+                    "label": {
+                      "enabled": false,
+                      "sort": "none",
+                      "width": 150,
+                      "strictWidth": false,
+                      "order": 8
+                    }
+                  },
+                  "rowStyles": {
+                    "active": {
+                      "base": {
+                        "backgroundColor": "#FEF2F2",
+                        "color": "#991B1B",
+                        "classes": "",
+                        "fontWeight": "600"
+                      },
+                      "priorities": {
+                        "diagnostic": {
+                          "backgroundColor": "#FEF2F2",
+                          "color": "#991B1B"
+                        },
+                        "low": {
+                          "backgroundColor": "#FEF2F2",
+                          "color": "#991B1B"
+                        },
+                        "medium": {
+                          "backgroundColor": "#FEF2F2",
+                          "color": "#991B1B"
+                        },
+                        "high": {
+                          "backgroundColor": "#FEF2F2",
+                          "color": "#991B1B"
+                        },
+                        "critical": {
+                          "backgroundColor": "#FEF2F2",
+                          "color": "#991B1B"
+                        }
+                      }
+                    },
+                    "acked": {
+                      "base": {
+                        "backgroundColor": "#FFFFFF",
+                        "color": "#334155",
+                        "classes": ""
+                      },
+                      "priorities": {
+                        "diagnostic": {
+                          "backgroundColor": "#FFFFFF",
+                          "color": "#334155"
+                        },
+                        "low": {
+                          "backgroundColor": "#FFFFFF",
+                          "color": "#334155"
+                        },
+                        "medium": {
+                          "backgroundColor": "#FFFFFF",
+                          "color": "#334155"
+                        },
+                        "high": {
+                          "backgroundColor": "#FFFFFF",
+                          "color": "#334155"
+                        },
+                        "critical": {
+                          "backgroundColor": "#FFFFFF",
+                          "color": "#334155"
+                        }
+                      }
+                    },
+                    "cleared": {
+                      "base": {
+                        "backgroundColor": "#F0FDF4",
+                        "color": "#166534",
+                        "classes": ""
+                      },
+                      "priorities": {
+                        "diagnostic": {
+                          "backgroundColor": "#F0FDF4",
+                          "color": "#166534"
+                        },
+                        "low": {
+                          "backgroundColor": "#F0FDF4",
+                          "color": "#166534"
+                        },
+                        "medium": {
+                          "backgroundColor": "#F0FDF4",
+                          "color": "#166534"
+                        },
+                        "high": {
+                          "backgroundColor": "#F0FDF4",
+                          "color": "#166534"
+                        },
+                        "critical": {
+                          "backgroundColor": "#F0FDF4",
+                          "color": "#166534"
+                        }
+                      }
+                    }
+                  },
+                  "responsive": {
+                    "enabled": true,
+                    "breakpoint": 640
                   }
-                },
-                "type": "ia.container.flex"
+                }
               }
-            ],
-            "meta": {
-              "name": "Head"
-            },
-            "position": {
-              "shrink": 0
-            },
-            "props": {
-              "direction": "row",
-              "style": {}
-            },
-            "type": "ia.container.flex"
-          },
-          {
-            "meta": {
-              "name": "Journal"
-            },
-            "position": {
-              "basis": "360px",
-              "grow": 1
-            },
-            "props": {
-              "name": "demo",
-              "refreshRate": 5000
-            },
-            "type": "ia.display.alarmjournaltable"
+            ]
           }
         ],
         "meta": {
-          "name": "JournalCard"
+          "name": "AlarmCard"
         },
         "position": {
-          "basis": "420px",
+          "basis": "560px",
           "grow": 1
         },
         "props": {

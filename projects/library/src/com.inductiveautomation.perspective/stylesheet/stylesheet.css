@@ -56,6 +56,42 @@
   clip-path: none !important;
 }
 
+/* the alarm tables in the app's palette: light bars instead of grey, white
+   cells and hairline rows; a style class can't reach their inner elements */
+.psc-Alarm\/Table {
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.psc-Alarm\/Table .alarmTableToolbar,
+.psc-Alarm\/Table .alarmTableFoot,
+.psc-Alarm\/Table .pager-container {
+  background-color: #F8FAFC !important;
+}
+.psc-Alarm\/Table .alarmTableToolbar {
+  border-bottom: 1px solid #E2E8F0;
+}
+.psc-Alarm\/Table .alarmTableFoot {
+  border-top: 1px solid #E2E8F0;
+}
+.psc-Alarm\/Table .t,
+.psc-Alarm\/Table .tb,
+.psc-Alarm\/Table .tf-container {
+  background-color: #FFFFFF !important;
+}
+.psc-Alarm\/Table .th-container {
+  background-color: #FFFFFF !important;
+  border-bottom: 1px solid #E2E8F0;
+  color: #64748B;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.psc-Alarm\/Table .tr {
+  border-bottom: 1px solid #F1F5F9;
+}
+
 /* the page links scroll sideways rather than push the header off the screen */
 .psc-Shell\/Links {
   scrollbar-width: none;
