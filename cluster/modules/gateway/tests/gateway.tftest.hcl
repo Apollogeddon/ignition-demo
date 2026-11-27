@@ -35,7 +35,7 @@ run "renders_the_chart_values" {
     error_message = "The data volume does not keep the chart's defaults."
   }
   assert {
-    condition     = helm_release.gateway.repository == "https://apollogeddon.github.io/ignition-helm" && helm_release.gateway.chart == "ignition-failover" && helm_release.gateway.version == "4.2.6"
+    condition     = helm_release.gateway.repository == "https://apollogeddon.github.io/ignition-helm" && helm_release.gateway.chart == "ignition-failover" && helm_release.gateway.version == "5.0.0"
     error_message = "The chart does not come from the repository."
   }
   assert {
@@ -76,6 +76,7 @@ run "takes_storage_for_the_data_volumes" {
 
 run "chart_4_renders_its_own_secret" {
   variables {
+    chart_version    = "4.2.6"
     license_key      = "license-key"
     activation_token = "activation-token"
   }
@@ -98,7 +99,7 @@ run "chart_4_renders_its_own_secret" {
 
 run "no_licensing_unless_set" {
   assert {
-    condition     = !nonsensitive(contains(keys(yamldecode(helm_release.gateway.values[1]).ignition.secrets), "IGNITION_LICENSE_KEY"))
+    condition     = !nonsensitive(contains(keys(kubernetes_secret_v1.gateway[0].data), "IGNITION_LICENSE_KEY"))
     error_message = "IGNITION_LICENSE_KEY is set without a license key."
   }
 }
@@ -228,8 +229,8 @@ run "backs_up_through_the_ingress" {
     error_message = "The backup job does not reach the gateway through the ingress's HTTPS."
   }
   assert {
-    condition     = kubernetes_cron_job_v1.backup[0].spec[0].job_template[0].spec[0].template[0].spec[0].container[0].env[1].value_from[0].secret_key_ref[0].name == "ignition-secrets"
-    error_message = "The backup job does not take the API key from the chart's Secret."
+    condition     = kubernetes_cron_job_v1.backup[0].spec[0].job_template[0].spec[0].template[0].spec[0].container[0].env[1].value_from[0].secret_key_ref[0].name == "ignition-gateway"
+    error_message = "The backup job does not take the API key from the module's Secret."
   }
   assert {
     condition     = strcontains(kubernetes_cron_job_v1.backup[0].spec[0].job_template[0].spec[0].template[0].spec[0].container[0].command[2], "-mmin +10080")

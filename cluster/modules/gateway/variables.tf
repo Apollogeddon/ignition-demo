@@ -12,7 +12,7 @@ variable "name" {
 variable "chart_version" {
   description = "ignition-failover chart version, from the chart repository; ignored when chart_path is set"
   type        = string
-  default     = "4.2.6"
+  default     = "5.0.0"
 }
 
 variable "chart_path" {
