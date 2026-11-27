@@ -35,7 +35,7 @@ run "renders_the_chart_values" {
     error_message = "The data volume does not keep the chart's defaults."
   }
   assert {
-    condition     = helm_release.gateway.repository == "https://apollogeddon.github.io/ignition-helm" && helm_release.gateway.chart == "ignition-failover" && helm_release.gateway.version == "5.1.0"
+    condition     = helm_release.gateway.repository == "https://apollogeddon.github.io/ignition-helm" && helm_release.gateway.chart == "ignition-failover" && helm_release.gateway.version == "5.1.1"
     error_message = "The chart does not come from the repository."
   }
   assert {

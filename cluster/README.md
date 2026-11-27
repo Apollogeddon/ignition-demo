@@ -75,7 +75,7 @@ Passwords, licensing, and the API key or seed variables reach the gateway from o
 | `namespace` | required | Namespace to install into |
 | `name` | `ignition` | The chart's `applicationName` |
 | `accept_eula` | required | Accept the [Ignition EULA](https://inductiveautomation.com/ignition/license); must be `true` |
-| `chart_version` | `5.1.0` | Chart version to install |
+| `chart_version` | `5.1.1` | Chart version to install |
 | `chart_path` | none | Local chart to install instead ([A local chart](#a-local-chart-chart_path)) |
 | `timeout` | `900` | Seconds an install or upgrade may take, at least 300 |
 | `atomic` | `true` | Uninstall a failed first install, roll back a failed upgrade ([A failed install](#a-failed-install)) |
