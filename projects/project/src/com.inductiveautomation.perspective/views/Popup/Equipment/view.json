@@ -848,6 +848,14 @@
                   },
                   "type": "expr"
                 }
+              },
+              "props.enabled": {
+                "binding": {
+                  "config": {
+                    "expression": "{view.custom.asset.found} && !isNull({view.custom.state})"
+                  },
+                  "type": "expr"
+                }
               }
             },
             "props": {

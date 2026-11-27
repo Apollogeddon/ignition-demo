@@ -369,6 +369,26 @@ def writeValues(
 	writeBlocking(paths, written)
 
 
+def unchangedFaults(
+	out,  # type: Values
+	read,  # type: Values
+):
+	# type: (...) -> Values
+	"""Drop each motor's fault the model left as it read it, so the write leaves it alone.
+
+	Between the read and the write an operator's Start may clear a trip; writing
+	back the fault as read would undo it. A trip, a reset, or a startup fault
+	the model set is still written.
+	"""
+	result = {}  # type: Values
+	for name, source in out.items():
+		item = dict(source)
+		if "fault" in item and item["fault"] == bool(read.get(name, {}).get("fault")):
+			del item["fault"]
+		result[name] = item
+	return result
+
+
 def dueToLog(
 	nowS,  # type: float
 	lastSlot,  # type: Optional[int]
@@ -481,17 +501,20 @@ def tick(
 	memory = state()
 	try:
 		assets = loadAssets(memory, nowS)
-		values = readValues(assets)
+		read = readValues(assets)
+		values = read
 		if not memory.get("started"):
-			values = initial(assets, values)
+			values = initial(assets, read)
 			memory["started"] = True
 		out, memory["tripped"], changes = step(assets, values, nowS, RNG, memory["tripped"])
-		writeValues(assets, out)
+		writeValues(assets, unchangedFaults(out, read))
 		if recordChanges(assets, changes):
 			notifySessions()
-		due, memory["logSlot"] = dueToLog(nowS, memory["logSlot"])
+		due, slot = dueToLog(nowS, memory["logSlot"])
 		if due:
 			logReadings(assets, out)
+			# only once they are in: a failed insert is retried at the next tick
+			memory["logSlot"] = slot
 	except (Exception, Throwable) as e:  # noqa: BLE001 - the next tick tries again
 		LOGGER.warn("Process tick failed: {}".format(e))
 		LOGGER.debug(traceback.format_exc())

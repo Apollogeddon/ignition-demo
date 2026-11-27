@@ -253,3 +253,32 @@ def test_stop_only_clears_the_command_and_reports_a_bad_write() -> None:
 		result = code.command("[default]Assets/South/Mixer", run=False)
 	write.assert_called_once_with(["[default]Assets/South/Mixer/motor/cmdRun"], [False])
 	assert result["ok"] is False
+
+
+def test_a_fault_left_as_read_is_not_written_back() -> None:
+	# an operator's Start may clear the trip between the read and the write
+	out = {"Blower 1": {"value": 0.0, "fault": True}, "Mixer": {"value": 55.0, "fault": False}}
+	read = {"Blower 1": {"fault": True}, "Mixer": {"fault": True}}
+	kept = code.unchangedFaults(out, read)
+	assert kept["Blower 1"] == {"value": 0.0}
+	# a reset the model made is written
+	assert kept["Mixer"] == {"value": 55.0, "fault": False}
+	assert out["Blower 1"]["fault"] is True
+
+
+def test_a_failed_log_is_retried_next_tick() -> None:
+	memory: dict[str, Any] = {"tripped": {}, "logSlot": None, "started": True}
+	with (
+		patch.object(code, "state", return_value=memory),
+		patch.object(code, "loadAssets", return_value=ASSETS),
+		patch.object(code, "readValues", return_value=running()),
+		patch.object(code, "step", return_value=({}, {}, [])),
+		patch.object(code, "writeValues"),
+		patch.object(code, "logReadings", side_effect=[RuntimeError("db"), None]) as logged,
+		patch.object(code, "LOGGER"),
+	):
+		tick(NOON)
+		assert memory["logSlot"] is None
+		tick(NOON + TICK_SECONDS)
+	assert logged.call_count == 2
+	assert memory["logSlot"] is not None

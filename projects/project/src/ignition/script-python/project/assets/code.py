@@ -48,18 +48,19 @@ def live(
 	"""Overlay each asset's tags on its assets/status row.
 
 	value becomes the tag's live reading, and a motor is online unless its
-	motor/fault is set; running says whether it runs. Assets without tags keep
-	the database's values.
+	motor/fault is set; running says whether it runs. A tag that reads nothing
+	(no instance yet, or bad quality) keeps the database's value.
 	"""
 	result = []
 	for source in rows:
 		row = dict(source)
-		tags = values.get(row["name"])
-		if tags is not None:
-			row["value"] = tags.get("value")
-			if row["kind"] in MOTORS:
-				row["online"] = not tags.get("fault")
-				row["running"] = bool(tags.get("running"))
+		tags = values.get(row["name"]) or {}
+		# a tag that reads nothing (no instance yet, or bad quality) leaves the row's value
+		if tags.get("value") is not None:
+			row["value"] = tags["value"]
+		if row["kind"] in MOTORS and tags.get("fault") is not None:
+			row["online"] = not tags["fault"]
+			row["running"] = bool(tags.get("running"))
 		result.append(row)
 	return result
 

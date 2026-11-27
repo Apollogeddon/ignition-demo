@@ -221,3 +221,8 @@ def test_status_falls_back_to_the_database_when_tags_fail() -> None:
 	):
 		assert code.getStatus() == rows
 	assert "provider down" in logger.warn.call_args.args[0]
+
+
+def test_live_keeps_the_database_values_for_unread_tags() -> None:
+	rows = [{"name": "Blower 2", "kind": "blower", "online": False, "value": 0.0}]
+	assert live(rows, {"Blower 2": {"value": None, "fault": None, "running": None}}) == rows
