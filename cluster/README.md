@@ -39,7 +39,7 @@ Both stages keep their state, encrypted with a passphrase, in a Secret in the cl
 Passwords, licensing, and the API key or seed variables reach the gateway from one Secret:
 
 - `chart_version` 4.x: the chart renders `<name>-secrets` from `ignition.secrets`.
-- A chart from 5.0, or `chart_path`: the module creates `<name>-gateway` (`kubernetes_secret_v1.gateway`) and passes it as `ignition.existingSecret`. A hash of it on the pod template rolls the gateways when it changes. An [External Secrets](https://external-secrets.io/) `ExternalSecret` of the same name and keys can replace it.
+- A chart from 5.0, or `chart_path`: the module creates `<name>-gateway` (`kubernetes_secret_v1.gateway`) and passes it as `ignition.existingSecret`. A hash of it rolls the gateways when it changes: from chart 5.1 (or `chart_path`) it goes in through `ignition.podAnnotations`, so the install or upgrade waits for the rollout; chart 5.0 has no `podAnnotations`, so the module patches the StatefulSet after the install, which restarts a new pair once more. An [External Secrets](https://external-secrets.io/) `ExternalSecret` of the same name and keys can replace it.
 
 ### A local chart (`chart_path`)
 
@@ -75,7 +75,7 @@ Passwords, licensing, and the API key or seed variables reach the gateway from o
 | `namespace` | required | Namespace to install into |
 | `name` | `ignition` | The chart's `applicationName` |
 | `accept_eula` | required | Accept the [Ignition EULA](https://inductiveautomation.com/ignition/license); must be `true` |
-| `chart_version` | `5.0.0` | Chart version to install |
+| `chart_version` | `5.1.0` | Chart version to install |
 | `chart_path` | none | Local chart to install instead ([A local chart](#a-local-chart-chart_path)) |
 | `timeout` | `900` | Seconds an install or upgrade may take, at least 300 |
 | `atomic` | `true` | Uninstall a failed first install, roll back a failed upgrade ([A failed install](#a-failed-install)) |

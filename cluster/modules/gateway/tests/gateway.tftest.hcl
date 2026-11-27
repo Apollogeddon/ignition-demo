@@ -35,7 +35,7 @@ run "renders_the_chart_values" {
     error_message = "The data volume does not keep the chart's defaults."
   }
   assert {
-    condition     = helm_release.gateway.repository == "https://apollogeddon.github.io/ignition-helm" && helm_release.gateway.chart == "ignition-failover" && helm_release.gateway.version == "5.0.0"
+    condition     = helm_release.gateway.repository == "https://apollogeddon.github.io/ignition-helm" && helm_release.gateway.chart == "ignition-failover" && helm_release.gateway.version == "5.1.0"
     error_message = "The chart does not come from the repository."
   }
   assert {
@@ -114,7 +114,7 @@ run "a_local_chart_takes_the_modules_secret" {
     error_message = "chart_path does not replace the repository chart."
   }
   assert {
-    condition     = nonsensitive(yamldecode(helm_release.gateway.values[1])) == { ignition = { existingSecret = "ignition-gateway" } }
+    condition     = keys(nonsensitive(yamldecode(helm_release.gateway.values[1])).ignition) == ["existingSecret", "podAnnotations"] && nonsensitive(yamldecode(helm_release.gateway.values[1])).ignition.existingSecret == "ignition-gateway"
     error_message = "A local chart must take the module's Secret through existingSecret, and no secrets."
   }
   assert {
@@ -122,8 +122,12 @@ run "a_local_chart_takes_the_modules_secret" {
     error_message = "The module's Secret does not hold the gateway's environment."
   }
   assert {
-    condition     = length(kubernetes_annotations.secret_checksum[0].template_annotations["checksum/secret"]) == 64
-    error_message = "A changed Secret would not roll the gateways."
+    condition     = length(nonsensitive(yamldecode(helm_release.gateway.values[1])).ignition.podAnnotations["ignition.apollogeddon.github.io/secret-checksum"]) == 64
+    error_message = "A changed Secret would not roll the gateways: its hash must reach the pods through ignition.podAnnotations."
+  }
+  assert {
+    condition     = length(kubernetes_annotations.secret_checksum) == 0
+    error_message = "The module must not patch the StatefulSet after the install, which restarts the new pair once more."
   }
 }
 
@@ -211,7 +215,7 @@ run "timeout_covers_a_first_start" {
   expect_failures = [var.timeout]
 }
 
-run "chart_5_takes_the_modules_secret" {
+run "chart_5_0_takes_the_modules_secret_and_patches_its_hash" {
   command = plan
   variables {
     chart_version = "5.0.0"
@@ -219,6 +223,22 @@ run "chart_5_takes_the_modules_secret" {
   assert {
     condition     = length(kubernetes_secret_v1.gateway) == 1
     error_message = "Chart 5 must take the module's Secret."
+  }
+  assert {
+    condition     = !contains(keys(nonsensitive(yamldecode(helm_release.gateway.values[1])).ignition), "podAnnotations")
+    error_message = "Chart 5.0 has no podAnnotations, and its values schema refuses one."
+  }
+  assert {
+    condition     = length(kubernetes_annotations.secret_checksum[0].template_annotations["checksum/secret"]) == 64
+    error_message = "With chart 5.0 a changed Secret would not roll the gateways."
+  }
+}
+
+run "chart_5_1_hashes_the_secret_through_pod_annotations" {
+  command = plan
+  assert {
+    condition     = length(nonsensitive(yamldecode(helm_release.gateway.values[1])).ignition.podAnnotations["ignition.apollogeddon.github.io/secret-checksum"]) == 64 && length(kubernetes_annotations.secret_checksum) == 0
+    error_message = "From chart 5.1 the Secret's hash must reach the pods through ignition.podAnnotations, with no patch after the install."
   }
 }
 

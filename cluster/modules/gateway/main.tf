@@ -131,10 +131,24 @@ locals {
   # From chart 5 (or a local chart) the gateway reads a Secret this module owns
   # (ignition.existingSecret), which External Secrets can replace; an earlier chart
   # renders its own from ignition.secrets, with the same values
-  existing_secret = var.chart_path != null || tonumber(regex("^[0-9]+", var.chart_version)) >= 5
+  chart_major     = tonumber(regex("^([0-9]+)\\.([0-9]+)", var.chart_version)[0])
+  chart_minor     = tonumber(regex("^([0-9]+)\\.([0-9]+)", var.chart_version)[1])
+  existing_secret = var.chart_path != null || local.chart_major >= 5
   secret_name     = local.existing_secret ? "${var.name}-gateway" : "${var.name}-secrets"
+  # A hash of the Secret on the gateway pods rolls them when it changes (a rotated
+  # password, a new license key), as the chart can't see inside a Secret it
+  # doesn't render. From chart 5.1 (or a local chart) it goes in through
+  # ignition.podAnnotations, so the install or upgrade that changes it also rolls
+  # the pods and waits for them; chart 5.0 has no podAnnotations, so the module
+  # patches the StatefulSet after the install instead (secret_checksum).
+  secret_checksum      = nonsensitive(sha256(jsonencode(local.secret_environment)))
+  pod_annotations      = local.existing_secret && (var.chart_path != null || local.chart_major > 5 || local.chart_minor >= 1)
+  secret_checksum_name = "ignition.apollogeddon.github.io/secret-checksum"
   secret_values = (local.existing_secret
-    ? yamlencode({ ignition = { existingSecret = local.secret_name } })
+    ? yamlencode({ ignition = merge(
+      { existingSecret = local.secret_name },
+      local.pod_annotations ? { podAnnotations = { (local.secret_checksum_name) = local.secret_checksum } } : {},
+    ) })
     : yamlencode({ ignition = { secrets = local.secret_environment } })
   )
 }
@@ -215,12 +229,11 @@ resource "helm_release" "gateway" {
   }
 }
 
-# The chart has no pod annotations and doesn't watch existingSecret, so a changed
-# Secret (a rotated password, a new license key) would wait for the next restart:
-# a hash of it on the pod template rolls the gateways (Backup first) instead. The
-# first apply adds it, which restarts the new gateways once.
+# Chart 5.0 only (see secret_values): the Secret's hash on the pod template rolls
+# the gateways (Backup first) when it changes. The first apply adds it, which
+# restarts the new gateways once more after the install.
 resource "kubernetes_annotations" "secret_checksum" {
-  count       = local.existing_secret ? 1 : 0
+  count       = local.existing_secret && !local.pod_annotations ? 1 : 0
   api_version = "apps/v1"
   kind        = "StatefulSet"
   metadata {
@@ -228,7 +241,7 @@ resource "kubernetes_annotations" "secret_checksum" {
     namespace = var.namespace
   }
   template_annotations = {
-    "checksum/secret" = nonsensitive(sha256(jsonencode(local.secret_environment)))
+    "checksum/secret" = local.secret_checksum
   }
   depends_on = [helm_release.gateway]
 }

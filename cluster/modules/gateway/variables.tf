@@ -12,7 +12,11 @@ variable "name" {
 variable "chart_version" {
   description = "ignition-failover chart version, from the chart repository; ignored when chart_path is set"
   type        = string
-  default     = "5.0.0"
+  default     = "5.1.0"
+  validation {
+    condition     = can(regex("^[0-9]+\\.[0-9]+\\.[0-9]+", var.chart_version))
+    error_message = "chart_version must be a chart version such as 5.1.0."
+  }
 }
 
 variable "chart_path" {
