@@ -86,7 +86,7 @@ const phones = [
 
 <section class="screens-section" aria-labelledby="screens-title">
   <div class="header">
-    <h2 id="screens-title">See it <span class="text-gradient">running</span></h2>
+    <h2 id="screens-title">See it running</h2>
     <p class="lede">
       The sample project, Demo Waterworks, is six Perspective pages over a live plant: a gateway timer runs a process
       model on UDT tags, with alarms and tag history. It uses built-in components only, and the same files run on
@@ -115,11 +115,6 @@ const phones = [
     pages.map((page, i) => (
       <figure class="panel" role="tabpanel" id={`panel-${page.id}`} aria-labelledby={`tab-${page.id}`} hidden={i !== 0}>
         <div class="browser glass">
-          <div class="browser-bar" aria-hidden="true">
-            <span />
-            <span />
-            <span />
-          </div>
           <Image
             src={page.image}
             alt={page.alt}
@@ -260,25 +255,6 @@ const phones = [
     border-radius: 14px;
     overflow: hidden;
     box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.45);
-  }
-
-  .browser-bar {
-    display: flex;
-    gap: 6px;
-    padding: 10px 14px;
-    background: var(--sl-color-gray-6);
-    border-bottom: 1px solid var(--sl-color-hairline);
-  }
-
-  :global(:root[data-theme="light"]) .browser-bar {
-    background: #f3f4f6;
-  }
-
-  .browser-bar span {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: var(--sl-color-gray-5);
   }
 
   .browser img,
