@@ -72,6 +72,8 @@
   --sl-color-accent: #a16207;
   --sl-color-accent-rgb: 161, 98, 7;
   --sl-color-accent-high: #713f12;
+  /* amber text on the off-white (and a blockquote's tint) needs the darker shade for 4.5:1 */
+  --sl-color-accent-text: #854d0e;
   --sl-color-accent-secondary: #854d0e;
 
   --sl-color-text: #08090a;
@@ -287,7 +289,7 @@ h6 {
 
 /* links: accent text over a fainter underline that firms up on hover */
 .prose a:not(.heading-anchor) {
-  color: var(--sl-color-accent);
+  color: var(--sl-color-accent-text, var(--sl-color-accent));
   text-decoration: underline;
   text-decoration-color: rgba(var(--sl-color-accent-rgb), 0.35);
   text-decoration-thickness: 1px;
@@ -482,6 +484,13 @@ h6 {
   color: #959da5 !important;
 }
 /* biome-ignore-end lint/complexity/noImportantStyles: Shiki sets the colours inline */
+
+/* Mermaid's dark labels are #ccc on a half-clear #585858, under 4.5:1; a solid dark chip clears it */
+/* biome-ignore-start lint/complexity/noImportantStyles: Mermaid's own rules are scoped by the diagram's id */
+:root[data-theme="dark"] svg :is(.edgeLabel, .labelBkg, .edgeLabel p, .labelBkg p) {
+  background-color: #1f2125 !important;
+}
+/* biome-ignore-end lint/complexity/noImportantStyles: the end of the Mermaid label rule */
 
 /*
   Accessibility
