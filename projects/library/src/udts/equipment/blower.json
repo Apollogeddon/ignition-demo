@@ -14,6 +14,29 @@
             "tagType": "AtomicTag",
             "value": 0.0,
             "valueSource": "memory"
+        },
+        {
+            "dataType": "String",
+            "expression": "if({[.]motor/fault}, \"faulted\", if({[.]motor/running}, \"running\", \"stopped\"))",
+            "name": "state",
+            "tagType": "AtomicTag",
+            "valueSource": "expr"
+        },
+        {
+            "dataType": "Float4",
+            "engHigh": 2000.0,
+            "engLow": 0.0,
+            "engUnit": "m\u00b3/h",
+            "historicalDeadband": 0.5,
+            "historicalDeadbandStyle": "Analog",
+            "historyEnabled": true,
+            "historyMaxAge": 1,
+            "historyMaxAgeUnits": "MIN",
+            "historyProvider": "demo",
+            "name": "value",
+            "tagType": "AtomicTag",
+            "value": 0.0,
+            "valueSource": "memory"
         }
     ]
 }

@@ -1,0 +1,383 @@
+---
+import { Image } from "astro:assets";
+import alarms from "../assets/screens/desktop-alarms.webp";
+import analytics from "../assets/screens/desktop-analytics.webp";
+import assets from "../assets/screens/desktop-assets.webp";
+import events from "../assets/screens/desktop-events.webp";
+import overview from "../assets/screens/desktop-overview.webp";
+import plant from "../assets/screens/desktop-plant.webp";
+import plantPopup from "../assets/screens/desktop-plant-popup.webp";
+import phoneAnalytics from "../assets/screens/phone-analytics.webp";
+import phoneOverview from "../assets/screens/phone-overview.webp";
+import phonePlant from "../assets/screens/phone-plant.webp";
+
+const pages = [
+  {
+    id: "overview",
+    label: "Overview",
+    image: overview,
+    alt: "Overview page: KPI cards, a 72-hour flow chart per area, a donut chart of assets by area, area cards and the selected area's asset table",
+    caption:
+      "KPI cards, a flow chart per area and a donut chart. Clicking an area card sends the areaSelected page message to the table below.",
+    components: ["ia.chart.timeseries", "ia.chart.pie", "ia.display.table"],
+  },
+  {
+    id: "plant",
+    label: "Plant",
+    image: plant,
+    alt: "Plant page: a process schematic with tanks, pumps, blowers, a mixer and a valve joined by pipes that are coloured while their stage flows",
+    caption:
+      "A schematic in coordinate containers, one per stage. Its symbols bind straight to the asset tags a gateway timer drives, and a pipe is coloured while its stage flows.",
+    components: ["ia.container.coord", "ia.symbol.*", "tag bindings"],
+  },
+  {
+    id: "popup",
+    label: "Equipment popup",
+    image: plantPopup,
+    alt: "Equipment popup over the plant schematic: a gauge, the latest reading against the rated value, a 24-hour sparkline and an Acknowledge button",
+    caption:
+      "Clicking any equipment opens a popup bound indirectly to its UDT instance: a live gauge, a 24-hour sparkline, Start or Stop, and Acknowledge.",
+    components: ["ia.chart.gauge", "indirect tag bindings", "system.tag.writeBlocking"],
+  },
+  {
+    id: "analytics",
+    label: "Analytics",
+    image: analytics,
+    alt: "Analytics page: three simple gauges, an LED display, an XY chart of delivered water against reservoir level, an hourly heatmap and load bars per area",
+    caption:
+      "Simple gauges, an LED display, an XY chart with two axes, the tanks' level history from the SQL historian, a heatmap built from flex repeaters, and load bars.",
+    components: ["ia.chart.xy", "tag history", "ia.display.flex-repeater"],
+  },
+  {
+    id: "assets",
+    label: "Assets",
+    image: assets,
+    alt: "Assets page: a table of every asset with its status, and a detail panel for the selected asset with a trend, its events and note and acknowledge actions",
+    caption:
+      "Selecting a row sends assetSelected to the detail panel. Log note and Acknowledge write to the event log through system.util.sendRequest.",
+    components: ["ia.display.table", "ia.chart.timeseries", "ia.input.text-area"],
+  },
+  {
+    id: "events",
+    label: "Events",
+    image: events,
+    alt: "Events page: counts of events, notes and acknowledgements, and the event log table",
+    caption:
+      "The event log. It refreshes whenever any page in the session records an event, through the eventRecorded session message.",
+    components: ["ia.display.table", "session messages"],
+  },
+  {
+    id: "alarms",
+    label: "Alarms",
+    image: alarms,
+    alt: "Alarms page: counts of active, unacknowledged and high-priority alarms, the alarm status table with two motor faults, and the alarm journal",
+    caption:
+      "The UDTs' motor-fault and tank-level alarms in a Tab Container: acknowledge them in Active, and the Journal keeps every event. The header shows the active count.",
+    components: ["ia.container.tab", "ia.display.alarmstatustable", "ia.display.alarmjournaltable"],
+  },
+];
+
+const phones = [
+  { image: phoneOverview, alt: "Overview page on a phone: KPI cards two to a row above the flow chart" },
+  { image: phonePlant, alt: "Plant page on a phone: KPI cards and the start of the schematic, which scrolls sideways" },
+  { image: phoneAnalytics, alt: "Analytics page on a phone: full-width gauges stacked down the page" },
+];
+---
+
+<section class="screens-section" aria-labelledby="screens-title">
+  <div class="header">
+    <h2 id="screens-title">See it <span class="text-gradient">running</span></h2>
+    <p class="lede">
+      The sample project, Demo Waterworks, is six Perspective pages over a live plant: a gateway timer runs a process
+      model on UDT tags, with alarms and tag history. It uses built-in components only, and the same files run on
+      Ignition 8.1 and 8.3.
+    </p>
+  </div>
+
+  <div class="tabs" role="tablist" aria-label="Sample project pages">
+    {
+      pages.map((page, i) => (
+        <button
+          type="button"
+          role="tab"
+          id={`tab-${page.id}`}
+          aria-controls={`panel-${page.id}`}
+          aria-selected={i === 0 ? "true" : "false"}
+          tabindex={i === 0 ? 0 : -1}
+        >
+          {page.label}
+        </button>
+      ))
+    }
+  </div>
+
+  {
+    pages.map((page, i) => (
+      <figure class="panel" role="tabpanel" id={`panel-${page.id}`} aria-labelledby={`tab-${page.id}`} hidden={i !== 0}>
+        <div class="browser glass">
+          <div class="browser-bar" aria-hidden="true">
+            <span />
+            <span />
+            <span />
+          </div>
+          <Image
+            src={page.image}
+            alt={page.alt}
+            widths={[720, 1440, 2160, 2880]}
+            sizes="(max-width: 1200px) 100vw, 1200px"
+            loading={i === 0 ? "eager" : "lazy"}
+          />
+        </div>
+        <figcaption>
+          <p>{page.caption}</p>
+          <ul class="chips" aria-label="Perspective components and scripting">
+            {page.components.map((c) => (
+              <li>
+                <code>{c}</code>
+              </li>
+            ))}
+          </ul>
+        </figcaption>
+      </figure>
+    ))
+  }
+
+  <div class="phones">
+    <div class="phones-text">
+      <h3>On a phone</h3>
+      <p>
+        On a phone, rows stack and KPI cards go two to a row. The schematic shows one stage per row, and the equipment
+        popup fits the screen. These are media queries in the project's advanced stylesheet.
+      </p>
+    </div>
+    <div class="phone-row">
+      {
+        phones.map((phone) => (
+          <div class="phone">
+            <Image src={phone.image} alt={phone.alt} widths={[240, 480]} sizes="240px" loading="lazy" />
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<script>
+  for (const list of document.querySelectorAll<HTMLElement>(".screens-section [role=tablist]")) {
+    const tabs = [...list.querySelectorAll<HTMLButtonElement>("[role=tab]")];
+    const select = (tab: HTMLButtonElement) => {
+      for (const t of tabs) {
+        const on = t === tab;
+        t.setAttribute("aria-selected", String(on));
+        t.tabIndex = on ? 0 : -1;
+        const panel = document.getElementById(t.getAttribute("aria-controls") ?? "");
+        if (panel) panel.hidden = !on;
+      }
+    };
+    for (const [i, tab] of tabs.entries()) {
+      tab.addEventListener("click", () => select(tab));
+      tab.addEventListener("keydown", (e) => {
+        const step = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+        if (!step) return;
+        const next = tabs[(i + step + tabs.length) % tabs.length];
+        select(next);
+        next.focus();
+      });
+    }
+  }
+</script>
+
+<style>
+  .screens-section {
+    padding: 4rem 1rem 6rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+
+  h2 {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 800;
+    margin-bottom: 1rem;
+  }
+
+  .lede {
+    color: var(--sl-color-text-muted);
+    line-height: 1.6;
+    max-width: 680px;
+    margin: 0 auto;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+  }
+
+  .tabs button {
+    font: inherit;
+    font-size: 0.95rem;
+    font-weight: 600;
+    padding: 0.55rem 1.1rem;
+    border-radius: 999px;
+    border: 1px solid var(--sl-color-hairline);
+    background: transparent;
+    color: var(--sl-color-text-muted);
+    cursor: pointer;
+    transition:
+      color 0.2s,
+      border-color 0.2s,
+      background 0.2s;
+  }
+
+  .tabs button:hover {
+    color: var(--sl-color-text);
+    border-color: var(--sl-color-accent);
+  }
+
+  .tabs button[aria-selected="true"] {
+    color: var(--sl-color-text-invert);
+    background: var(--sl-color-accent);
+    border-color: var(--sl-color-accent);
+  }
+
+  .tabs button:focus-visible {
+    outline: 2px solid var(--sl-color-accent);
+    outline-offset: 2px;
+  }
+
+  .panel {
+    margin: 0;
+  }
+
+  .browser {
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.45);
+  }
+
+  .browser-bar {
+    display: flex;
+    gap: 6px;
+    padding: 10px 14px;
+    background: var(--sl-color-gray-6);
+    border-bottom: 1px solid var(--sl-color-hairline);
+  }
+
+  :global(:root[data-theme="light"]) .browser-bar {
+    background: #f3f4f6;
+  }
+
+  .browser-bar span {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--sl-color-gray-5);
+  }
+
+  .browser img,
+  .phone img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  figcaption {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.5rem;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 1.25rem;
+  }
+
+  figcaption p {
+    color: var(--sl-color-text-muted);
+    line-height: 1.6;
+    margin: 0;
+    flex: 1 1 420px;
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .chips code {
+    font-size: 0.8rem;
+    padding: 0.25rem 0.55rem;
+    border-radius: 6px;
+    background: rgba(var(--sl-color-accent-rgb), 0.1);
+    color: var(--sl-color-accent);
+  }
+
+  .phones {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2rem 3rem;
+    margin-top: 5rem;
+  }
+
+  .phones-text {
+    flex: 1 1 280px;
+  }
+
+  h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 0.75rem;
+    color: var(--sl-color-text);
+  }
+
+  .phones-text p {
+    color: var(--sl-color-text-muted);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .phone-row {
+    flex: 2 1 560px;
+    display: flex;
+    gap: 1.25rem;
+    justify-content: center;
+  }
+
+  .phone {
+    flex: 0 1 220px;
+    border-radius: 28px;
+    overflow: hidden;
+    border: 6px solid var(--sl-color-gray-6);
+    box-shadow: 0 24px 48px -18px rgba(0, 0, 0, 0.5);
+  }
+
+  :global(:root[data-theme="light"]) .phone {
+    border-color: #1f2937;
+  }
+
+  @media (max-width: 640px) {
+    .screens-section {
+      padding: 3rem 1rem 4rem;
+    }
+
+    .phone-row {
+      flex-basis: 100%;
+      gap: 0.75rem;
+    }
+
+    .phone {
+      border-width: 4px;
+      border-radius: 18px;
+    }
+  }
+</style>

@@ -1,0 +1,206 @@
+name: deploy
+
+# Deploys an environment (cluster/environments/<environment>) with OpenTofu. plan plans the infra stage
+# into an encrypted plan file; apply, once the environment's required reviewers approve, applies that
+# plan and then the config stage. Each job reads the cluster's secrets from its GitHub environment:
+# plan from <environment>-plan (no reviewers), apply from <environment> (required reviewers), each with
+#
+#   KUBECONFIG           secret: a kubeconfig for the cluster, with access to the release's namespace and
+#                        the state namespace
+#   TF_STATE_PASSPHRASE  secret: the passphrase the state and plans are encrypted with
+#   TFVARS               secret: the infra stage's terraform.tfvars
+#   CONFIG_TFVARS        secret, optional: the config stage's terraform.tfvars
+#   CA_CERT              secret, optional: a private CA's certificate, to verify the gateway's ingress
+#   KUBE_CONTEXT         variable, optional: the kubeconfig context (default "default")
+#   TF_STATE_NAMESPACE   variable, optional: the namespace holding the state Secrets (default tofu-state)
+#
+# Without the secrets, plan says so and the run skips the rest, so the pipeline passes in a fork or a
+# repository with no cluster. A static kubeconfig suits a self-hosted cluster such as k3s; for a cloud
+# cluster, use OIDC instead (.github/WORKFLOWS.md).
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: "The environment to deploy, e.g. k3s: cluster/environments/<environment>, and the GitHub environments <environment>-plan and <environment>"
+        required: false
+        type: string
+        default: k3s
+      runs_on:
+        description: "The runner: one that reaches the cluster's API, and the gateway's ingress for the config stage"
+        required: false
+        type: string
+        default: ubuntu-latest
+
+env:
+  TOFU_VERSION: 1.13.1
+
+jobs:
+  plan:
+    name: plan
+    runs-on: ${{ inputs.runs_on }}
+    timeout-minutes: 15
+    environment: ${{ inputs.environment }}-plan
+    # one deploy of an environment at a time; the state's Lease would stop a second one anyway
+    concurrency:
+      group: deploy-${{ inputs.environment }}
+      cancel-in-progress: false
+    permissions:
+      contents: read
+    outputs:
+      ready: ${{ steps.secrets.outputs.ready }}
+    env:
+      STAGE: cluster/environments/${{ inputs.environment }}/infra
+    steps:
+      - name: Check the environment's secrets
+        id: secrets
+        env:
+          KUBECONFIG_DATA: ${{ secrets.KUBECONFIG }}
+          PASSPHRASE: ${{ secrets.TF_STATE_PASSPHRASE }}
+          TFVARS: ${{ secrets.TFVARS }}
+          ENVIRONMENT: ${{ inputs.environment }}
+        run: |
+          if [ -z "$KUBECONFIG_DATA" ] || [ -z "$PASSPHRASE" ] || [ -z "$TFVARS" ]; then
+            echo "::notice::The $ENVIRONMENT-plan environment has no KUBECONFIG, TF_STATE_PASSPHRASE or TFVARS secret: nothing to deploy"
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Check out
+        if: steps.secrets.outputs.ready == 'true'
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Set up OpenTofu
+        if: steps.secrets.outputs.ready == 'true'
+        uses: opentofu/setup-opentofu@v2
+        with:
+          tofu_version: ${{ env.TOFU_VERSION }}
+          tofu_wrapper: false
+      - name: Plan the infra stage
+        if: steps.secrets.outputs.ready == 'true'
+        env:
+          KUBECONFIG_DATA: ${{ secrets.KUBECONFIG }}
+          TFVARS: ${{ secrets.TFVARS }}
+          TF_VAR_state_passphrase: ${{ secrets.TF_STATE_PASSPHRASE }}
+          KUBE_CONTEXT: ${{ vars.KUBE_CONTEXT || 'default' }}
+          STATE_NAMESPACE: ${{ vars.TF_STATE_NAMESPACE || 'tofu-state' }}
+        run: |
+          umask 077
+          printf '%s\n' "$KUBECONFIG_DATA" >"$RUNNER_TEMP/kubeconfig"
+          printf '%s\n' "$TFVARS" >"$STAGE/terraform.tfvars"
+          export TF_VAR_kubeconfig="$RUNNER_TEMP/kubeconfig" TF_VAR_kube_context="$KUBE_CONTEXT"
+          tofu -chdir="$STAGE" init -input=false \
+            -backend-config="secret_suffix=ignition-infra" -backend-config="namespace=$STATE_NAMESPACE" \
+            -backend-config="config_path=$RUNNER_TEMP/kubeconfig" -backend-config="config_context=$KUBE_CONTEXT"
+          tofu -chdir="$STAGE" plan -input=false -lock-timeout=5m -out=infra.tfplan
+      # encrypted with the state passphrase (the stage's encryption block), as a plan holds every password
+      - name: Upload the plan
+        if: steps.secrets.outputs.ready == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: deploy-${{ inputs.environment }}-infra-plan
+          path: ${{ env.STAGE }}/infra.tfplan
+          retention-days: 1
+          if-no-files-found: error
+
+  apply:
+    name: apply
+    needs: plan
+    if: needs.plan.outputs.ready == 'true'
+    runs-on: ${{ inputs.runs_on }}
+    timeout-minutes: 45
+    # the environment's required reviewers approve the plan before this job starts
+    environment: ${{ inputs.environment }}
+    concurrency:
+      group: deploy-${{ inputs.environment }}
+      cancel-in-progress: false
+    permissions:
+      contents: read
+    env:
+      INFRA: cluster/environments/${{ inputs.environment }}/infra
+      CONFIG: cluster/environments/${{ inputs.environment }}/config
+    steps:
+      - name: Check the environment's secrets
+        env:
+          KUBECONFIG_DATA: ${{ secrets.KUBECONFIG }}
+          PASSPHRASE: ${{ secrets.TF_STATE_PASSPHRASE }}
+          TFVARS: ${{ secrets.TFVARS }}
+          ENVIRONMENT: ${{ inputs.environment }}
+        run: |
+          if [ -z "$KUBECONFIG_DATA" ] || [ -z "$PASSPHRASE" ] || [ -z "$TFVARS" ]; then
+            echo "::error::The $ENVIRONMENT environment needs the same KUBECONFIG, TF_STATE_PASSPHRASE and TFVARS secrets as $ENVIRONMENT-plan"
+            exit 1
+          fi
+      - name: Check out
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Set up OpenTofu
+        uses: opentofu/setup-opentofu@v2
+        with:
+          tofu_version: ${{ env.TOFU_VERSION }}
+          tofu_wrapper: false
+      - name: Download the plan
+        uses: actions/download-artifact@v8
+        with:
+          name: deploy-${{ inputs.environment }}-infra-plan
+          path: ${{ env.INFRA }}
+      - name: Write the cluster's credentials
+        env:
+          KUBECONFIG_DATA: ${{ secrets.KUBECONFIG }}
+          TFVARS: ${{ secrets.TFVARS }}
+          CONFIG_TFVARS: ${{ secrets.CONFIG_TFVARS }}
+          CA_CERT: ${{ secrets.CA_CERT }}
+        run: |
+          umask 077
+          printf '%s\n' "$KUBECONFIG_DATA" >"$RUNNER_TEMP/kubeconfig"
+          printf '%s\n' "$TFVARS" >"$INFRA/terraform.tfvars"
+          if [ -n "$CONFIG_TFVARS" ]; then printf '%s\n' "$CONFIG_TFVARS" >"$CONFIG/terraform.tfvars"; fi
+          # the ignition provider verifies the gateway's certificate against the system CAs and this one
+          if [ -n "$CA_CERT" ]; then
+            cat /etc/ssl/certs/ca-certificates.crt - <<<"$CA_CERT" >"$RUNNER_TEMP/ca-bundle.pem"
+            echo "SSL_CERT_FILE=$RUNNER_TEMP/ca-bundle.pem" >> "$GITHUB_ENV"
+          fi
+      # exactly the plan the reviewers approved; it fails if the state moved on since
+      - name: Apply the infra stage
+        env:
+          TF_VAR_state_passphrase: ${{ secrets.TF_STATE_PASSPHRASE }}
+          KUBE_CONTEXT: ${{ vars.KUBE_CONTEXT || 'default' }}
+          STATE_NAMESPACE: ${{ vars.TF_STATE_NAMESPACE || 'tofu-state' }}
+        run: |
+          export TF_VAR_kubeconfig="$RUNNER_TEMP/kubeconfig" TF_VAR_kube_context="$KUBE_CONTEXT"
+          tofu -chdir="$INFRA" init -input=false \
+            -backend-config="secret_suffix=ignition-infra" -backend-config="namespace=$STATE_NAMESPACE" \
+            -backend-config="config_path=$RUNNER_TEMP/kubeconfig" -backend-config="config_context=$KUBE_CONTEXT"
+          tofu -chdir="$INFRA" apply -input=false -lock-timeout=5m infra.tfplan
+      # The config stage reads the infra stage's outputs, so it can only be planned once infra is applied:
+      # it is planned and applied here, by the same approval. The Ignition provider comes from its
+      # network mirror.
+      - name: Apply the config stage
+        env:
+          TF_VAR_state_passphrase: ${{ secrets.TF_STATE_PASSPHRASE }}
+          KUBE_CONTEXT: ${{ vars.KUBE_CONTEXT || 'default' }}
+          STATE_NAMESPACE: ${{ vars.TF_STATE_NAMESPACE || 'tofu-state' }}
+        run: |
+          # an 8.1 gateway seeds itself and has no API key: nothing to configure
+          if [ "$(tofu -chdir="$INFRA" output -json api_token)" = null ]; then
+            echo "::notice::An 8.1 gateway configures itself from its seed: no config stage to apply"
+            exit 0
+          fi
+          cat >"$RUNNER_TEMP/tofurc" <<'CONFIG'
+          provider_installation {
+            network_mirror {
+              url     = "https://apollogeddon.github.io/ignition-tofu/providers/"
+              include = ["registry.opentofu.org/apollogeddon/ignition"]
+            }
+            direct {
+              exclude = ["registry.opentofu.org/apollogeddon/ignition"]
+            }
+          }
+          CONFIG
+          export TF_CLI_CONFIG_FILE="$RUNNER_TEMP/tofurc"
+          export TF_VAR_infra_state="{namespace = \"$STATE_NAMESPACE\", config_path = \"$RUNNER_TEMP/kubeconfig\", config_context = \"$KUBE_CONTEXT\"}"
+          tofu -chdir="$CONFIG" init -input=false \
+            -backend-config="secret_suffix=ignition-config" -backend-config="namespace=$STATE_NAMESPACE" \
+            -backend-config="config_path=$RUNNER_TEMP/kubeconfig" -backend-config="config_context=$KUBE_CONTEXT"
+          tofu -chdir="$CONFIG" apply -input=false -lock-timeout=5m -auto-approve

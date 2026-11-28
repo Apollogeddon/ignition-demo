@@ -56,6 +56,8 @@ jobs:
         run: uv run --no-project --with pytest pytest -q scripts/tests
       - name: Test the Ignition version check
         run: bash scripts/tests/check-ignition-versions_test.sh
+      - name: Test the e2e checks
+        run: bash scripts/tests/e2e-check_test.sh
       - name: Test the asset installer
         run: bash gateway/tests/install-assets_test.sh
       - name: Test the API key bootstrap

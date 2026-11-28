@@ -3,6 +3,17 @@ variable "namespace" {
   type        = string
 }
 
+variable "name" {
+  description = "Prefix for the platform's resource names (<name>-database, <name>-registry, ...), so two deployments can share a namespace; null keeps the unprefixed names of earlier releases"
+  type        = string
+  default     = null
+
+  validation {
+    condition     = var.name == null || can(regex("^[a-z0-9]([-a-z0-9]{0,30}[a-z0-9])?$", var.name))
+    error_message = "name must be a lower-case DNS label of at most 32 characters."
+  }
+}
+
 variable "create_namespace" {
   description = "Create the namespace (with restricted Pod Security enforced); false to use an existing one"
   type        = bool
@@ -15,9 +26,9 @@ variable "db_init_dir" {
 }
 
 variable "db_image" {
-  description = "PostgreSQL image"
+  description = "PostgreSQL image, pinned to a minor release; the backup CronJob runs it too, so its pg_dump matches the server"
   type        = string
-  default     = "docker.io/library/postgres:17"
+  default     = "docker.io/library/postgres:17.12"
 }
 
 variable "db_name" {
@@ -46,7 +57,7 @@ variable "db_storage" {
 }
 
 variable "storage_class" {
-  description = "StorageClass for the database volume; null uses the cluster default"
+  description = "StorageClass for the database volume (and its backups, unless db_backup sets one); null uses the cluster default"
   type        = string
   default     = null
 }
@@ -66,4 +77,20 @@ variable "registry" {
   })
   default   = null
   sensitive = true
+}
+
+variable "db_backup" {
+  description = "A CronJob that pg_dumps the database into a volume of its own, keeping retention_days of dumps; null for none"
+  type = object({
+    schedule       = optional(string, "23 2 * * *")
+    retention_days = optional(number, 7)
+    storage        = optional(string, "5Gi")
+    storage_class  = optional(string)
+  })
+  default = {}
+
+  validation {
+    condition     = var.db_backup == null || try(var.db_backup.retention_days >= 1, false)
+    error_message = "db_backup.retention_days must be at least 1."
+  }
 }

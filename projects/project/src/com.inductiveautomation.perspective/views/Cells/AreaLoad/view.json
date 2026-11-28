@@ -1,0 +1,224 @@
+{
+  "custom": {},
+  "params": {
+    "area": "",
+    "caption": "",
+    "color": "",
+    "text": "",
+    "value": 0
+  },
+  "propConfig": {
+    "params.area": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.caption": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.color": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.text": {
+      "paramDirection": "input",
+      "persistent": true
+    },
+    "params.value": {
+      "paramDirection": "input",
+      "persistent": true
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 64,
+      "width": 360
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "children": [
+          {
+            "meta": {
+              "name": "Swatch"
+            },
+            "position": {
+              "basis": "10px",
+              "shrink": 0
+            },
+            "propConfig": {
+              "props.style.backgroundColor": {
+                "binding": {
+                  "config": {
+                    "path": "view.params.color"
+                  },
+                  "type": "property"
+                }
+              }
+            },
+            "props": {
+              "style": {
+                "borderRadius": "3px",
+                "height": "10px"
+              },
+              "text": ""
+            },
+            "type": "ia.display.label"
+          },
+          {
+            "meta": {
+              "name": "Area"
+            },
+            "position": {
+              "grow": 1
+            },
+            "propConfig": {
+              "props.text": {
+                "binding": {
+                  "config": {
+                    "path": "view.params.area"
+                  },
+                  "type": "property"
+                }
+              }
+            },
+            "props": {
+              "style": {
+                "classes": "Text/Strong"
+              },
+              "text": ""
+            },
+            "type": "ia.display.label"
+          },
+          {
+            "meta": {
+              "name": "Value"
+            },
+            "position": {
+              "shrink": 0
+            },
+            "propConfig": {
+              "props.text": {
+                "binding": {
+                  "config": {
+                    "path": "view.params.text"
+                  },
+                  "type": "property"
+                }
+              }
+            },
+            "props": {
+              "style": {
+                "classes": "Text/Strong"
+              },
+              "text": ""
+            },
+            "type": "ia.display.label"
+          }
+        ],
+        "meta": {
+          "name": "Head"
+        },
+        "position": {
+          "shrink": 0
+        },
+        "props": {
+          "alignItems": "center",
+          "direction": "row",
+          "style": {
+            "gap": "8px"
+          }
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "meta": {
+          "name": "Bar"
+        },
+        "position": {
+          "basis": "10px",
+          "shrink": 0
+        },
+        "propConfig": {
+          "props.bar.color": {
+            "binding": {
+              "config": {
+                "path": "view.params.color"
+              },
+              "type": "property"
+            }
+          },
+          "props.value": {
+            "binding": {
+              "config": {
+                "path": "view.params.value"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "bar": {
+            "color": "",
+            "style": {
+              "classes": "Progress/Bar"
+            }
+          },
+          "max": 100,
+          "min": 0,
+          "mode": "determinate",
+          "style": {
+            "classes": "Progress/Track"
+          },
+          "track": {
+            "color": "#E2E8F0",
+            "style": {
+              "classes": "Progress/Track"
+            }
+          },
+          "value": 0,
+          "valueDisplay": {
+            "enabled": false
+          }
+        },
+        "type": "ia.display.progress"
+      },
+      {
+        "meta": {
+          "name": "Caption"
+        },
+        "position": {
+          "shrink": 0
+        },
+        "propConfig": {
+          "props.text": {
+            "binding": {
+              "config": {
+                "path": "view.params.caption"
+              },
+              "type": "property"
+            }
+          }
+        },
+        "props": {
+          "style": {
+            "classes": "Text/Muted"
+          },
+          "text": ""
+        },
+        "type": "ia.display.label"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "direction": "column",
+      "style": {
+        "gap": "8px"
+      }
+    },
+    "type": "ia.container.flex"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "base": {
+    "style": {
+      "color": "#475569",
+      "fontFamily": "Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+      "fontSize": "12px",
+      "fontWeight": "500"
+    }
+  }
+}

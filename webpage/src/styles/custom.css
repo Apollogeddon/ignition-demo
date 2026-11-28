@@ -244,6 +244,19 @@ h6 {
   font-weight: 700;
 }
 
+.prose code:not(pre code) {
+  overflow-wrap: anywhere;
+}
+
+/* below tablet width a wide table scrolls inside itself rather than widen the page */
+@media (max-width: 768px) {
+  .prose table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+}
+
 .prose blockquote {
   margin: 2rem 0;
   padding: 1rem 1.5rem;

@@ -17,40 +17,53 @@ variable "connection_name" {
 }
 
 variable "alarm_journal" {
-  description = "Store alarm events in the demo database; null for no journal"
+  description = "Store alarm events in the demo database; null for no journal, {} for the defaults"
   type = object({
     name         = optional(string, "demo")
     table        = optional(string, "alarm_events")
     min_priority = optional(string, "Low")
   })
-  default = {}
+  default = null
+}
+
+variable "historian" {
+  description = "Store tag history in the demo database: a SQL Historian (8.3), named as the UDTs' historyProvider; null for none, {} for the defaults"
+  type = object({
+    name           = optional(string, "demo")
+    pruning_months = optional(number, 12)
+  })
+  default = null
+  validation {
+    condition     = var.historian == null || try(var.historian.pruning_months >= 1 && floor(var.historian.pruning_months) == var.historian.pruning_months, false)
+    error_message = "historian.pruning_months must be a whole number, at least 1."
+  }
 }
 
 variable "user_source" {
-  description = "Internal user source (and an identity provider using it) for the project's users; null for none"
+  description = "Internal user source (and an identity provider using it) for the project's users; null for none, {} for the defaults"
   type = object({
     name        = optional(string, "demo")
     description = optional(string, "Demo operators and engineers")
   })
-  default = {}
+  default = null
 }
 
 variable "audit_profile" {
-  description = "Audit profile in the demo database (logins and configuration changes); null for none"
+  description = "Audit profile in the demo database (logins and configuration changes); null for none, {} for the defaults"
   type = object({
     name           = optional(string, "logins")
     table          = optional(string, "audit_events")
     retention_days = optional(number, 90)
   })
-  default = {}
+  default = null
 }
 
 variable "smtp" {
-  description = "Outgoing mail for alarm notifications (an SMTP profile and an email notification profile); null for none"
+  description = "Outgoing mail for alarm notifications (an SMTP profile and an email notification profile); null for none, {} for the defaults (localhost:25)"
   type = object({
     name     = optional(string, "demo")
     hostname = optional(string, "localhost")
     port     = optional(number, 25)
   })
-  default = {}
+  default = null
 }

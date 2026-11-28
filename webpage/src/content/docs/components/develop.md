@@ -42,7 +42,7 @@ Both publish their ports on 127.0.0.1 only, so the `change-me` passwords in `.en
 
 ## Gateway resources
 
-**8.3.** `develop/config/` applies the cluster's `resources` module to this gateway, so it gets the same resources as a deployed one. It authenticates with the key from `GATEWAY_API_TOKEN`, which the gateway installs for itself on start (the compose file sets `GATEWAY_API_TOKEN_REQUIRE_TLS=false`, so the gateway takes it over plain HTTP on loopback):
+**8.3.** `develop/config/` applies the cluster's `resources` module to this gateway, so it gets the same resources as a deployed one. It's required: it creates the `demo` database connection the project's named queries use, the `demo` historian the tag history needs and the alarm journal, and until it's applied the Assets page shows an ERROR in its table. It authenticates with the key from `GATEWAY_API_TOKEN`, which the gateway installs for itself on start (the compose file sets `GATEWAY_API_TOKEN_REQUIRE_TLS=false`, so the gateway takes it over plain HTTP on loopback):
 
 ```sh
 set -a; . develop/.env; set +a     # load GATEWAY_API_TOKEN and DB_PASSWORD
@@ -51,9 +51,11 @@ export IGNITION_TOKEN="$GATEWAY_API_TOKEN"
 tofu init && tofu apply -var db_password="$DB_PASSWORD"
 ```
 
-The Ignition provider isn't on a registry; see [Cluster](../cluster/#3-config) for installing it from its network mirror.
+The Ignition provider isn't on a registry; see [Cluster](../cluster/#5-config) for installing it from its network mirror.
 
-**8.1.** There is no REST API; the gateway seeds itself from `gateway/seed/seed.json` on start (see [Gateway image](../gateway-image/#81-the-seed)). The seed folder is mounted live, so an edit to the spec is applied the next time the project restarts its scripts.
+On its first start with an API key, the gateway restarts once to load it, as the key's grants only apply after commissioning. For about 30 seconds `/data/perspective` and the API answer 503: if `tofu apply` fails with 503, apply again a minute later.
+
+**8.1.** There is no REST API; the gateway seeds itself from `gateway/seed/seed.json` on start (see [Gateway image](../gateway-image/#81-the-seed)). The seed folder is mounted live, so an edit to the spec is applied the next time the project restarts its scripts. A new gateway's seeded alarm journal only starts at its second start: 8.1's journal manager ignores a journal added while it runs, so restart the gateway once (`docker compose -f develop/docker-compose.yml restart gateway`) before relying on the Alarms page's journal.
 
 ## Reset
 

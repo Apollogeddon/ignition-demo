@@ -3,9 +3,17 @@
     "tagType": "UdtType",
     "tags": [
         {
+            "dataType": "Boolean",
+            "documentation": "Operator command: run the motor. The process timer starts or stops it; a fault stops it regardless.",
+            "name": "cmdRun",
+            "tagType": "AtomicTag",
+            "value": true,
+            "valueSource": "memory"
+        },
+        {
             "alarms": [
                 {
-                    "ackMode": "Auto",
+                    "ackMode": "Manual",
                     "activeCondition": {
                         "bindType": "Expression",
                         "value": "{Value}"
@@ -21,7 +29,7 @@
                     "mode": "OnCondition",
                     "name": "Motor Fault",
                     "priority": "High",
-                    "timeOnDelaySeconds": 5.0
+                    "timeOnDelaySeconds": 2.0
                 }
             ],
             "dataType": "Boolean",
@@ -32,6 +40,8 @@
         },
         {
             "dataType": "Boolean",
+            "historyEnabled": true,
+            "historyProvider": "demo",
             "name": "running",
             "tagType": "AtomicTag",
             "value": false,

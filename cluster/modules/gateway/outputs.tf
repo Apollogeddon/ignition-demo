@@ -42,3 +42,18 @@ output "api_token" {
   value       = local.api_token
   sensitive   = true
 }
+
+output "backup_claim" {
+  description = "PersistentVolumeClaim holding the gateway backups (.gwbk); null without them (8.1, or backup = null)"
+  value       = try(kubernetes_persistent_volume_claim_v1.backup[0].metadata[0].name, null)
+}
+
+output "release" {
+  description = "The chart's Helm release: its name and namespace (for helm status, history and uninstall), and how a failed install or upgrade is handled (atomic, timeout)"
+  value = {
+    name      = helm_release.gateway.name
+    namespace = helm_release.gateway.namespace
+    atomic    = helm_release.gateway.atomic
+    timeout   = helm_release.gateway.timeout
+  }
+}

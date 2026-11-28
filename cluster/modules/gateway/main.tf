@@ -6,9 +6,13 @@ locals {
 
   values = {
     applicationName = var.name
+    # the chart's own EULA switch (validated by accept_eula); a chart before it has
+    # no values schema, so the key is simply unused there
+    acceptEula = var.accept_eula
     image = {
-      repository       = var.image_repository
-      tag              = var.image_tag
+      repository = var.image_repository
+      # the chart renders repository:tag, so a digest rides on the tag
+      tag              = var.image_digest == null ? var.image_tag : "${var.image_tag}@${var.image_digest}"
       pullPolicy       = var.image_pull_policy
       imagePullSecrets = [for name in var.image_pull_secrets : { name = name }]
     }
@@ -34,12 +38,6 @@ locals {
         "-Dignition.projects.dir=${local.projects_dir}",
         "-Dignition.projects.scanFrequency=60",
       ])
-      secrets = merge({
-        GATEWAY_ADMIN_USERNAME         = "admin"
-        GATEWAY_ADMIN_PASSWORD         = local.admin_password
-        IGNITION_GAN_KEYSTORE_PASSWORD = random_password.keystore["gan"].result
-        IGNITION_WEB_KEYSTORE_PASSWORD = random_password.keystore["web"].result
-      }, local.gateway_environment)
       redundancy = { enabled = var.redundancy }
       # user traffic only ever reaches the Active gateway
       activeRouting = { enabled = var.redundancy }
@@ -76,6 +74,11 @@ locals {
         }]
       }
       emptyDirSizeLimit = { logs = "512Mi", temp = "1Gi", dotIgnition = "256Mi" }
+      persistence = {
+        size = var.persistence.size
+        # "" is the chart's default: the cluster's default StorageClass
+        storageClassName = var.persistence.storage_class == null ? "" : var.persistence.storage_class
+      }
     }
   }
 }
@@ -109,20 +112,138 @@ resource "random_password" "keystore" {
 
 locals {
   admin_password = coalesce(var.admin_password, try(random_password.admin[0].result, null))
+
+  # The gateway's secret environment: passwords, licensing, and the API key (8.3)
+  # or the seed's variables (8.1)
+  secret_environment = merge(
+    {
+      GATEWAY_ADMIN_USERNAME         = "admin"
+      GATEWAY_ADMIN_PASSWORD         = local.admin_password
+      IGNITION_GAN_KEYSTORE_PASSWORD = random_password.keystore["gan"].result
+      IGNITION_WEB_KEYSTORE_PASSWORD = random_password.keystore["web"].result
+    },
+    # the variables the Ignition image reads to activate a license on start
+    var.license_key == null ? {} : { IGNITION_LICENSE_KEY = var.license_key },
+    var.activation_token == null ? {} : { IGNITION_ACTIVATION_TOKEN = var.activation_token },
+    local.gateway_environment,
+  )
+
+  # From chart 5 (or a local chart) the gateway reads a Secret this module owns
+  # (ignition.existingSecret), which External Secrets can replace; an earlier chart
+  # renders its own from ignition.secrets, with the same values
+  chart_major     = tonumber(regex("^([0-9]+)\\.([0-9]+)", var.chart_version)[0])
+  chart_minor     = tonumber(regex("^([0-9]+)\\.([0-9]+)", var.chart_version)[1])
+  existing_secret = var.chart_path != null || local.chart_major >= 5
+  secret_name     = local.existing_secret ? "${var.name}-gateway" : "${var.name}-secrets"
+  # A hash of the Secret on the gateway pods rolls them when it changes (a rotated
+  # password, a new license key), as the chart can't see inside a Secret it
+  # doesn't render. From chart 5.1 (or a local chart) it goes in through
+  # ignition.podAnnotations, so the install or upgrade that changes it also rolls
+  # the pods and waits for them; chart 5.0 has no podAnnotations, so the module
+  # patches the StatefulSet after the install instead (secret_checksum).
+  secret_checksum      = nonsensitive(sha256(jsonencode(local.secret_environment)))
+  pod_annotations      = local.existing_secret && (var.chart_path != null || local.chart_major > 5 || local.chart_minor >= 1)
+  secret_checksum_name = "ignition.apollogeddon.github.io/secret-checksum"
+  secret_values = (local.existing_secret
+    ? yamlencode({ ignition = merge(
+      { existingSecret = local.secret_name },
+      local.pod_annotations ? { podAnnotations = { (local.secret_checksum_name) = local.secret_checksum } } : {},
+    ) })
+    : yamlencode({ ignition = { secrets = local.secret_environment } })
+  )
+}
+
+resource "kubernetes_secret_v1" "gateway" {
+  count = local.existing_secret ? 1 : 0
+  metadata {
+    name      = local.secret_name
+    namespace = var.namespace
+    labels = {
+      "app.kubernetes.io/part-of"    = "ignition"
+      "app.kubernetes.io/managed-by" = "opentofu"
+    }
+  }
+  data = local.secret_environment
+}
+
+# A local chart (chart_path) is upgraded only when its version changes, so an
+# edit at the same version would plan no change: a hash of its files, and of
+# the file:// dependencies it builds from (the ignition-helm checkout's
+# charts/common), goes in the release's description, whose change upgrades it.
+# Left out: charts/ (built from those dependencies on each install and upgrade),
+# Chart.lock (rewritten by that build), and the unrendered tests/ and ci/.
+locals {
+  chart_manifest = var.chart_path == null ? null : try(yamldecode(file("${var.chart_path}/Chart.yaml")), null)
+  chart_sources = local.chart_manifest == null ? {} : merge(
+    { for dep in try(local.chart_manifest.dependencies, []) :
+      dep.name => "${var.chart_path}/${trimprefix(dep.repository, "file://")}"
+      if startswith(try(dep.repository, ""), "file://")
+    },
+    { "." = var.chart_path },
+  )
+  chart_digest = local.chart_manifest == null ? null : sha256(join("\n", flatten([
+    for name, dir in local.chart_sources : [
+      for file in sort(fileset(dir, "**")) : "${name}/${file} ${filesha256("${dir}/${file}")}"
+      if !can(regex("^(charts/|tests/|ci/|Chart\\.lock$)", file))
+    ]
+  ])))
 }
 
 resource "helm_release" "gateway" {
-  name       = var.name
-  namespace  = var.namespace
-  repository = "https://apollogeddon.github.io/ignition-helm"
-  chart      = "ignition-failover"
-  version    = var.chart_version
+  name      = var.name
+  namespace = var.namespace
+  # a local chart (chart_path) for an unreleased chart, else the published one
+  repository = var.chart_path == null ? "https://apollogeddon.github.io/ignition-helm" : null
+  chart      = coalesce(var.chart_path, "ignition-failover")
+  version    = var.chart_path == null ? var.chart_version : null
+  # a local chart's file:// dependencies are built from their sources, so an
+  # edit to charts/common deploys without a helm dependency build first
+  dependency_update = var.chart_path != null
+  description       = local.chart_digest == null ? null : "chart_path sha256:${local.chart_digest}"
 
-  values = [yamlencode(local.values), yamlencode(var.values)]
+  values = [yamlencode(local.values), local.secret_values, yamlencode(var.values)]
+  # the chart's gateways start with the Secret's environment
+  depends_on = [kubernetes_secret_v1.gateway]
 
-  # a redundant pair commissions, syncs and only then reports Ready
-  timeout = 1200
-  wait    = true
+  # A redundant pair commissions, syncs and only then reports Ready. atomic
+  # uninstalls a first install that fails or times out, which OpenTofu doesn't
+  # record, so the next apply installs again instead of failing on a name still
+  # in use; a failed upgrade rolls back to the last release, and cleanup_on_fail
+  # removes what it added (cluster/README.md, "A failed install").
+  timeout         = var.timeout
+  wait            = true
+  atomic          = var.atomic
+  cleanup_on_fail = true
+
+  lifecycle {
+    precondition {
+      condition     = var.chart_path == null || local.chart_manifest != null
+      error_message = "chart_path must be a chart directory with a Chart.yaml, such as an ignition-helm checkout's charts/failover."
+    }
+    # The gateway would refuse the API key over the ingress, so the first
+    # resources apply would fail with 401/403 instead
+    precondition {
+      condition     = !(var.ignition_version == "8.3" && var.api_token_require_tls && var.ingress != null && try(var.ingress.tls_secret, null) == null)
+      error_message = "api_token_require_tls is true, so the gateway only takes its API key over HTTPS, but the ingress has no tls_secret: set ingress.tls_secret, or api_token_require_tls = false for a gateway reached over plain HTTP."
+    }
+  }
+}
+
+# Chart 5.0 only (see secret_values): the Secret's hash on the pod template rolls
+# the gateways (Backup first) when it changes. The first apply adds it, which
+# restarts the new gateways once more after the install.
+resource "kubernetes_annotations" "secret_checksum" {
+  count       = local.existing_secret && !local.pod_annotations ? 1 : 0
+  api_version = "apps/v1"
+  kind        = "StatefulSet"
+  metadata {
+    name      = var.name
+    namespace = var.namespace
+  }
+  template_annotations = {
+    "checksum/secret" = local.secret_checksum
+  }
+  depends_on = [helm_release.gateway]
 }
 
 # The chart's NetworkPolicy covers the gateways. Its other pods (the
@@ -147,5 +268,171 @@ resource "kubernetes_network_policy_v1" "helpers" {
       }
     }
     policy_types = ["Ingress"]
+  }
+}
+
+# Backups (8.3): the gateway's own backup, through its REST API with the module's
+# API key, into a volume of their own. 8.1 has no REST API, so none there.
+
+locals {
+  backup = var.ignition_version == "8.3" && var.backup != null
+  backup_url = try(coalesce(
+    try(var.backup.url, null),
+    try(var.ingress.tls_secret, null) != null ? "https://${var.ingress.host}" : null,
+    var.api_token_require_tls ? null : "http://${var.redundancy ? "${var.name}-active" : var.name}.${var.namespace}.svc:8088",
+  ), null)
+  backup_labels = {
+    "app.kubernetes.io/name"       = "${var.name}-backup"
+    "app.kubernetes.io/instance"   = var.name
+    "app.kubernetes.io/part-of"    = "ignition"
+    "app.kubernetes.io/managed-by" = "opentofu"
+  }
+}
+
+resource "kubernetes_persistent_volume_claim_v1" "backup" {
+  count = local.backup ? 1 : 0
+  metadata {
+    name      = "${var.name}-backup"
+    namespace = var.namespace
+    labels    = local.backup_labels
+  }
+  spec {
+    access_modes       = ["ReadWriteOnce"]
+    storage_class_name = var.backup.storage_class
+    resources {
+      requests = { storage = var.backup.storage }
+    }
+  }
+  # a WaitForFirstConsumer class (k3s's local-path) binds on the first backup
+  wait_until_bound = false
+}
+
+resource "kubernetes_cron_job_v1" "backup" {
+  count = local.backup ? 1 : 0
+  metadata {
+    name      = "${var.name}-backup"
+    namespace = var.namespace
+    labels    = local.backup_labels
+  }
+  spec {
+    schedule                      = var.backup.schedule
+    concurrency_policy            = "Forbid"
+    successful_jobs_history_limit = 1
+    failed_jobs_history_limit     = 3
+    job_template {
+      metadata {
+        labels = local.backup_labels
+      }
+      spec {
+        backoff_limit = 2
+        template {
+          metadata {
+            labels = local.backup_labels
+          }
+          spec {
+            restart_policy                  = "Never"
+            automount_service_account_token = false
+            security_context {
+              run_as_user     = 65532
+              run_as_group    = 65532
+              fs_group        = 65532
+              run_as_non_root = true
+              seccomp_profile {
+                type = "RuntimeDefault"
+              }
+            }
+            container {
+              name  = "backup"
+              image = var.backup.image
+              env {
+                name  = "GATEWAY_URL"
+                value = local.backup_url
+              }
+              env {
+                name = "GATEWAY_API_TOKEN"
+                value_from {
+                  secret_key_ref {
+                    name = local.secret_name
+                    key  = "GATEWAY_API_TOKEN"
+                  }
+                }
+              }
+              # written under a temporary name and renamed once complete, so a
+              # failed run never leaves a truncated backup to restore. curl retries
+              # a refused connection (a network policy can hold a new pod for a few
+              # seconds) and a transient answer such as a 503 during a failover.
+              command = ["sh", "-ec", <<-EOT
+                rm -f /backups/*.partial
+                f="/backups/gateway-$(date -u +%Y%m%dT%H%M%SZ).gwbk"
+                set -- -sSf --max-time 900 --retry 6 --retry-delay 10 --retry-connrefused -o "$f.partial" -H "X-Ignition-API-Token: $GATEWAY_API_TOKEN"
+                if [ -s /ca/ca.crt ]; then set -- "$@" --cacert /ca/ca.crt; fi
+                curl "$@" "$GATEWAY_URL/data/api/v1/backup"
+                mv "$f.partial" "$f"
+                find /backups -name '*.gwbk' -mmin +${var.backup.retention_days * 1440} -print -delete
+                ls -l /backups
+              EOT
+              ]
+              resources {
+                requests = { cpu = "10m", memory = "32Mi" }
+                limits   = { cpu = "200m", memory = "128Mi" }
+              }
+              security_context {
+                allow_privilege_escalation = false
+                # the provider sends an unset runAsNonRoot as false, which the restricted profile refuses
+                run_as_non_root           = true
+                read_only_root_filesystem = true
+                capabilities {
+                  drop = ["ALL"]
+                }
+              }
+              volume_mount {
+                name       = "backups"
+                mount_path = "/backups"
+              }
+              dynamic "volume_mount" {
+                for_each = try(var.ingress.tls_secret, null) == null ? [] : [1]
+                content {
+                  name       = "ca"
+                  mount_path = "/ca"
+                  read_only  = true
+                }
+              }
+            }
+            volume {
+              name = "backups"
+              persistent_volume_claim {
+                claim_name = kubernetes_persistent_volume_claim_v1.backup[0].metadata[0].name
+              }
+            }
+            # the ingress certificate's CA, for a private issuer; optional, as a
+            # public one's Secret has no ca.crt
+            dynamic "volume" {
+              for_each = try(var.ingress.tls_secret, null) == null ? [] : [var.ingress.tls_secret]
+              content {
+                name = "ca"
+                secret {
+                  secret_name = volume.value
+                  optional    = true
+                  items {
+                    key  = "ca.crt"
+                    path = "ca.crt"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  # the API key's Secret is the chart's own before chart 5
+  depends_on = [helm_release.gateway]
+
+  lifecycle {
+    precondition {
+      condition     = local.backup_url != null
+      error_message = "The backup job needs the gateway's URL: with api_token_require_tls the gateway only takes the API key over HTTPS, and the ingress has none. Set backup.url, or backup = null."
+    }
   }
 }

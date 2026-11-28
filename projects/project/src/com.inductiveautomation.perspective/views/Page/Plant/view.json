@@ -1,0 +1,3210 @@
+{
+  "custom": {
+    "plant": {
+      "kpis": {
+        "air": {
+          "caption": "",
+          "count": 0,
+          "flow": 0,
+          "reading": "",
+          "running": 0
+        },
+        "intake": {
+          "caption": "",
+          "count": 0,
+          "flow": 0,
+          "reading": "",
+          "running": 0
+        },
+        "reservoir": "",
+        "reservoirCaption": "",
+        "transfer": {
+          "caption": "",
+          "count": 0,
+          "flow": 0,
+          "reading": "",
+          "running": 0
+        }
+      },
+      "pipes": {
+        "air": "#CBD5E1",
+        "dosing": "#CBD5E1",
+        "intake": "#CBD5E1",
+        "transfer": "#CBD5E1"
+      },
+      "slots": {
+        "blower1": {
+          "capacity": 100,
+          "id": null,
+          "name": "",
+          "reading": "",
+          "running": false,
+          "state": "stopped",
+          "status": "",
+          "unit": "",
+          "value": 0
+        },
+        "blower2": {
+          "capacity": 100,
+          "id": null,
+          "name": "",
+          "reading": "",
+          "running": false,
+          "state": "stopped",
+          "status": "",
+          "unit": "",
+          "value": 0
+        },
+        "dosing": {
+          "capacity": 100,
+          "id": null,
+          "name": "",
+          "reading": "",
+          "running": false,
+          "state": "stopped",
+          "status": "",
+          "unit": "",
+          "value": 0
+        },
+        "intake1": {
+          "capacity": 100,
+          "id": null,
+          "name": "",
+          "reading": "",
+          "running": false,
+          "state": "stopped",
+          "status": "",
+          "unit": "",
+          "value": 0
+        },
+        "intake2": {
+          "capacity": 100,
+          "id": null,
+          "name": "",
+          "reading": "",
+          "running": false,
+          "state": "stopped",
+          "status": "",
+          "unit": "",
+          "value": 0
+        },
+        "intake3": {
+          "capacity": 100,
+          "id": null,
+          "name": "",
+          "reading": "",
+          "running": false,
+          "state": "stopped",
+          "status": "",
+          "unit": "",
+          "value": 0
+        },
+        "mixer": {
+          "capacity": 100,
+          "id": null,
+          "name": "",
+          "reading": "",
+          "running": false,
+          "state": "stopped",
+          "status": "",
+          "unit": "",
+          "value": 0
+        },
+        "reservoir": {
+          "capacity": 100,
+          "id": null,
+          "name": "",
+          "reading": "",
+          "running": false,
+          "state": "stopped",
+          "status": "",
+          "unit": "",
+          "value": 0
+        },
+        "transfer1": {
+          "capacity": 100,
+          "id": null,
+          "name": "",
+          "reading": "",
+          "running": false,
+          "state": "stopped",
+          "status": "",
+          "unit": "",
+          "value": 0
+        },
+        "transfer2": {
+          "capacity": 100,
+          "id": null,
+          "name": "",
+          "reading": "",
+          "running": false,
+          "state": "stopped",
+          "status": "",
+          "unit": "",
+          "value": 0
+        },
+        "well": {
+          "capacity": 100,
+          "id": null,
+          "name": "",
+          "reading": "",
+          "running": false,
+          "state": "stopped",
+          "status": "",
+          "unit": "",
+          "value": 0
+        }
+      },
+      "valve": "closed"
+    }
+  },
+  "params": {},
+  "propConfig": {
+    "custom.plant": {
+      "binding": {
+        "config": {
+          "expression": "now(5000)"
+        },
+        "transforms": [
+          {
+            "code": "\treturn project.plant.getPlant()",
+            "type": "script"
+          }
+        ],
+        "type": "expr"
+      }
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 900,
+      "width": 1280
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "Title"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "props": {
+                  "style": {
+                    "classes": "Layout/PageTitle"
+                  },
+                  "text": "Plant"
+                },
+                "type": "ia.display.label"
+              },
+              {
+                "meta": {
+                  "name": "Subtitle"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "props": {
+                  "style": {
+                    "classes": "Layout/PageSubtitle"
+                  },
+                  "text": "Live process schematic from intake to distribution: the symbols follow the asset tags; click any equipment for its detail, Start and Stop"
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "meta": {
+              "name": "Titles"
+            },
+            "position": {
+              "grow": 1
+            },
+            "props": {
+              "direction": "column",
+              "style": {
+                "gap": "2px"
+              }
+            },
+            "type": "ia.container.flex"
+          }
+        ],
+        "meta": {
+          "name": "Header"
+        },
+        "position": {
+          "shrink": 0
+        },
+        "props": {
+          "alignItems": "center",
+          "direction": "row",
+          "style": {}
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "meta": {
+                      "name": "Title"
+                    },
+                    "position": {
+                      "grow": 1
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "Kpi/Label"
+                      },
+                      "text": "Intake flow"
+                    },
+                    "type": "ia.display.label"
+                  },
+                  {
+                    "meta": {
+                      "name": "Icon"
+                    },
+                    "position": {
+                      "basis": "20px",
+                      "shrink": 0
+                    },
+                    "props": {
+                      "color": "#94A3B8",
+                      "path": "material/waves",
+                      "style": {}
+                    },
+                    "type": "ia.display.icon"
+                  }
+                ],
+                "meta": {
+                  "name": "Head"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "props": {
+                  "alignItems": "center",
+                  "direction": "row",
+                  "style": {}
+                },
+                "type": "ia.container.flex"
+              },
+              {
+                "meta": {
+                  "name": "Value"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "config": {
+                        "expression": "{view.custom.plant.kpis.intake.reading}"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                },
+                "props": {
+                  "style": {
+                    "classes": "Kpi/Value"
+                  },
+                  "text": ""
+                },
+                "type": "ia.display.label"
+              },
+              {
+                "meta": {
+                  "name": "Caption"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "config": {
+                        "expression": "concat('Intake pumps: ', {view.custom.plant.kpis.intake.caption})"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                },
+                "props": {
+                  "style": {
+                    "classes": "Kpi/Caption"
+                  },
+                  "text": ""
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "meta": {
+              "name": "Intake"
+            },
+            "position": {
+              "basis": "0px",
+              "grow": 1
+            },
+            "props": {
+              "direction": "column",
+              "style": {
+                "classes": "Card",
+                "gap": "6px"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "meta": {
+                      "name": "Title"
+                    },
+                    "position": {
+                      "grow": 1
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "Kpi/Label"
+                      },
+                      "text": "Aeration"
+                    },
+                    "type": "ia.display.label"
+                  },
+                  {
+                    "meta": {
+                      "name": "Icon"
+                    },
+                    "position": {
+                      "basis": "20px",
+                      "shrink": 0
+                    },
+                    "props": {
+                      "color": "#94A3B8",
+                      "path": "material/grain",
+                      "style": {}
+                    },
+                    "type": "ia.display.icon"
+                  }
+                ],
+                "meta": {
+                  "name": "Head"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "props": {
+                  "alignItems": "center",
+                  "direction": "row",
+                  "style": {}
+                },
+                "type": "ia.container.flex"
+              },
+              {
+                "meta": {
+                  "name": "Value"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "config": {
+                        "expression": "{view.custom.plant.kpis.air.reading}"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                },
+                "props": {
+                  "style": {
+                    "classes": "Kpi/Value"
+                  },
+                  "text": ""
+                },
+                "type": "ia.display.label"
+              },
+              {
+                "meta": {
+                  "name": "Caption"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "config": {
+                        "expression": "concat('Blowers: ', {view.custom.plant.kpis.air.caption})"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                },
+                "props": {
+                  "style": {
+                    "classes": "Kpi/Caption"
+                  },
+                  "text": ""
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "meta": {
+              "name": "Aeration"
+            },
+            "position": {
+              "basis": "0px",
+              "grow": 1
+            },
+            "props": {
+              "direction": "column",
+              "style": {
+                "classes": "Card",
+                "gap": "6px"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "meta": {
+                      "name": "Title"
+                    },
+                    "position": {
+                      "grow": 1
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "Kpi/Label"
+                      },
+                      "text": "Reservoir level"
+                    },
+                    "type": "ia.display.label"
+                  },
+                  {
+                    "meta": {
+                      "name": "Icon"
+                    },
+                    "position": {
+                      "basis": "20px",
+                      "shrink": 0
+                    },
+                    "props": {
+                      "color": "#94A3B8",
+                      "path": "material/storage",
+                      "style": {}
+                    },
+                    "type": "ia.display.icon"
+                  }
+                ],
+                "meta": {
+                  "name": "Head"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "props": {
+                  "alignItems": "center",
+                  "direction": "row",
+                  "style": {}
+                },
+                "type": "ia.container.flex"
+              },
+              {
+                "meta": {
+                  "name": "Value"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "config": {
+                        "expression": "{view.custom.plant.kpis.reservoir}"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                },
+                "props": {
+                  "style": {
+                    "classes": "Kpi/Value"
+                  },
+                  "text": ""
+                },
+                "type": "ia.display.label"
+              },
+              {
+                "meta": {
+                  "name": "Caption"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "config": {
+                        "expression": "concat('Intake ', lower({view.custom.plant.kpis.reservoirCaption}))"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                },
+                "props": {
+                  "style": {
+                    "classes": "Kpi/Caption"
+                  },
+                  "text": ""
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "meta": {
+              "name": "Reservoir"
+            },
+            "position": {
+              "basis": "0px",
+              "grow": 1
+            },
+            "props": {
+              "direction": "column",
+              "style": {
+                "classes": "Card",
+                "gap": "6px"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "meta": {
+                      "name": "Title"
+                    },
+                    "position": {
+                      "grow": 1
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "Kpi/Label"
+                      },
+                      "text": "Transfer flow"
+                    },
+                    "type": "ia.display.label"
+                  },
+                  {
+                    "meta": {
+                      "name": "Icon"
+                    },
+                    "position": {
+                      "basis": "20px",
+                      "shrink": 0
+                    },
+                    "props": {
+                      "color": "#94A3B8",
+                      "path": "material/call_split",
+                      "style": {}
+                    },
+                    "type": "ia.display.icon"
+                  }
+                ],
+                "meta": {
+                  "name": "Head"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "props": {
+                  "alignItems": "center",
+                  "direction": "row",
+                  "style": {}
+                },
+                "type": "ia.container.flex"
+              },
+              {
+                "meta": {
+                  "name": "Value"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "config": {
+                        "expression": "{view.custom.plant.kpis.transfer.reading}"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                },
+                "props": {
+                  "style": {
+                    "classes": "Kpi/Value"
+                  },
+                  "text": ""
+                },
+                "type": "ia.display.label"
+              },
+              {
+                "meta": {
+                  "name": "Caption"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "config": {
+                        "expression": "concat('Transfer pumps: ', {view.custom.plant.kpis.transfer.caption})"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                },
+                "props": {
+                  "style": {
+                    "classes": "Kpi/Caption"
+                  },
+                  "text": ""
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "meta": {
+              "name": "Transfer"
+            },
+            "position": {
+              "basis": "0px",
+              "grow": 1
+            },
+            "props": {
+              "direction": "column",
+              "style": {
+                "classes": "Card",
+                "gap": "6px"
+              }
+            },
+            "type": "ia.container.flex"
+          }
+        ],
+        "meta": {
+          "name": "Kpis"
+        },
+        "position": {
+          "shrink": 0
+        },
+        "props": {
+          "direction": "row",
+          "style": {
+            "gap": "16px",
+            "classes": "Layout/Kpis"
+          }
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "meta": {
+                      "name": "Title"
+                    },
+                    "position": {
+                      "shrink": 0
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "Section/Title"
+                      },
+                      "text": "Process flow"
+                    },
+                    "type": "ia.display.label"
+                  },
+                  {
+                    "meta": {
+                      "name": "Subtitle"
+                    },
+                    "position": {
+                      "shrink": 0
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "Section/Subtitle"
+                      },
+                      "text": "Running pumps, blowers and the mixer turn; a pipe is coloured while its stage flows"
+                    },
+                    "type": "ia.display.label"
+                  }
+                ],
+                "meta": {
+                  "name": "Titles"
+                },
+                "position": {
+                  "grow": 1
+                },
+                "props": {
+                  "direction": "column",
+                  "style": {
+                    "gap": "2px"
+                  }
+                },
+                "type": "ia.container.flex"
+              },
+              {
+                "children": [
+                  {
+                    "meta": {
+                      "name": "Running"
+                    },
+                    "position": {
+                      "shrink": 0
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "Pill/Base Pill/Ok"
+                      },
+                      "text": "Running"
+                    },
+                    "type": "ia.display.label"
+                  },
+                  {
+                    "meta": {
+                      "name": "Stopped"
+                    },
+                    "position": {
+                      "shrink": 0
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "Pill/Base Pill/Info"
+                      },
+                      "text": "Stopped"
+                    },
+                    "type": "ia.display.label"
+                  },
+                  {
+                    "meta": {
+                      "name": "Fault"
+                    },
+                    "position": {
+                      "shrink": 0
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "Pill/Base Pill/Bad"
+                      },
+                      "text": "Fault"
+                    },
+                    "type": "ia.display.label"
+                  }
+                ],
+                "meta": {
+                  "name": "Legend"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "props": {
+                  "alignItems": "center",
+                  "direction": "row",
+                  "style": {
+                    "gap": "6px"
+                  }
+                },
+                "type": "ia.container.flex"
+              }
+            ],
+            "meta": {
+              "name": "Head"
+            },
+            "position": {
+              "shrink": 0
+            },
+            "props": {
+              "alignItems": "center",
+              "direction": "row",
+              "style": {
+                "classes": "Layout/CardHead"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "children": [
+              {
+                "type": "ia.container.coord",
+                "version": 0,
+                "meta": {
+                  "name": "StageIntake"
+                },
+                "position": {
+                  "basis": "391px",
+                  "shrink": 0
+                },
+                "props": {
+                  "mode": "fixed",
+                  "aspectRatio": "",
+                  "pipes": [
+                    {
+                      "appearance": "simple",
+                      "fill": "#CBD5E1",
+                      "name": "Intake",
+                      "origin": {
+                        "connections": [
+                          {
+                            "connections": [
+                              {
+                                "connections": [
+                                  {
+                                    "connections": [],
+                                    "x": 216,
+                                    "y": 101.2
+                                  }
+                                ],
+                                "x": 176,
+                                "y": 101.2
+                              },
+                              {
+                                "connections": [
+                                  {
+                                    "connections": [],
+                                    "x": 216,
+                                    "y": 341.2
+                                  }
+                                ],
+                                "x": 176,
+                                "y": 341.2
+                              },
+                              {
+                                "connections": [
+                                  {
+                                    "connections": [],
+                                    "x": 216,
+                                    "y": 221.2
+                                  }
+                                ],
+                                "x": 176,
+                                "y": 221.2
+                              }
+                            ],
+                            "x": 176,
+                            "y": 310
+                          }
+                        ],
+                        "x": 136,
+                        "y": 310
+                      },
+                      "stroke": "#94A3B8",
+                      "visible": true,
+                      "width": 8
+                    },
+                    {
+                      "appearance": "simple",
+                      "fill": "#CBD5E1",
+                      "name": "Delivery",
+                      "origin": {
+                        "connections": [
+                          {
+                            "connections": [
+                              {
+                                "connections": [
+                                  {
+                                    "connections": [],
+                                    "x": 391,
+                                    "y": 222.0
+                                  }
+                                ],
+                                "x": 330,
+                                "y": 222.0
+                              }
+                            ],
+                            "x": 330,
+                            "y": 71.2
+                          }
+                        ],
+                        "x": 272,
+                        "y": 71.2
+                      },
+                      "stroke": "#94A3B8",
+                      "visible": true,
+                      "width": 8
+                    },
+                    {
+                      "appearance": "simple",
+                      "fill": "#CBD5E1",
+                      "name": "Delivery2",
+                      "origin": {
+                        "connections": [
+                          {
+                            "connections": [],
+                            "x": 330,
+                            "y": 191.2
+                          }
+                        ],
+                        "x": 272,
+                        "y": 191.2
+                      },
+                      "stroke": "#94A3B8",
+                      "visible": true,
+                      "width": 8
+                    },
+                    {
+                      "appearance": "simple",
+                      "fill": "#CBD5E1",
+                      "name": "Delivery3",
+                      "origin": {
+                        "connections": [
+                          {
+                            "connections": [
+                              {
+                                "connections": [],
+                                "x": 330,
+                                "y": 222.0
+                              }
+                            ],
+                            "x": 330,
+                            "y": 311.2
+                          }
+                        ],
+                        "x": 272,
+                        "y": 311.2
+                      },
+                      "stroke": "#94A3B8",
+                      "visible": true,
+                      "width": 8
+                    }
+                  ],
+                  "style": {
+                    "classes": "Plant/Schematic"
+                  }
+                },
+                "children": [
+                  {
+                    "meta": {
+                      "name": "BandIntake"
+                    },
+                    "position": {
+                      "height": 470,
+                      "width": 384,
+                      "x": 0,
+                      "y": 0
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "Plant/Band"
+                      },
+                      "text": ""
+                    },
+                    "type": "ia.display.label"
+                  },
+                  {
+                    "children": [
+                      {
+                        "meta": {
+                          "name": "Swatch"
+                        },
+                        "position": {
+                          "basis": "10px",
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "backgroundColor": "#2563EB",
+                            "borderRadius": "3px",
+                            "height": "10px"
+                          },
+                          "text": ""
+                        },
+                        "type": "ia.display.label"
+                      },
+                      {
+                        "meta": {
+                          "name": "Title"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Kpi/Label"
+                          },
+                          "text": "Intake"
+                        },
+                        "type": "ia.display.label"
+                      },
+                      {
+                        "meta": {
+                          "name": "Area"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Text/Muted"
+                          },
+                          "text": "North"
+                        },
+                        "type": "ia.display.label"
+                      }
+                    ],
+                    "meta": {
+                      "name": "StageIntake"
+                    },
+                    "position": {
+                      "height": 24,
+                      "width": 352,
+                      "x": 16,
+                      "y": 12
+                    },
+                    "props": {
+                      "alignItems": "center",
+                      "direction": "row",
+                      "style": {
+                        "gap": "8px"
+                      }
+                    },
+                    "type": "ia.container.flex"
+                  },
+                  {
+                    "events": {
+                      "dom": {
+                        "onClick": {
+                          "config": {
+                            "script": "\tslot = self.view.custom.plant.slots.well\n\tproject.plant.openEquipment(slot.id, slot.name, slot.path)"
+                          },
+                          "scope": "G",
+                          "type": "script"
+                        }
+                      }
+                    },
+                    "meta": {
+                      "name": "Well"
+                    },
+                    "position": {
+                      "height": 190,
+                      "width": 96,
+                      "x": 40,
+                      "y": 150
+                    },
+                    "propConfig": {
+                      "props.capacity": {
+                        "binding": {
+                          "config": {
+                            "expression": "{view.custom.plant.slots.well.capacity}"
+                          },
+                          "type": "expr"
+                        }
+                      },
+                      "props.value": {
+                        "binding": {
+                          "config": {
+                            "fallbackDelay": 2.5,
+                            "mode": "direct",
+                            "tagPath": "[default]Assets/North/Intake well level/value"
+                          },
+                          "type": "tag"
+                        }
+                      }
+                    },
+                    "props": {
+                      "capacity": 100,
+                      "liquidColor": "#2563EB",
+                      "liquidOpacity": 0.75,
+                      "liquidWarningColor": "#F59E0B",
+                      "strokeWidth": 2,
+                      "style": {
+                        "classes": "Plant/Equipment"
+                      },
+                      "tankColor": "#CBD5E1",
+                      "tankWarningColor": "#CBD5E1",
+                      "value": 0,
+                      "valueDisplay": {
+                        "enabled": false,
+                        "format": "0.0",
+                        "style": {
+                          "classes": ""
+                        },
+                        "unit": {
+                          "enabled": false,
+                          "fix": "post",
+                          "value": "%"
+                        }
+                      },
+                      "warningThreshold": 90
+                    },
+                    "type": "ia.display.cylindrical-tank"
+                  },
+                  {
+                    "children": [
+                      {
+                        "meta": {
+                          "name": "Name"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Plant/Tag"
+                          },
+                          "text": "Intake well"
+                        },
+                        "type": "ia.display.label"
+                      },
+                      {
+                        "meta": {
+                          "name": "Reading"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "propConfig": {
+                          "props.text": {
+                            "binding": {
+                              "config": {
+                                "expression": "{view.custom.plant.slots.well.reading}"
+                              },
+                              "type": "expr"
+                            }
+                          }
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Plant/Value"
+                          },
+                          "text": ""
+                        },
+                        "type": "ia.display.label"
+                      }
+                    ],
+                    "meta": {
+                      "name": "Tag_well"
+                    },
+                    "position": {
+                      "height": 40,
+                      "width": 120,
+                      "x": 28,
+                      "y": 346
+                    },
+                    "props": {
+                      "alignItems": "center",
+                      "direction": "column",
+                      "style": {}
+                    },
+                    "type": "ia.container.flex"
+                  },
+                  {
+                    "events": {
+                      "dom": {
+                        "onClick": {
+                          "config": {
+                            "script": "\tslot = self.view.custom.plant.slots.intake1\n\tproject.plant.openEquipment(slot.id, slot.name, slot.path)"
+                          },
+                          "scope": "G",
+                          "type": "script"
+                        }
+                      }
+                    },
+                    "meta": {
+                      "name": "IntakePump1"
+                    },
+                    "position": {
+                      "height": 60,
+                      "width": 60,
+                      "x": 216,
+                      "y": 64
+                    },
+                    "propConfig": {
+                      "props.state": {
+                        "binding": {
+                          "config": {
+                            "fallbackDelay": 2.5,
+                            "mode": "direct",
+                            "tagPath": "[default]Assets/North/Intake pump 1/state"
+                          },
+                          "type": "tag"
+                        }
+                      }
+                    },
+                    "props": {
+                      "appearance": "mimic",
+                      "label": {
+                        "location": "hidden",
+                        "text": ""
+                      },
+                      "orientation": "right",
+                      "style": {
+                        "classes": "Plant/Equipment"
+                      },
+                      "value": {
+                        "location": "hidden",
+                        "text": ""
+                      }
+                    },
+                    "type": "ia.symbol.pump"
+                  },
+                  {
+                    "children": [
+                      {
+                        "meta": {
+                          "name": "Name"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Plant/Tag"
+                          },
+                          "text": "Intake 1"
+                        },
+                        "type": "ia.display.label"
+                      },
+                      {
+                        "meta": {
+                          "name": "Reading"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "propConfig": {
+                          "props.text": {
+                            "binding": {
+                              "config": {
+                                "expression": "{view.custom.plant.slots.intake1.reading}"
+                              },
+                              "type": "expr"
+                            }
+                          }
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Plant/Value"
+                          },
+                          "text": ""
+                        },
+                        "type": "ia.display.label"
+                      }
+                    ],
+                    "meta": {
+                      "name": "Tag_intake1"
+                    },
+                    "position": {
+                      "height": 40,
+                      "width": 100,
+                      "x": 196,
+                      "y": 126
+                    },
+                    "props": {
+                      "alignItems": "center",
+                      "direction": "column",
+                      "style": {}
+                    },
+                    "type": "ia.container.flex"
+                  },
+                  {
+                    "events": {
+                      "dom": {
+                        "onClick": {
+                          "config": {
+                            "script": "\tslot = self.view.custom.plant.slots.intake2\n\tproject.plant.openEquipment(slot.id, slot.name, slot.path)"
+                          },
+                          "scope": "G",
+                          "type": "script"
+                        }
+                      }
+                    },
+                    "meta": {
+                      "name": "IntakePump2"
+                    },
+                    "position": {
+                      "height": 60,
+                      "width": 60,
+                      "x": 216,
+                      "y": 184
+                    },
+                    "propConfig": {
+                      "props.state": {
+                        "binding": {
+                          "config": {
+                            "fallbackDelay": 2.5,
+                            "mode": "direct",
+                            "tagPath": "[default]Assets/North/Intake pump 2/state"
+                          },
+                          "type": "tag"
+                        }
+                      }
+                    },
+                    "props": {
+                      "appearance": "mimic",
+                      "label": {
+                        "location": "hidden",
+                        "text": ""
+                      },
+                      "orientation": "right",
+                      "style": {
+                        "classes": "Plant/Equipment"
+                      },
+                      "value": {
+                        "location": "hidden",
+                        "text": ""
+                      }
+                    },
+                    "type": "ia.symbol.pump"
+                  },
+                  {
+                    "children": [
+                      {
+                        "meta": {
+                          "name": "Name"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Plant/Tag"
+                          },
+                          "text": "Intake 2"
+                        },
+                        "type": "ia.display.label"
+                      },
+                      {
+                        "meta": {
+                          "name": "Reading"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "propConfig": {
+                          "props.text": {
+                            "binding": {
+                              "config": {
+                                "expression": "{view.custom.plant.slots.intake2.reading}"
+                              },
+                              "type": "expr"
+                            }
+                          }
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Plant/Value"
+                          },
+                          "text": ""
+                        },
+                        "type": "ia.display.label"
+                      }
+                    ],
+                    "meta": {
+                      "name": "Tag_intake2"
+                    },
+                    "position": {
+                      "height": 40,
+                      "width": 100,
+                      "x": 196,
+                      "y": 246
+                    },
+                    "props": {
+                      "alignItems": "center",
+                      "direction": "column",
+                      "style": {}
+                    },
+                    "type": "ia.container.flex"
+                  },
+                  {
+                    "events": {
+                      "dom": {
+                        "onClick": {
+                          "config": {
+                            "script": "\tslot = self.view.custom.plant.slots.intake3\n\tproject.plant.openEquipment(slot.id, slot.name, slot.path)"
+                          },
+                          "scope": "G",
+                          "type": "script"
+                        }
+                      }
+                    },
+                    "meta": {
+                      "name": "IntakePump3"
+                    },
+                    "position": {
+                      "height": 60,
+                      "width": 60,
+                      "x": 216,
+                      "y": 304
+                    },
+                    "propConfig": {
+                      "props.state": {
+                        "binding": {
+                          "config": {
+                            "fallbackDelay": 2.5,
+                            "mode": "direct",
+                            "tagPath": "[default]Assets/North/Intake pump 3/state"
+                          },
+                          "type": "tag"
+                        }
+                      }
+                    },
+                    "props": {
+                      "appearance": "mimic",
+                      "label": {
+                        "location": "hidden",
+                        "text": ""
+                      },
+                      "orientation": "right",
+                      "style": {
+                        "classes": "Plant/Equipment"
+                      },
+                      "value": {
+                        "location": "hidden",
+                        "text": ""
+                      }
+                    },
+                    "type": "ia.symbol.pump"
+                  },
+                  {
+                    "children": [
+                      {
+                        "meta": {
+                          "name": "Name"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Plant/Tag"
+                          },
+                          "text": "Intake 3"
+                        },
+                        "type": "ia.display.label"
+                      },
+                      {
+                        "meta": {
+                          "name": "Reading"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "propConfig": {
+                          "props.text": {
+                            "binding": {
+                              "config": {
+                                "expression": "{view.custom.plant.slots.intake3.reading}"
+                              },
+                              "type": "expr"
+                            }
+                          }
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Plant/Value"
+                          },
+                          "text": ""
+                        },
+                        "type": "ia.display.label"
+                      }
+                    ],
+                    "meta": {
+                      "name": "Tag_intake3"
+                    },
+                    "position": {
+                      "height": 40,
+                      "width": 100,
+                      "x": 196,
+                      "y": 366
+                    },
+                    "props": {
+                      "alignItems": "center",
+                      "direction": "column",
+                      "style": {}
+                    },
+                    "type": "ia.container.flex"
+                  }
+                ],
+                "propConfig": {
+                  "props.pipes[0].fill": {
+                    "binding": {
+                      "config": {
+                        "expression": "{view.custom.plant.pipes.intake}"
+                      },
+                      "type": "expr"
+                    }
+                  },
+                  "props.pipes[1].fill": {
+                    "binding": {
+                      "config": {
+                        "expression": "{view.custom.plant.pipes.intake}"
+                      },
+                      "type": "expr"
+                    }
+                  },
+                  "props.pipes[2].fill": {
+                    "binding": {
+                      "config": {
+                        "expression": "{view.custom.plant.pipes.intake}"
+                      },
+                      "type": "expr"
+                    }
+                  },
+                  "props.pipes[3].fill": {
+                    "binding": {
+                      "config": {
+                        "expression": "{view.custom.plant.pipes.intake}"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "ia.container.coord",
+                "version": 0,
+                "meta": {
+                  "name": "StageTreatment"
+                },
+                "position": {
+                  "basis": "432px",
+                  "shrink": 0
+                },
+                "props": {
+                  "mode": "fixed",
+                  "aspectRatio": "",
+                  "pipes": [
+                    {
+                      "appearance": "simple",
+                      "fill": "#CBD5E1",
+                      "name": "Delivery",
+                      "origin": {
+                        "connections": [
+                          {
+                            "connections": [],
+                            "x": 199,
+                            "y": 222.0
+                          }
+                        ],
+                        "x": 0,
+                        "y": 222.0
+                      },
+                      "stroke": "#94A3B8",
+                      "visible": true,
+                      "width": 8
+                    },
+                    {
+                      "appearance": "simple",
+                      "fill": "#CBD5E1",
+                      "name": "Dosing",
+                      "origin": {
+                        "connections": [
+                          {
+                            "connections": [],
+                            "x": 157.0,
+                            "y": 222.0
+                          }
+                        ],
+                        "x": 157.0,
+                        "y": 108
+                      },
+                      "stroke": "#94A3B8",
+                      "visible": true,
+                      "width": 5
+                    },
+                    {
+                      "appearance": "simple",
+                      "fill": "#CBD5E1",
+                      "name": "Air",
+                      "origin": {
+                        "connections": [
+                          {
+                            "connections": [
+                              {
+                                "connections": [
+                                  {
+                                    "connections": [],
+                                    "x": 264.0,
+                                    "y": 294
+                                  }
+                                ],
+                                "x": 264.0,
+                                "y": 316
+                              }
+                            ],
+                            "x": 183.0,
+                            "y": 316
+                          }
+                        ],
+                        "x": 183.0,
+                        "y": 356
+                      },
+                      "stroke": "#94A3B8",
+                      "visible": true,
+                      "width": 6
+                    },
+                    {
+                      "appearance": "simple",
+                      "fill": "#CBD5E1",
+                      "name": "Air2",
+                      "origin": {
+                        "connections": [
+                          {
+                            "connections": [
+                              {
+                                "connections": [],
+                                "x": 349.0,
+                                "y": 356
+                              }
+                            ],
+                            "x": 349.0,
+                            "y": 316
+                          }
+                        ],
+                        "x": 264.0,
+                        "y": 316
+                      },
+                      "stroke": "#94A3B8",
+                      "visible": true,
+                      "width": 6
+                    },
+                    {
+                      "appearance": "simple",
+                      "fill": "#CBD5E1",
+                      "name": "Outlet",
+                      "origin": {
+                        "connections": [
+                          {
+                            "connections": [],
+                            "x": 432,
+                            "y": 222.0
+                          }
+                        ],
+                        "x": 329,
+                        "y": 222.0
+                      },
+                      "stroke": "#94A3B8",
+                      "visible": true,
+                      "width": 8
+                    }
+                  ],
+                  "style": {
+                    "classes": "Plant/Schematic"
+                  }
+                },
+                "children": [
+                  {
+                    "meta": {
+                      "name": "BandTreatment"
+                    },
+                    "position": {
+                      "height": 470,
+                      "width": 418,
+                      "x": 7,
+                      "y": 0
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "Plant/Band"
+                      },
+                      "text": ""
+                    },
+                    "type": "ia.display.label"
+                  },
+                  {
+                    "children": [
+                      {
+                        "meta": {
+                          "name": "Swatch"
+                        },
+                        "position": {
+                          "basis": "10px",
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "backgroundColor": "#0D9488",
+                            "borderRadius": "3px",
+                            "height": "10px"
+                          },
+                          "text": ""
+                        },
+                        "type": "ia.display.label"
+                      },
+                      {
+                        "meta": {
+                          "name": "Title"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Kpi/Label"
+                          },
+                          "text": "Treatment"
+                        },
+                        "type": "ia.display.label"
+                      },
+                      {
+                        "meta": {
+                          "name": "Area"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Text/Muted"
+                          },
+                          "text": "South"
+                        },
+                        "type": "ia.display.label"
+                      }
+                    ],
+                    "meta": {
+                      "name": "StageTreatment"
+                    },
+                    "position": {
+                      "height": 24,
+                      "width": 386,
+                      "x": 23,
+                      "y": 12
+                    },
+                    "props": {
+                      "alignItems": "center",
+                      "direction": "row",
+                      "style": {
+                        "gap": "8px"
+                      }
+                    },
+                    "type": "ia.container.flex"
+                  },
+                  {
+                    "events": {
+                      "dom": {
+                        "onClick": {
+                          "config": {
+                            "script": "\tslot = self.view.custom.plant.slots.dosing\n\tproject.plant.openEquipment(slot.id, slot.name, slot.path)"
+                          },
+                          "scope": "G",
+                          "type": "script"
+                        }
+                      }
+                    },
+                    "meta": {
+                      "name": "DosingPump"
+                    },
+                    "position": {
+                      "height": 48,
+                      "width": 48,
+                      "x": 133,
+                      "y": 60
+                    },
+                    "propConfig": {
+                      "props.state": {
+                        "binding": {
+                          "config": {
+                            "fallbackDelay": 2.5,
+                            "mode": "direct",
+                            "tagPath": "[default]Assets/South/Dosing pump/state"
+                          },
+                          "type": "tag"
+                        }
+                      }
+                    },
+                    "props": {
+                      "appearance": "mimic",
+                      "feet": "none",
+                      "label": {
+                        "location": "hidden",
+                        "text": ""
+                      },
+                      "orientation": "bottom",
+                      "style": {
+                        "classes": "Plant/Equipment"
+                      },
+                      "value": {
+                        "location": "hidden",
+                        "text": ""
+                      }
+                    },
+                    "type": "ia.symbol.pump"
+                  },
+                  {
+                    "children": [
+                      {
+                        "meta": {
+                          "name": "Name"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Plant/Tag"
+                          },
+                          "text": "Dosing"
+                        },
+                        "type": "ia.display.label"
+                      },
+                      {
+                        "meta": {
+                          "name": "Reading"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "propConfig": {
+                          "props.text": {
+                            "binding": {
+                              "config": {
+                                "expression": "{view.custom.plant.slots.dosing.reading}"
+                              },
+                              "type": "expr"
+                            }
+                          }
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Plant/Value"
+                          },
+                          "text": ""
+                        },
+                        "type": "ia.display.label"
+                      }
+                    ],
+                    "meta": {
+                      "name": "Tag_dosing"
+                    },
+                    "position": {
+                      "height": 40,
+                      "width": 88,
+                      "x": 41,
+                      "y": 66
+                    },
+                    "props": {
+                      "alignItems": "center",
+                      "direction": "column",
+                      "style": {}
+                    },
+                    "type": "ia.container.flex"
+                  },
+                  {
+                    "meta": {
+                      "name": "FlowMeter"
+                    },
+                    "position": {
+                      "height": 52,
+                      "width": 52,
+                      "x": 45,
+                      "y": 196
+                    },
+                    "propConfig": {
+                      "props.state": {
+                        "binding": {
+                          "config": {
+                            "expression": "if({view.custom.plant.kpis.intake.running} > 0, 'running', 'stopped')"
+                          },
+                          "type": "expr"
+                        }
+                      }
+                    },
+                    "props": {
+                      "appearance": "mimic",
+                      "label": {
+                        "location": "hidden",
+                        "text": "FIT"
+                      },
+                      "state": "default",
+                      "style": {
+                        "classes": ""
+                      },
+                      "value": {
+                        "location": "hidden",
+                        "text": ""
+                      }
+                    },
+                    "type": "ia.symbol.sensor"
+                  },
+                  {
+                    "children": [
+                      {
+                        "meta": {
+                          "name": "Name"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Plant/Tag"
+                          },
+                          "text": "Inflow"
+                        },
+                        "type": "ia.display.label"
+                      },
+                      {
+                        "meta": {
+                          "name": "Reading"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "propConfig": {
+                          "props.text": {
+                            "binding": {
+                              "config": {
+                                "expression": "{view.custom.plant.kpis.intake.reading}"
+                              },
+                              "type": "expr"
+                            }
+                          }
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Plant/Value"
+                          },
+                          "text": ""
+                        },
+                        "type": "ia.display.label"
+                      }
+                    ],
+                    "meta": {
+                      "name": "Tag_flow"
+                    },
+                    "position": {
+                      "height": 40,
+                      "width": 100,
+                      "x": 21,
+                      "y": 252
+                    },
+                    "props": {
+                      "alignItems": "center",
+                      "direction": "column",
+                      "style": {}
+                    },
+                    "type": "ia.container.flex"
+                  },
+                  {
+                    "events": {
+                      "dom": {
+                        "onClick": {
+                          "config": {
+                            "script": "\tslot = self.view.custom.plant.slots.mixer\n\tproject.plant.openEquipment(slot.id, slot.name, slot.path)"
+                          },
+                          "scope": "G",
+                          "type": "script"
+                        }
+                      }
+                    },
+                    "meta": {
+                      "name": "ContactTank"
+                    },
+                    "position": {
+                      "height": 210,
+                      "width": 130,
+                      "x": 199,
+                      "y": 90
+                    },
+                    "propConfig": {
+                      "props.state": {
+                        "binding": {
+                          "config": {
+                            "fallbackDelay": 2.5,
+                            "mode": "direct",
+                            "tagPath": "[default]Assets/South/Mixer/state"
+                          },
+                          "type": "tag"
+                        }
+                      }
+                    },
+                    "props": {
+                      "appearance": "mimic",
+                      "bottom": "rounded",
+                      "displayAgitator": true,
+                      "displayFillLevel": false,
+                      "displayStand": false,
+                      "label": {
+                        "location": "hidden",
+                        "text": ""
+                      },
+                      "liquidColor": "#0D9488",
+                      "liquidOpacity": 0.55,
+                      "orientation": "vertical",
+                      "style": {
+                        "classes": "Plant/Equipment"
+                      },
+                      "value": {
+                        "location": "hidden",
+                        "text": 70
+                      }
+                    },
+                    "type": "ia.symbol.vessel"
+                  },
+                  {
+                    "children": [
+                      {
+                        "meta": {
+                          "name": "Name"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Plant/Tag"
+                          },
+                          "text": "Contact tank mixer"
+                        },
+                        "type": "ia.display.label"
+                      },
+                      {
+                        "meta": {
+                          "name": "Reading"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "propConfig": {
+                          "props.text": {
+                            "binding": {
+                              "config": {
+                                "expression": "{view.custom.plant.slots.mixer.reading}"
+                              },
+                              "type": "expr"
+                            }
+                          }
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Plant/Value"
+                          },
+                          "text": ""
+                        },
+                        "type": "ia.display.label"
+                      }
+                    ],
+                    "meta": {
+                      "name": "Tag_mixer"
+                    },
+                    "position": {
+                      "height": 40,
+                      "width": 120,
+                      "x": 204.0,
+                      "y": 46
+                    },
+                    "props": {
+                      "alignItems": "center",
+                      "direction": "column",
+                      "style": {}
+                    },
+                    "type": "ia.container.flex"
+                  },
+                  {
+                    "events": {
+                      "dom": {
+                        "onClick": {
+                          "config": {
+                            "script": "\tslot = self.view.custom.plant.slots.blower1\n\tproject.plant.openEquipment(slot.id, slot.name, slot.path)"
+                          },
+                          "scope": "G",
+                          "type": "script"
+                        }
+                      }
+                    },
+                    "meta": {
+                      "name": "Blower1"
+                    },
+                    "position": {
+                      "height": 52,
+                      "width": 52,
+                      "x": 157,
+                      "y": 356
+                    },
+                    "propConfig": {
+                      "props.state": {
+                        "binding": {
+                          "config": {
+                            "fallbackDelay": 2.5,
+                            "mode": "direct",
+                            "tagPath": "[default]Assets/South/Blower 1/state"
+                          },
+                          "type": "tag"
+                        }
+                      }
+                    },
+                    "props": {
+                      "appearance": "mimic",
+                      "label": {
+                        "location": "hidden",
+                        "text": ""
+                      },
+                      "orientation": "right",
+                      "style": {
+                        "classes": "Plant/Equipment"
+                      },
+                      "value": {
+                        "location": "hidden",
+                        "text": ""
+                      }
+                    },
+                    "type": "ia.symbol.motor"
+                  },
+                  {
+                    "children": [
+                      {
+                        "meta": {
+                          "name": "Name"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Plant/Tag"
+                          },
+                          "text": "Blower 1"
+                        },
+                        "type": "ia.display.label"
+                      },
+                      {
+                        "meta": {
+                          "name": "Reading"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "propConfig": {
+                          "props.text": {
+                            "binding": {
+                              "config": {
+                                "expression": "{view.custom.plant.slots.blower1.reading}"
+                              },
+                              "type": "expr"
+                            }
+                          }
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Plant/Value"
+                          },
+                          "text": ""
+                        },
+                        "type": "ia.display.label"
+                      }
+                    ],
+                    "meta": {
+                      "name": "Tag_blower1"
+                    },
+                    "position": {
+                      "height": 40,
+                      "width": 100,
+                      "x": 133,
+                      "y": 412
+                    },
+                    "props": {
+                      "alignItems": "center",
+                      "direction": "column",
+                      "style": {}
+                    },
+                    "type": "ia.container.flex"
+                  },
+                  {
+                    "events": {
+                      "dom": {
+                        "onClick": {
+                          "config": {
+                            "script": "\tslot = self.view.custom.plant.slots.blower2\n\tproject.plant.openEquipment(slot.id, slot.name, slot.path)"
+                          },
+                          "scope": "G",
+                          "type": "script"
+                        }
+                      }
+                    },
+                    "meta": {
+                      "name": "Blower2"
+                    },
+                    "position": {
+                      "height": 52,
+                      "width": 52,
+                      "x": 323,
+                      "y": 356
+                    },
+                    "propConfig": {
+                      "props.state": {
+                        "binding": {
+                          "config": {
+                            "fallbackDelay": 2.5,
+                            "mode": "direct",
+                            "tagPath": "[default]Assets/South/Blower 2/state"
+                          },
+                          "type": "tag"
+                        }
+                      }
+                    },
+                    "props": {
+                      "appearance": "mimic",
+                      "label": {
+                        "location": "hidden",
+                        "text": ""
+                      },
+                      "orientation": "right",
+                      "style": {
+                        "classes": "Plant/Equipment"
+                      },
+                      "value": {
+                        "location": "hidden",
+                        "text": ""
+                      }
+                    },
+                    "type": "ia.symbol.motor"
+                  },
+                  {
+                    "children": [
+                      {
+                        "meta": {
+                          "name": "Name"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Plant/Tag"
+                          },
+                          "text": "Blower 2"
+                        },
+                        "type": "ia.display.label"
+                      },
+                      {
+                        "meta": {
+                          "name": "Reading"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "propConfig": {
+                          "props.text": {
+                            "binding": {
+                              "config": {
+                                "expression": "{view.custom.plant.slots.blower2.reading}"
+                              },
+                              "type": "expr"
+                            }
+                          }
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Plant/Value"
+                          },
+                          "text": ""
+                        },
+                        "type": "ia.display.label"
+                      }
+                    ],
+                    "meta": {
+                      "name": "Tag_blower2"
+                    },
+                    "position": {
+                      "height": 40,
+                      "width": 100,
+                      "x": 299,
+                      "y": 412
+                    },
+                    "props": {
+                      "alignItems": "center",
+                      "direction": "column",
+                      "style": {}
+                    },
+                    "type": "ia.container.flex"
+                  },
+                  {
+                    "meta": {
+                      "name": "OutletValve"
+                    },
+                    "position": {
+                      "height": 48,
+                      "width": 48,
+                      "x": 351,
+                      "y": 188
+                    },
+                    "propConfig": {
+                      "props.state": {
+                        "binding": {
+                          "config": {
+                            "expression": "{view.custom.plant.valve}"
+                          },
+                          "type": "expr"
+                        }
+                      }
+                    },
+                    "props": {
+                      "appearance": "mimic",
+                      "label": {
+                        "location": "hidden",
+                        "text": ""
+                      },
+                      "style": {
+                        "classes": ""
+                      },
+                      "value": {
+                        "location": "hidden",
+                        "text": ""
+                      },
+                      "valve": "top"
+                    },
+                    "type": "ia.symbol.valve"
+                  },
+                  {
+                    "children": [
+                      {
+                        "meta": {
+                          "name": "Name"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Plant/Tag"
+                          },
+                          "text": "Outlet valve"
+                        },
+                        "type": "ia.display.label"
+                      },
+                      {
+                        "meta": {
+                          "name": "Reading"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "propConfig": {
+                          "props.text": {
+                            "binding": {
+                              "config": {
+                                "expression": "if({view.custom.plant.valve} = 'open', 'Open', 'Closed')"
+                              },
+                              "type": "expr"
+                            }
+                          }
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Plant/Value"
+                          },
+                          "text": ""
+                        },
+                        "type": "ia.display.label"
+                      }
+                    ],
+                    "meta": {
+                      "name": "Tag_valve"
+                    },
+                    "position": {
+                      "height": 40,
+                      "width": 108,
+                      "x": 321,
+                      "y": 244
+                    },
+                    "props": {
+                      "alignItems": "center",
+                      "direction": "column",
+                      "style": {}
+                    },
+                    "type": "ia.container.flex"
+                  }
+                ],
+                "propConfig": {
+                  "props.pipes[0].fill": {
+                    "binding": {
+                      "config": {
+                        "expression": "{view.custom.plant.pipes.intake}"
+                      },
+                      "type": "expr"
+                    }
+                  },
+                  "props.pipes[1].fill": {
+                    "binding": {
+                      "config": {
+                        "expression": "{view.custom.plant.pipes.dosing}"
+                      },
+                      "type": "expr"
+                    }
+                  },
+                  "props.pipes[2].fill": {
+                    "binding": {
+                      "config": {
+                        "expression": "{view.custom.plant.pipes.air}"
+                      },
+                      "type": "expr"
+                    }
+                  },
+                  "props.pipes[3].fill": {
+                    "binding": {
+                      "config": {
+                        "expression": "{view.custom.plant.pipes.air}"
+                      },
+                      "type": "expr"
+                    }
+                  },
+                  "props.pipes[4].fill": {
+                    "binding": {
+                      "config": {
+                        "expression": "{view.custom.plant.pipes.intake}"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "ia.container.coord",
+                "version": 0,
+                "meta": {
+                  "name": "StageStorage"
+                },
+                "position": {
+                  "basis": "357px",
+                  "shrink": 0
+                },
+                "props": {
+                  "mode": "fixed",
+                  "aspectRatio": "",
+                  "pipes": [
+                    {
+                      "appearance": "simple",
+                      "fill": "#CBD5E1",
+                      "name": "Outlet",
+                      "origin": {
+                        "connections": [
+                          {
+                            "connections": [
+                              {
+                                "connections": [
+                                  {
+                                    "connections": [],
+                                    "x": 116.0,
+                                    "y": 150
+                                  }
+                                ],
+                                "x": 31,
+                                "y": 150
+                              }
+                            ],
+                            "x": 31,
+                            "y": 222.0
+                          }
+                        ],
+                        "x": 0,
+                        "y": 222.0
+                      },
+                      "stroke": "#94A3B8",
+                      "visible": true,
+                      "width": 8
+                    },
+                    {
+                      "appearance": "simple",
+                      "fill": "#CBD5E1",
+                      "name": "Transfer",
+                      "origin": {
+                        "connections": [
+                          {
+                            "connections": [
+                              {
+                                "connections": [
+                                  {
+                                    "connections": [],
+                                    "x": 233,
+                                    "y": 157.2
+                                  }
+                                ],
+                                "x": 207,
+                                "y": 157.2
+                              },
+                              {
+                                "connections": [
+                                  {
+                                    "connections": [],
+                                    "x": 233,
+                                    "y": 287.2
+                                  }
+                                ],
+                                "x": 207,
+                                "y": 287.2
+                              }
+                            ],
+                            "x": 207,
+                            "y": 310
+                          }
+                        ],
+                        "x": 171,
+                        "y": 310
+                      },
+                      "stroke": "#94A3B8",
+                      "visible": true,
+                      "width": 8
+                    },
+                    {
+                      "appearance": "simple",
+                      "fill": "#CBD5E1",
+                      "name": "Network",
+                      "origin": {
+                        "connections": [
+                          {
+                            "connections": [
+                              {
+                                "connections": [],
+                                "x": 337,
+                                "y": 360
+                              }
+                            ],
+                            "x": 337,
+                            "y": 127.2
+                          }
+                        ],
+                        "x": 289,
+                        "y": 127.2
+                      },
+                      "stroke": "#94A3B8",
+                      "visible": true,
+                      "width": 8
+                    },
+                    {
+                      "appearance": "simple",
+                      "fill": "#CBD5E1",
+                      "name": "Network2",
+                      "origin": {
+                        "connections": [
+                          {
+                            "connections": [],
+                            "x": 337,
+                            "y": 257.2
+                          }
+                        ],
+                        "x": 289,
+                        "y": 257.2
+                      },
+                      "stroke": "#94A3B8",
+                      "visible": true,
+                      "width": 8
+                    }
+                  ],
+                  "style": {
+                    "classes": "Plant/Schematic"
+                  }
+                },
+                "children": [
+                  {
+                    "meta": {
+                      "name": "BandStorage"
+                    },
+                    "position": {
+                      "height": 470,
+                      "width": 350,
+                      "x": 7,
+                      "y": 0
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "Plant/Band"
+                      },
+                      "text": ""
+                    },
+                    "type": "ia.display.label"
+                  },
+                  {
+                    "children": [
+                      {
+                        "meta": {
+                          "name": "Swatch"
+                        },
+                        "position": {
+                          "basis": "10px",
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "backgroundColor": "#D97706",
+                            "borderRadius": "3px",
+                            "height": "10px"
+                          },
+                          "text": ""
+                        },
+                        "type": "ia.display.label"
+                      },
+                      {
+                        "meta": {
+                          "name": "Title"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Kpi/Label"
+                          },
+                          "text": "Storage and transfer"
+                        },
+                        "type": "ia.display.label"
+                      },
+                      {
+                        "meta": {
+                          "name": "Area"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Text/Muted"
+                          },
+                          "text": "East"
+                        },
+                        "type": "ia.display.label"
+                      }
+                    ],
+                    "meta": {
+                      "name": "StageStorage"
+                    },
+                    "position": {
+                      "height": 24,
+                      "width": 318,
+                      "x": 23,
+                      "y": 12
+                    },
+                    "props": {
+                      "alignItems": "center",
+                      "direction": "row",
+                      "style": {
+                        "gap": "8px"
+                      }
+                    },
+                    "type": "ia.container.flex"
+                  },
+                  {
+                    "events": {
+                      "dom": {
+                        "onClick": {
+                          "config": {
+                            "script": "\tslot = self.view.custom.plant.slots.reservoir\n\tproject.plant.openEquipment(slot.id, slot.name, slot.path)"
+                          },
+                          "scope": "G",
+                          "type": "script"
+                        }
+                      }
+                    },
+                    "meta": {
+                      "name": "Reservoir"
+                    },
+                    "position": {
+                      "height": 220,
+                      "width": 110,
+                      "x": 61,
+                      "y": 120
+                    },
+                    "propConfig": {
+                      "props.capacity": {
+                        "binding": {
+                          "config": {
+                            "expression": "{view.custom.plant.slots.reservoir.capacity}"
+                          },
+                          "type": "expr"
+                        }
+                      },
+                      "props.value": {
+                        "binding": {
+                          "config": {
+                            "fallbackDelay": 2.5,
+                            "mode": "direct",
+                            "tagPath": "[default]Assets/East/Reservoir level/value"
+                          },
+                          "type": "tag"
+                        }
+                      }
+                    },
+                    "props": {
+                      "capacity": 100,
+                      "liquidColor": "#38BDF8",
+                      "liquidOpacity": 0.75,
+                      "liquidWarningColor": "#F59E0B",
+                      "strokeWidth": 2,
+                      "style": {
+                        "classes": "Plant/Equipment"
+                      },
+                      "tankColor": "#CBD5E1",
+                      "tankWarningColor": "#CBD5E1",
+                      "value": 0,
+                      "valueDisplay": {
+                        "enabled": false,
+                        "format": "0.0",
+                        "style": {
+                          "classes": ""
+                        },
+                        "unit": {
+                          "enabled": false,
+                          "fix": "post",
+                          "value": "%"
+                        }
+                      },
+                      "warningThreshold": 90
+                    },
+                    "type": "ia.display.cylindrical-tank"
+                  },
+                  {
+                    "children": [
+                      {
+                        "meta": {
+                          "name": "Name"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Plant/Tag"
+                          },
+                          "text": "Reservoir"
+                        },
+                        "type": "ia.display.label"
+                      },
+                      {
+                        "meta": {
+                          "name": "Reading"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "propConfig": {
+                          "props.text": {
+                            "binding": {
+                              "config": {
+                                "expression": "{view.custom.plant.slots.reservoir.reading}"
+                              },
+                              "type": "expr"
+                            }
+                          }
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Plant/Value"
+                          },
+                          "text": ""
+                        },
+                        "type": "ia.display.label"
+                      }
+                    ],
+                    "meta": {
+                      "name": "Tag_reservoir"
+                    },
+                    "position": {
+                      "height": 40,
+                      "width": 134,
+                      "x": 49,
+                      "y": 346
+                    },
+                    "props": {
+                      "alignItems": "center",
+                      "direction": "column",
+                      "style": {}
+                    },
+                    "type": "ia.container.flex"
+                  },
+                  {
+                    "events": {
+                      "dom": {
+                        "onClick": {
+                          "config": {
+                            "script": "\tslot = self.view.custom.plant.slots.transfer1\n\tproject.plant.openEquipment(slot.id, slot.name, slot.path)"
+                          },
+                          "scope": "G",
+                          "type": "script"
+                        }
+                      }
+                    },
+                    "meta": {
+                      "name": "TransferPump1"
+                    },
+                    "position": {
+                      "height": 60,
+                      "width": 60,
+                      "x": 233,
+                      "y": 120
+                    },
+                    "propConfig": {
+                      "props.state": {
+                        "binding": {
+                          "config": {
+                            "fallbackDelay": 2.5,
+                            "mode": "direct",
+                            "tagPath": "[default]Assets/East/Transfer pump 1/state"
+                          },
+                          "type": "tag"
+                        }
+                      }
+                    },
+                    "props": {
+                      "appearance": "mimic",
+                      "label": {
+                        "location": "hidden",
+                        "text": ""
+                      },
+                      "orientation": "right",
+                      "style": {
+                        "classes": "Plant/Equipment"
+                      },
+                      "value": {
+                        "location": "hidden",
+                        "text": ""
+                      }
+                    },
+                    "type": "ia.symbol.pump"
+                  },
+                  {
+                    "children": [
+                      {
+                        "meta": {
+                          "name": "Name"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Plant/Tag"
+                          },
+                          "text": "Transfer 1"
+                        },
+                        "type": "ia.display.label"
+                      },
+                      {
+                        "meta": {
+                          "name": "Reading"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "propConfig": {
+                          "props.text": {
+                            "binding": {
+                              "config": {
+                                "expression": "{view.custom.plant.slots.transfer1.reading}"
+                              },
+                              "type": "expr"
+                            }
+                          }
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Plant/Value"
+                          },
+                          "text": ""
+                        },
+                        "type": "ia.display.label"
+                      }
+                    ],
+                    "meta": {
+                      "name": "Tag_transfer1"
+                    },
+                    "position": {
+                      "height": 40,
+                      "width": 100,
+                      "x": 213,
+                      "y": 182
+                    },
+                    "props": {
+                      "alignItems": "center",
+                      "direction": "column",
+                      "style": {}
+                    },
+                    "type": "ia.container.flex"
+                  },
+                  {
+                    "events": {
+                      "dom": {
+                        "onClick": {
+                          "config": {
+                            "script": "\tslot = self.view.custom.plant.slots.transfer2\n\tproject.plant.openEquipment(slot.id, slot.name, slot.path)"
+                          },
+                          "scope": "G",
+                          "type": "script"
+                        }
+                      }
+                    },
+                    "meta": {
+                      "name": "TransferPump2"
+                    },
+                    "position": {
+                      "height": 60,
+                      "width": 60,
+                      "x": 233,
+                      "y": 250
+                    },
+                    "propConfig": {
+                      "props.state": {
+                        "binding": {
+                          "config": {
+                            "fallbackDelay": 2.5,
+                            "mode": "direct",
+                            "tagPath": "[default]Assets/East/Transfer pump 2/state"
+                          },
+                          "type": "tag"
+                        }
+                      }
+                    },
+                    "props": {
+                      "appearance": "mimic",
+                      "label": {
+                        "location": "hidden",
+                        "text": ""
+                      },
+                      "orientation": "right",
+                      "style": {
+                        "classes": "Plant/Equipment"
+                      },
+                      "value": {
+                        "location": "hidden",
+                        "text": ""
+                      }
+                    },
+                    "type": "ia.symbol.pump"
+                  },
+                  {
+                    "children": [
+                      {
+                        "meta": {
+                          "name": "Name"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Plant/Tag"
+                          },
+                          "text": "Transfer 2"
+                        },
+                        "type": "ia.display.label"
+                      },
+                      {
+                        "meta": {
+                          "name": "Reading"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "propConfig": {
+                          "props.text": {
+                            "binding": {
+                              "config": {
+                                "expression": "{view.custom.plant.slots.transfer2.reading}"
+                              },
+                              "type": "expr"
+                            }
+                          }
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Plant/Value"
+                          },
+                          "text": ""
+                        },
+                        "type": "ia.display.label"
+                      }
+                    ],
+                    "meta": {
+                      "name": "Tag_transfer2"
+                    },
+                    "position": {
+                      "height": 40,
+                      "width": 100,
+                      "x": 213,
+                      "y": 312
+                    },
+                    "props": {
+                      "alignItems": "center",
+                      "direction": "column",
+                      "style": {}
+                    },
+                    "type": "ia.container.flex"
+                  },
+                  {
+                    "children": [
+                      {
+                        "meta": {
+                          "name": "Name"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Plant/Tag"
+                          },
+                          "text": "To network"
+                        },
+                        "type": "ia.display.label"
+                      },
+                      {
+                        "meta": {
+                          "name": "Reading"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "propConfig": {
+                          "props.text": {
+                            "binding": {
+                              "config": {
+                                "expression": "{view.custom.plant.kpis.transfer.reading}"
+                              },
+                              "type": "expr"
+                            }
+                          }
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Plant/Value"
+                          },
+                          "text": ""
+                        },
+                        "type": "ia.display.label"
+                      }
+                    ],
+                    "meta": {
+                      "name": "Tag_network"
+                    },
+                    "position": {
+                      "height": 40,
+                      "width": 104,
+                      "x": 247,
+                      "y": 368
+                    },
+                    "props": {
+                      "alignItems": "flex-end",
+                      "direction": "column",
+                      "style": {}
+                    },
+                    "type": "ia.container.flex"
+                  }
+                ],
+                "propConfig": {
+                  "props.pipes[0].fill": {
+                    "binding": {
+                      "config": {
+                        "expression": "{view.custom.plant.pipes.intake}"
+                      },
+                      "type": "expr"
+                    }
+                  },
+                  "props.pipes[1].fill": {
+                    "binding": {
+                      "config": {
+                        "expression": "{view.custom.plant.pipes.transfer}"
+                      },
+                      "type": "expr"
+                    }
+                  },
+                  "props.pipes[2].fill": {
+                    "binding": {
+                      "config": {
+                        "expression": "{view.custom.plant.pipes.transfer}"
+                      },
+                      "type": "expr"
+                    }
+                  },
+                  "props.pipes[3].fill": {
+                    "binding": {
+                      "config": {
+                        "expression": "{view.custom.plant.pipes.transfer}"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                }
+              }
+            ],
+            "meta": {
+              "name": "Canvas"
+            },
+            "position": {
+              "basis": "470px",
+              "shrink": 0
+            },
+            "props": {
+              "direction": "row",
+              "justify": "center",
+              "style": {
+                "overflow": "auto",
+                "classes": "Plant/Canvas"
+              }
+            },
+            "type": "ia.container.flex"
+          }
+        ],
+        "meta": {
+          "name": "Process"
+        },
+        "position": {
+          "shrink": 0
+        },
+        "props": {
+          "direction": "column",
+          "style": {
+            "classes": "Card",
+            "gap": "12px"
+          }
+        },
+        "type": "ia.container.flex"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "direction": "column",
+      "style": {
+        "classes": "Layout/Page",
+        "gap": "20px",
+        "overflow": "auto"
+      }
+    },
+    "scripts": {
+      "customMethods": [],
+      "extensionFunctions": null,
+      "messageHandlers": [
+        {
+          "messageType": "eventRecorded",
+          "pageScope": false,
+          "script": "\tself.view.refreshBinding(\"custom.plant\")",
+          "sessionScope": true,
+          "viewScope": false
+        }
+      ]
+    },
+    "type": "ia.container.flex"
+  }
+}

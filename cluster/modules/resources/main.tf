@@ -23,6 +23,17 @@ resource "ignition_alarm_journal" "demo" {
   min_priority = var.alarm_journal.min_priority
 }
 
+# Tag history for the UDTs' members (historyProvider "demo"). 8.1 creates a SQL
+# historian for every database connection itself; 8.3 needs one configured.
+resource "ignition_historian_provider" "demo" {
+  count           = var.historian == null ? 0 : 1
+  name            = var.historian.name
+  database        = ignition_database_connection.demo.name
+  pruning_enabled = true
+  pruning_age     = var.historian.pruning_months
+  pruning_units   = "MONTH"
+}
+
 # The same configuration the 8.1 seed (gateway/seed/seed.json) creates, where
 # the provider has a resource for it. Not covered here: security levels, the
 # user source's roles and users, and the gateway's audit profile setting.

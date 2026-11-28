@@ -1,0 +1,223 @@
+name: e2e
+
+# The k3s environment deployed for real, on a throwaway k3d cluster on the runner: the gateway image built
+# from this commit and imported into the cluster, cert-manager with a private CA ClusterIssuer, then the
+# k3s infra and config stages applied as cluster/README.md describes, with their state in the cluster
+# (the kubernetes backend) and a passphrase generated for the run. scripts/e2e-check.sh then checks what
+# a user would: both gateways Ready, the active Service routing to one, StatusPing through the ingress,
+# HTTP redirected to HTTPS, the database connection valid through the gateway API, the Assets page's
+# named query returning rows, and the backup jobs. tofu validate and test can't catch a provider or chart
+# that the cluster refuses (Pod Security rejecting the database, a Backup that never syncs): this does.
+#
+# chart_repository deploys an ignition-failover chart from a checkout instead of the pinned chart_version,
+# through the k3s stage's chart_path, to test an unreleased chart.
+on:
+  workflow_call:
+    inputs:
+      ignition_version:
+        description: "The Ignition 8.3 release the gateway image builds on, e.g. 8.3.10 (8.1 has no config stage or API to check)"
+        required: false
+        type: string
+        default: "8.3.10"
+      chart_repository:
+        description: "A GitHub repository laid out as ignition-helm (charts/failover beside charts/common), e.g. apollogeddon/ignition-helm, to deploy its chart through chart_path; empty deploys the gateway module's pinned chart_version"
+        required: false
+        type: string
+        default: ''
+      chart_ref:
+        description: "The branch, tag or commit of chart_repository to deploy"
+        required: false
+        type: string
+        default: main
+
+env:
+  TOFU_VERSION: 1.13.1
+  # k3d brings k3s with Traefik, as the k3s environment expects; the binary is checked against its digest
+  K3D_VERSION: v5.9.0
+  K3D_SHA256: 06d8f25bc3a971c4eb29e0ff08429b180402db0f4dec838c9eac427e296800a0
+  CERT_MANAGER_VERSION: v1.21.3
+  CLUSTER: e2e
+
+jobs:
+  deploy:
+    name: deploy
+    runs-on: ubuntu-latest
+    # an image build, a cluster, and a redundant pair's first start (about 5 minutes)
+    timeout-minutes: 60
+    permissions:
+      contents: read
+    env:
+      INFRA: cluster/environments/k3s/infra
+      CONFIG: cluster/environments/k3s/config
+      # the k3s environment reads the Ignition version from the tag
+      IMAGE_REPOSITORY: localhost/ignition-gateway
+      IMAGE_TAG: ${{ inputs.ignition_version }}-e2e
+      CHART_REPOSITORY: ${{ inputs.chart_repository }}
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Check out the chart
+        if: inputs.chart_repository != ''
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ inputs.chart_repository }}
+          ref: ${{ inputs.chart_ref }}
+          path: .e2e/chart
+          persist-credentials: false
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+      # from the docker pipeline's cache when it has this release's layers, into the runner's Docker
+      - name: Build the gateway image
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          file: gateway/Dockerfile
+          build-args: IGNITION_VERSION=${{ inputs.ignition_version }}
+          load: true
+          tags: ${{ env.IMAGE_REPOSITORY }}:${{ env.IMAGE_TAG }}
+          cache-from: type=gha,scope=${{ inputs.ignition_version }}
+      - name: Set up OpenTofu
+        uses: opentofu/setup-opentofu@a1320f892987e89d278cc92dc5adc984fb93aca4 # v2.0.2
+        with:
+          tofu_version: ${{ env.TOFU_VERSION }}
+          tofu_wrapper: false
+      - name: Start k3s
+        run: |
+          mkdir -p "$RUNNER_TEMP/bin"
+          curl -sSfL -o "$RUNNER_TEMP/bin/k3d" "https://github.com/k3d-io/k3d/releases/download/$K3D_VERSION/k3d-linux-amd64"
+          echo "$K3D_SHA256  $RUNNER_TEMP/bin/k3d" | sha256sum -c -
+          chmod +x "$RUNNER_TEMP/bin/k3d"
+          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+          "$RUNNER_TEMP/bin/k3d" cluster create "$CLUSTER" --wait --timeout 5m
+          # image_pull_policy = "Never": the gateways run the image imported here
+          "$RUNNER_TEMP/bin/k3d" image import "$IMAGE_REPOSITORY:$IMAGE_TAG" --cluster "$CLUSTER"
+          # Traefik and its CRDs (the HTTP redirect is a Middleware) come from k3s's own Helm jobs
+          timeout 300 sh -c 'until kubectl get crd middlewares.traefik.io && kubectl -n kube-system get deployment traefik; do sleep 5; done' >/dev/null
+          kubectl wait --for=condition=established crd/middlewares.traefik.io --timeout=2m
+          kubectl -n kube-system rollout status deployment/traefik --timeout=5m
+      - name: Install cert-manager with a CA ClusterIssuer
+        run: |
+          helm install cert-manager oci://quay.io/jetstack/charts/cert-manager --version "$CERT_MANAGER_VERSION" \
+            --namespace cert-manager --create-namespace --set crds.enabled=true --wait --timeout 5m
+          # a private CA, as a k3s cluster without a public issuer would have: cluster-issuer is the k3s
+          # environment's issuer_name default
+          kubectl apply -f - <<'MANIFESTS'
+          apiVersion: cert-manager.io/v1
+          kind: ClusterIssuer
+          metadata:
+            name: e2e-selfsigned
+          spec:
+            selfSigned: {}
+          ---
+          apiVersion: cert-manager.io/v1
+          kind: Certificate
+          metadata:
+            name: e2e-ca
+            namespace: cert-manager
+          spec:
+            isCA: true
+            commonName: e2e-ca
+            secretName: e2e-ca
+            privateKey:
+              algorithm: ECDSA
+              size: 256
+            issuerRef:
+              name: e2e-selfsigned
+              kind: ClusterIssuer
+          ---
+          apiVersion: cert-manager.io/v1
+          kind: ClusterIssuer
+          metadata:
+            name: cluster-issuer
+          spec:
+            ca:
+              secretName: e2e-ca
+          MANIFESTS
+          kubectl -n cert-manager wait --for=condition=Ready certificate/e2e-ca --timeout=2m
+          kubectl wait --for=condition=Ready clusterissuer/cluster-issuer --timeout=2m
+          # the config stage's Ignition provider and the checks verify the ingress against this CA
+          kubectl -n cert-manager get secret e2e-ca -o jsonpath='{.data.ca\.crt}' | base64 -d >"$RUNNER_TEMP/ca.crt"
+          cat /etc/ssl/certs/ca-certificates.crt "$RUNNER_TEMP/ca.crt" >"$RUNNER_TEMP/ca-bundle.pem"
+          echo "CA_FILE=$RUNNER_TEMP/ca.crt" >> "$GITHUB_ENV"
+      # The ingress host must resolve on the runner and inside the cluster, where the gateway backup goes
+      # through it: nip.io maps it to the node, whose Traefik serves ports 80 and 443
+      - name: Write the stages' settings
+        run: |
+          node_ip=$(kubectl get nodes -o jsonpath='{.items[0].status.addresses[?(@.type=="InternalIP")].address}')
+          host="ignition.$node_ip.nip.io"
+          context="k3d-$CLUSTER"
+          passphrase=$(openssl rand -hex 24)
+          echo "::add-mask::$passphrase"
+          echo "TF_VAR_state_passphrase=$passphrase" >> "$GITHUB_ENV"
+          echo "HOST=$host" >> "$GITHUB_ENV"
+          kubectl create namespace tofu-state
+          umask 077
+          for stage in infra config; do
+            cat >"cluster/environments/k3s/$stage/backend.hcl" <<BACKEND
+          secret_suffix  = "ignition-$stage"
+          namespace      = "tofu-state"
+          config_path    = "$HOME/.kube/config"
+          config_context = "$context"
+          BACKEND
+          done
+          # the EULA is accepted for this throwaway test cluster only
+          cat >"$INFRA/terraform.tfvars" <<TFVARS
+          accept_eula       = true
+          kube_context      = "$context"
+          image_repository  = "$IMAGE_REPOSITORY"
+          image_tag         = "$IMAGE_TAG"
+          image_pull_policy = "Never"
+          hostname          = "$host"
+          TFVARS
+          if [ -n "$CHART_REPOSITORY" ]; then
+            echo "chart_path = \"$GITHUB_WORKSPACE/.e2e/chart/charts/failover\"" >>"$INFRA/terraform.tfvars"
+          fi
+          cat >"$CONFIG/terraform.tfvars" <<TFVARS
+          infra_state = { config_path = "$HOME/.kube/config", config_context = "$context" }
+          TFVARS
+      - name: Apply the infra stage
+        run: |
+          tofu -chdir="$INFRA" init -input=false -backend-config=backend.hcl
+          tofu -chdir="$INFRA" apply -input=false -auto-approve
+      # the Ignition provider is on no registry: it comes from the network mirror cluster/README.md names
+      - name: Apply the config stage
+        env:
+          SSL_CERT_FILE: ${{ runner.temp }}/ca-bundle.pem
+        run: |
+          cat >"$RUNNER_TEMP/tofurc" <<'CONFIG'
+          provider_installation {
+            network_mirror {
+              url     = "https://apollogeddon.github.io/ignition-tofu/providers/"
+              include = ["registry.opentofu.org/apollogeddon/ignition"]
+            }
+            direct {
+              exclude = ["registry.opentofu.org/apollogeddon/ignition"]
+            }
+          }
+          CONFIG
+          export TF_CLI_CONFIG_FILE="$RUNNER_TEMP/tofurc"
+          tofu -chdir="$CONFIG" init -input=false -backend-config=backend.hcl
+          tofu -chdir="$CONFIG" apply -input=false -auto-approve
+      - name: Check the deployment
+        run: |
+          GATEWAY_API_TOKEN=$(tofu -chdir="$INFRA" output -raw api_token)
+          echo "::add-mask::$GATEWAY_API_TOKEN"
+          export GATEWAY_API_TOKEN
+          scripts/e2e-check.sh
+      # what went wrong, without the Secrets: the release, its pods, their events and logs
+      - name: Show the cluster's state
+        if: failure()
+        run: |
+          kubectl get nodes -o wide || true
+          kubectl get pods,svc,endpointslices,ingress,pvc,jobs -A -o wide || true
+          kubectl get certificates,certificaterequests,clusterissuers -A || true
+          kubectl get events -A --sort-by=.lastTimestamp | tail -n 100 || true
+          helm -n ignition history ignition || true
+          kubectl -n ignition describe pods || true
+          for pod in $(kubectl -n ignition get pods -o name 2>/dev/null); do
+            echo "::group::$pod"
+            kubectl -n ignition logs "$pod" --all-containers --tail=200 || true
+            echo "::endgroup::"
+          done

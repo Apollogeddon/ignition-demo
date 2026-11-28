@@ -1,8 +1,46 @@
 {
   "pages": {
     "/": {
+      "title": "Overview",
+      "viewPath": "Page/Overview"
+    },
+    "/alarms": {
+      "title": "Alarms",
+      "viewPath": "Page/Alarms"
+    },
+    "/analytics": {
+      "title": "Analytics",
+      "viewPath": "Page/Analytics"
+    },
+    "/assets": {
       "title": "Assets",
-      "viewPath": "Page/Home"
+      "viewPath": "Page/Assets"
+    },
+    "/events": {
+      "title": "Events",
+      "viewPath": "Page/Events"
+    },
+    "/plant": {
+      "title": "Plant",
+      "viewPath": "Page/Plant"
     }
+  },
+  "sharedDocks": {
+    "top": [
+      {
+        "anchor": "fixed",
+        "autoBreakpoint": 480,
+        "content": "push",
+        "handle": "hide",
+        "iconUrl": "",
+        "id": "Header",
+        "modal": false,
+        "resizable": false,
+        "show": "visible",
+        "size": 60,
+        "viewParams": {},
+        "viewPath": "Shell/Header"
+      }
+    ]
   }
 }

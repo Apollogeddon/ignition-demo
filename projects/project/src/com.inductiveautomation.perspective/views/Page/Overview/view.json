@@ -1,0 +1,2806 @@
+{
+  "custom": {
+    "area": "North",
+    "flow": [],
+    "overview": {
+      "areas": [
+        {},
+        {},
+        {}
+      ],
+      "assets": [],
+      "kpis": {},
+      "pie": {
+        "colors": [],
+        "data": []
+      }
+    }
+  },
+  "params": {},
+  "propConfig": {
+    "custom.flow": {
+      "binding": {
+        "config": {
+          "expression": "now(60000)"
+        },
+        "transforms": [
+          {
+            "code": "\treturn project.overview.getFlowSeries()",
+            "type": "script"
+          }
+        ],
+        "type": "expr"
+      }
+    },
+    "custom.overview": {
+      "binding": {
+        "config": {
+          "expression": "now(15000)"
+        },
+        "transforms": [
+          {
+            "code": "\treturn project.overview.getOverview()",
+            "type": "script"
+          }
+        ],
+        "type": "expr"
+      }
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 800,
+      "width": 1280
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "Title"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "props": {
+                  "style": {
+                    "classes": "Layout/PageTitle"
+                  },
+                  "text": "Overview"
+                },
+                "type": "ia.display.label"
+              },
+              {
+                "meta": {
+                  "name": "Subtitle"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "config": {
+                        "expression": "concat({view.custom.overview.kpis.total}, \" assets across \", {view.custom.overview.kpis.areas}, \" areas, refreshed every 15 seconds\")"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                },
+                "props": {
+                  "style": {
+                    "classes": "Layout/PageSubtitle"
+                  },
+                  "text": ""
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "meta": {
+              "name": "Titles"
+            },
+            "position": {
+              "grow": 1
+            },
+            "props": {
+              "direction": "column",
+              "style": {
+                "gap": "2px"
+              }
+            },
+            "type": "ia.container.flex"
+          }
+        ],
+        "meta": {
+          "name": "Header"
+        },
+        "position": {
+          "shrink": 0
+        },
+        "props": {
+          "alignItems": "flex-end",
+          "direction": "row",
+          "style": {}
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "meta": {
+                      "name": "Title"
+                    },
+                    "position": {
+                      "grow": 1
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "Kpi/Label"
+                      },
+                      "text": "Assets"
+                    },
+                    "type": "ia.display.label"
+                  },
+                  {
+                    "meta": {
+                      "name": "Icon"
+                    },
+                    "position": {
+                      "basis": "20px",
+                      "shrink": 0
+                    },
+                    "props": {
+                      "color": "#94A3B8",
+                      "path": "material/view_module",
+                      "style": {}
+                    },
+                    "type": "ia.display.icon"
+                  }
+                ],
+                "meta": {
+                  "name": "Head"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "props": {
+                  "alignItems": "center",
+                  "direction": "row",
+                  "style": {}
+                },
+                "type": "ia.container.flex"
+              },
+              {
+                "meta": {
+                  "name": "Value"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "config": {
+                        "expression": "{view.custom.overview.kpis.total}"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                },
+                "props": {
+                  "style": {
+                    "classes": "Kpi/Value"
+                  },
+                  "text": ""
+                },
+                "type": "ia.display.label"
+              },
+              {
+                "meta": {
+                  "name": "Caption"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "config": {
+                        "expression": "concat({view.custom.overview.kpis.areas}, \" areas monitored\")"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                },
+                "props": {
+                  "style": {
+                    "classes": "Kpi/Caption"
+                  },
+                  "text": ""
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "meta": {
+              "name": "Assets"
+            },
+            "position": {
+              "basis": "0px",
+              "grow": 1
+            },
+            "props": {
+              "direction": "column",
+              "style": {
+                "classes": "Card",
+                "gap": "6px"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "meta": {
+                      "name": "Title"
+                    },
+                    "position": {
+                      "grow": 1
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "Kpi/Label"
+                      },
+                      "text": "Online"
+                    },
+                    "type": "ia.display.label"
+                  },
+                  {
+                    "meta": {
+                      "name": "Icon"
+                    },
+                    "position": {
+                      "basis": "20px",
+                      "shrink": 0
+                    },
+                    "props": {
+                      "color": "#16A34A",
+                      "path": "material/check_circle",
+                      "style": {}
+                    },
+                    "type": "ia.display.icon"
+                  }
+                ],
+                "meta": {
+                  "name": "Head"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "props": {
+                  "alignItems": "center",
+                  "direction": "row",
+                  "style": {}
+                },
+                "type": "ia.container.flex"
+              },
+              {
+                "meta": {
+                  "name": "Value"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "config": {
+                        "expression": "{view.custom.overview.kpis.online}"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                },
+                "props": {
+                  "style": {
+                    "classes": "Kpi/Value Kpi/Good"
+                  },
+                  "text": ""
+                },
+                "type": "ia.display.label"
+              },
+              {
+                "meta": {
+                  "name": "Caption"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "config": {
+                        "expression": "concat({view.custom.overview.kpis.availability}, \" available\")"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                },
+                "props": {
+                  "style": {
+                    "classes": "Kpi/Caption"
+                  },
+                  "text": ""
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "meta": {
+              "name": "Online"
+            },
+            "position": {
+              "basis": "0px",
+              "grow": 1
+            },
+            "props": {
+              "direction": "column",
+              "style": {
+                "classes": "Card",
+                "gap": "6px"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "meta": {
+                      "name": "Title"
+                    },
+                    "position": {
+                      "grow": 1
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "Kpi/Label"
+                      },
+                      "text": "Offline"
+                    },
+                    "type": "ia.display.label"
+                  },
+                  {
+                    "meta": {
+                      "name": "Icon"
+                    },
+                    "position": {
+                      "basis": "20px",
+                      "shrink": 0
+                    },
+                    "props": {
+                      "color": "#DC2626",
+                      "path": "material/error",
+                      "style": {}
+                    },
+                    "type": "ia.display.icon"
+                  }
+                ],
+                "meta": {
+                  "name": "Head"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "props": {
+                  "alignItems": "center",
+                  "direction": "row",
+                  "style": {}
+                },
+                "type": "ia.container.flex"
+              },
+              {
+                "meta": {
+                  "name": "Value"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "propConfig": {
+                  "props.style.classes": {
+                    "binding": {
+                      "config": {
+                        "expression": "if({view.custom.overview.kpis.offline} > 0, \"Kpi/Value Kpi/Bad\", \"Kpi/Value\")"
+                      },
+                      "type": "expr"
+                    }
+                  },
+                  "props.text": {
+                    "binding": {
+                      "config": {
+                        "expression": "{view.custom.overview.kpis.offline}"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                },
+                "props": {
+                  "style": {
+                    "classes": "Kpi/Value"
+                  },
+                  "text": ""
+                },
+                "type": "ia.display.label"
+              },
+              {
+                "meta": {
+                  "name": "Caption"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "config": {
+                        "expression": "if({view.custom.overview.kpis.offline} > 0, \"Need attention\", \"All assets reporting\")"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                },
+                "props": {
+                  "style": {
+                    "classes": "Kpi/Caption"
+                  },
+                  "text": ""
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "meta": {
+              "name": "Offline"
+            },
+            "position": {
+              "basis": "0px",
+              "grow": 1
+            },
+            "props": {
+              "direction": "column",
+              "style": {
+                "classes": "Card",
+                "gap": "6px"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "meta": {
+                      "name": "Title"
+                    },
+                    "position": {
+                      "grow": 1
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "Kpi/Label"
+                      },
+                      "text": "Pumped flow"
+                    },
+                    "type": "ia.display.label"
+                  },
+                  {
+                    "meta": {
+                      "name": "Icon"
+                    },
+                    "position": {
+                      "basis": "20px",
+                      "shrink": 0
+                    },
+                    "props": {
+                      "color": "#0EA5E9",
+                      "path": "material/waves",
+                      "style": {}
+                    },
+                    "type": "ia.display.icon"
+                  }
+                ],
+                "meta": {
+                  "name": "Head"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "props": {
+                  "alignItems": "center",
+                  "direction": "row",
+                  "style": {}
+                },
+                "type": "ia.container.flex"
+              },
+              {
+                "meta": {
+                  "name": "Value"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "config": {
+                        "expression": "concat({view.custom.overview.kpis.flow}, \" L/s\")"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                },
+                "props": {
+                  "style": {
+                    "classes": "Kpi/Value"
+                  },
+                  "text": ""
+                },
+                "type": "ia.display.label"
+              },
+              {
+                "meta": {
+                  "name": "Caption"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "config": {
+                        "expression": "\"Online pumps, latest readings\""
+                      },
+                      "type": "expr"
+                    }
+                  }
+                },
+                "props": {
+                  "style": {
+                    "classes": "Kpi/Caption"
+                  },
+                  "text": ""
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "meta": {
+              "name": "Flow"
+            },
+            "position": {
+              "basis": "0px",
+              "grow": 1
+            },
+            "props": {
+              "direction": "column",
+              "style": {
+                "classes": "Card",
+                "gap": "6px"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "meta": {
+                      "name": "Title"
+                    },
+                    "position": {
+                      "grow": 1
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "Kpi/Label"
+                      },
+                      "text": "Last event"
+                    },
+                    "type": "ia.display.label"
+                  },
+                  {
+                    "meta": {
+                      "name": "Icon"
+                    },
+                    "position": {
+                      "basis": "20px",
+                      "shrink": 0
+                    },
+                    "props": {
+                      "color": "#94A3B8",
+                      "path": "material/history",
+                      "style": {}
+                    },
+                    "type": "ia.display.icon"
+                  }
+                ],
+                "meta": {
+                  "name": "Head"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "props": {
+                  "alignItems": "center",
+                  "direction": "row",
+                  "style": {}
+                },
+                "type": "ia.container.flex"
+              },
+              {
+                "meta": {
+                  "name": "Value"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "config": {
+                        "expression": "{view.custom.overview.kpis.lastEventAgo}"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                },
+                "props": {
+                  "style": {
+                    "classes": "Kpi/Value"
+                  },
+                  "text": ""
+                },
+                "type": "ia.display.label"
+              },
+              {
+                "meta": {
+                  "name": "Caption"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "config": {
+                        "expression": "if(isNull({view.custom.overview.kpis.lastEvent}), \"Nothing recorded\", dateFormat(fromMillis({view.custom.overview.kpis.lastEvent}), \"EEE d MMM, HH:mm\"))"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                },
+                "props": {
+                  "style": {
+                    "classes": "Kpi/Caption"
+                  },
+                  "text": ""
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "meta": {
+              "name": "LastEvent"
+            },
+            "position": {
+              "basis": "0px",
+              "grow": 1
+            },
+            "props": {
+              "direction": "column",
+              "style": {
+                "classes": "Card",
+                "gap": "6px"
+              }
+            },
+            "type": "ia.container.flex"
+          }
+        ],
+        "meta": {
+          "name": "Kpis"
+        },
+        "position": {
+          "shrink": 0
+        },
+        "props": {
+          "direction": "row",
+          "style": {
+            "gap": "16px",
+            "classes": "Layout/Kpis"
+          }
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "meta": {
+                          "name": "Title"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Section/Title"
+                          },
+                          "text": "Pumped flow by area"
+                        },
+                        "type": "ia.display.label"
+                      },
+                      {
+                        "meta": {
+                          "name": "Subtitle"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Section/Subtitle"
+                          },
+                          "text": "Hourly mean of the online pumps, the last 72 hours of readings"
+                        },
+                        "type": "ia.display.label"
+                      }
+                    ],
+                    "meta": {
+                      "name": "Titles"
+                    },
+                    "position": {
+                      "grow": 1
+                    },
+                    "props": {
+                      "direction": "column",
+                      "style": {
+                        "gap": "2px"
+                      }
+                    },
+                    "type": "ia.container.flex"
+                  }
+                ],
+                "meta": {
+                  "name": "Head"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "props": {
+                  "alignItems": "center",
+                  "direction": "row",
+                  "style": {}
+                },
+                "type": "ia.container.flex"
+              },
+              {
+                "meta": {
+                  "name": "FlowChart"
+                },
+                "position": {
+                  "basis": "260px",
+                  "grow": 1
+                },
+                "propConfig": {
+                  "props.series[0].data": {
+                    "binding": {
+                      "config": {
+                        "path": "view.custom.flow"
+                      },
+                      "type": "property"
+                    }
+                  }
+                },
+                "props": {
+                  "autoGenerateSeriesNames": false,
+                  "enablePanZoom": false,
+                  "legend": {
+                    "position": "top",
+                    "style": {
+                      "classes": ""
+                    },
+                    "visible": true
+                  },
+                  "plots": [
+                    {
+                      "axes": [
+                        {
+                          "alignment": "left",
+                          "grid": {
+                            "color": "#E2E8F0",
+                            "dashArray": 0,
+                            "opacity": 0.9,
+                            "style": {
+                              "classes": ""
+                            },
+                            "visible": true
+                          },
+                          "label": {
+                            "font": {
+                              "color": "#64748B",
+                              "size": 11
+                            },
+                            "offset": 0,
+                            "style": {
+                              "classes": ""
+                            },
+                            "text": "L/s",
+                            "visible": true
+                          },
+                          "max": "",
+                          "min": 0,
+                          "name": "value",
+                          "style": {
+                            "classes": ""
+                          },
+                          "tick": {
+                            "color": "#E2E8F0",
+                            "count": 5,
+                            "label": {
+                              "font": {
+                                "color": "#64748B",
+                                "size": 11
+                              },
+                              "format": ",.0f",
+                              "style": {
+                                "classes": ""
+                              }
+                            },
+                            "style": {
+                              "classes": ""
+                            }
+                          },
+                          "width": 52
+                        }
+                      ],
+                      "markers": [],
+                      "relativeWeight": 1,
+                      "trends": [
+                        {
+                          "axis": "value",
+                          "baselines": [],
+                          "breakLine": true,
+                          "columns": [
+                            {
+                              "color": "#2563EB",
+                              "key": "North",
+                              "styles": {
+                                "highlighted": {
+                                  "fill": {
+                                    "color": "#2563EB",
+                                    "opacity": 0.32
+                                  },
+                                  "stroke": {
+                                    "color": "#2563EB",
+                                    "dashArray": null,
+                                    "opacity": 1,
+                                    "width": 3
+                                  }
+                                },
+                                "muted": {
+                                  "fill": {
+                                    "color": "",
+                                    "opacity": null
+                                  },
+                                  "stroke": {
+                                    "color": "",
+                                    "dashArray": null,
+                                    "opacity": null,
+                                    "width": null
+                                  }
+                                },
+                                "normal": {
+                                  "fill": {
+                                    "color": "#2563EB",
+                                    "opacity": 0.12
+                                  },
+                                  "stroke": {
+                                    "color": "#2563EB",
+                                    "dashArray": null,
+                                    "opacity": 1,
+                                    "width": 2
+                                  }
+                                },
+                                "selected": {
+                                  "fill": {
+                                    "color": "",
+                                    "opacity": null
+                                  },
+                                  "stroke": {
+                                    "color": "",
+                                    "dashArray": null,
+                                    "opacity": null,
+                                    "width": null
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "color": "#0D9488",
+                              "key": "South",
+                              "styles": {
+                                "highlighted": {
+                                  "fill": {
+                                    "color": "#0D9488",
+                                    "opacity": 0.32
+                                  },
+                                  "stroke": {
+                                    "color": "#0D9488",
+                                    "dashArray": null,
+                                    "opacity": 1,
+                                    "width": 3
+                                  }
+                                },
+                                "muted": {
+                                  "fill": {
+                                    "color": "",
+                                    "opacity": null
+                                  },
+                                  "stroke": {
+                                    "color": "",
+                                    "dashArray": null,
+                                    "opacity": null,
+                                    "width": null
+                                  }
+                                },
+                                "normal": {
+                                  "fill": {
+                                    "color": "#0D9488",
+                                    "opacity": 0.12
+                                  },
+                                  "stroke": {
+                                    "color": "#0D9488",
+                                    "dashArray": null,
+                                    "opacity": 1,
+                                    "width": 2
+                                  }
+                                },
+                                "selected": {
+                                  "fill": {
+                                    "color": "",
+                                    "opacity": null
+                                  },
+                                  "stroke": {
+                                    "color": "",
+                                    "dashArray": null,
+                                    "opacity": null,
+                                    "width": null
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "color": "#D97706",
+                              "key": "East",
+                              "styles": {
+                                "highlighted": {
+                                  "fill": {
+                                    "color": "#D97706",
+                                    "opacity": 0.32
+                                  },
+                                  "stroke": {
+                                    "color": "#D97706",
+                                    "dashArray": null,
+                                    "opacity": 1,
+                                    "width": 3
+                                  }
+                                },
+                                "muted": {
+                                  "fill": {
+                                    "color": "",
+                                    "opacity": null
+                                  },
+                                  "stroke": {
+                                    "color": "",
+                                    "dashArray": null,
+                                    "opacity": null,
+                                    "width": null
+                                  }
+                                },
+                                "normal": {
+                                  "fill": {
+                                    "color": "#D97706",
+                                    "opacity": 0.12
+                                  },
+                                  "stroke": {
+                                    "color": "#D97706",
+                                    "dashArray": null,
+                                    "opacity": 1,
+                                    "width": 2
+                                  }
+                                },
+                                "selected": {
+                                  "fill": {
+                                    "color": "",
+                                    "opacity": null
+                                  },
+                                  "stroke": {
+                                    "color": "",
+                                    "dashArray": null,
+                                    "opacity": null,
+                                    "width": null
+                                  }
+                                }
+                              }
+                            }
+                          ],
+                          "interpolation": "curveMonotoneX",
+                          "radius": 2,
+                          "series": "data",
+                          "stack": false,
+                          "type": "area",
+                          "visible": true
+                        }
+                      ]
+                    }
+                  ],
+                  "series": [
+                    {
+                      "data": [],
+                      "name": "data"
+                    }
+                  ],
+                  "style": {
+                    "classes": ""
+                  },
+                  "timeAxis": {
+                    "color": "#E2E8F0",
+                    "grid": {
+                      "color": "#E2E8F0",
+                      "dashArray": 0,
+                      "opacity": 0.9,
+                      "style": {
+                        "classes": ""
+                      },
+                      "visible": false
+                    },
+                    "height": 30,
+                    "style": {
+                      "classes": ""
+                    },
+                    "tick": {
+                      "color": "#E2E8F0",
+                      "label": {
+                        "angled": false,
+                        "font": {
+                          "color": "#64748B",
+                          "size": 11
+                        },
+                        "format": "ddd HH:mm",
+                        "style": {
+                          "classes": ""
+                        }
+                      },
+                      "style": {
+                        "classes": ""
+                      }
+                    },
+                    "tickCount": 6,
+                    "visible": true
+                  },
+                  "timeRange": {
+                    "dateFormat": "D MMM",
+                    "timeFormat": "HH:mm",
+                    "visible": false
+                  },
+                  "title": {
+                    "font": {
+                      "color": "",
+                      "size": 18
+                    },
+                    "height": 25,
+                    "style": {
+                      "classes": ""
+                    },
+                    "text": "",
+                    "visible": false
+                  },
+                  "xTrace": {
+                    "infoBox": {
+                      "dataFormat": "0.0",
+                      "dateFormat": "ddd D MMM",
+                      "showTime": true,
+                      "style": {
+                        "classes": ""
+                      },
+                      "timeFormat": "HH:mm",
+                      "visible": true,
+                      "width": "auto"
+                    },
+                    "line": {
+                      "color": "#94A3B8",
+                      "dashArray": 3,
+                      "opacity": 0.8,
+                      "style": {
+                        "classes": ""
+                      },
+                      "visible": true,
+                      "width": 1
+                    },
+                    "value": "",
+                    "visible": true
+                  }
+                },
+                "type": "ia.chart.timeseries"
+              }
+            ],
+            "meta": {
+              "name": "FlowCard"
+            },
+            "position": {
+              "basis": "0px",
+              "grow": 2
+            },
+            "props": {
+              "direction": "column",
+              "style": {
+                "classes": "Card",
+                "gap": "12px"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "meta": {
+                          "name": "Title"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Section/Title"
+                          },
+                          "text": "Assets by area"
+                        },
+                        "type": "ia.display.label"
+                      },
+                      {
+                        "meta": {
+                          "name": "Subtitle"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Section/Subtitle"
+                          },
+                          "text": "Click an area below for its assets"
+                        },
+                        "type": "ia.display.label"
+                      }
+                    ],
+                    "meta": {
+                      "name": "Titles"
+                    },
+                    "position": {
+                      "grow": 1
+                    },
+                    "props": {
+                      "direction": "column",
+                      "style": {
+                        "gap": "2px"
+                      }
+                    },
+                    "type": "ia.container.flex"
+                  }
+                ],
+                "meta": {
+                  "name": "Head"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "props": {
+                  "alignItems": "center",
+                  "direction": "row",
+                  "style": {}
+                },
+                "type": "ia.container.flex"
+              },
+              {
+                "meta": {
+                  "name": "AreaChart"
+                },
+                "position": {
+                  "basis": "260px",
+                  "grow": 1
+                },
+                "propConfig": {
+                  "props.colors": {
+                    "binding": {
+                      "config": {
+                        "path": "view.custom.overview.pie.colors"
+                      },
+                      "type": "property"
+                    }
+                  },
+                  "props.data": {
+                    "binding": {
+                      "config": {
+                        "path": "view.custom.overview.pie.data"
+                      },
+                      "type": "property"
+                    }
+                  }
+                },
+                "props": {
+                  "colors": [],
+                  "cutoutRadius": 62,
+                  "data": [],
+                  "enableTransitions": true,
+                  "labels": {
+                    "align": true,
+                    "bent": false,
+                    "color": "#64748B",
+                    "inside": {
+                      "color": "#FFFFFF",
+                      "enabled": false,
+                      "percentLimit": 10,
+                      "radius": 80
+                    },
+                    "showName": true,
+                    "showValue": true,
+                    "wrap": {
+                      "enabled": false,
+                      "maxWidth": 200
+                    }
+                  },
+                  "legend": {
+                    "fontSize": 13,
+                    "icon": {
+                      "enabled": true,
+                      "height": 12,
+                      "width": 12
+                    },
+                    "position": "right"
+                  },
+                  "legendLabelColor": "#1E293B",
+                  "sectionOutline": {
+                    "color": "#FFFFFF",
+                    "opacity": 1,
+                    "width": 2
+                  },
+                  "selection": {
+                    "data": [],
+                    "enabled": false
+                  },
+                  "showLabels": false,
+                  "showLegend": true,
+                  "style": {},
+                  "threeDimensional": false,
+                  "title": "",
+                  "tooltipFormat": "{category}: {value} assets",
+                  "valueFormat": {
+                    "showPercentSymbol": false,
+                    "showValueAsPercent": false
+                  }
+                },
+                "type": "ia.chart.pie"
+              }
+            ],
+            "meta": {
+              "name": "AreaChartCard"
+            },
+            "position": {
+              "basis": "0px",
+              "grow": 1
+            },
+            "props": {
+              "direction": "column",
+              "style": {
+                "classes": "Card",
+                "gap": "12px"
+              }
+            },
+            "type": "ia.container.flex"
+          }
+        ],
+        "meta": {
+          "name": "Charts"
+        },
+        "position": {
+          "basis": "360px",
+          "shrink": 0
+        },
+        "props": {
+          "direction": "row",
+          "style": {
+            "gap": "16px",
+            "classes": "Layout/ChartRow"
+          }
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "meta": {
+                      "name": "Swatch"
+                    },
+                    "position": {
+                      "basis": "12px",
+                      "shrink": 0
+                    },
+                    "props": {
+                      "style": {
+                        "backgroundColor": "#2563EB",
+                        "borderRadius": "3px",
+                        "height": "12px"
+                      },
+                      "text": ""
+                    },
+                    "type": "ia.display.label"
+                  },
+                  {
+                    "meta": {
+                      "name": "Name"
+                    },
+                    "position": {
+                      "grow": 1
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "Section/Title"
+                      },
+                      "text": "North"
+                    },
+                    "type": "ia.display.label"
+                  },
+                  {
+                    "meta": {
+                      "name": "Count"
+                    },
+                    "position": {
+                      "shrink": 0
+                    },
+                    "propConfig": {
+                      "props.text": {
+                        "binding": {
+                          "config": {
+                            "expression": "concat({view.custom.overview.areas[0].count}, \" assets\")"
+                          },
+                          "type": "expr"
+                        }
+                      }
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "Pill/Base Pill/Info"
+                      },
+                      "text": ""
+                    },
+                    "type": "ia.display.label"
+                  }
+                ],
+                "meta": {
+                  "name": "Head"
+                },
+                "position": {
+                  "basis": "24px",
+                  "shrink": 0
+                },
+                "props": {
+                  "alignItems": "center",
+                  "direction": "row",
+                  "style": {
+                    "gap": "10px"
+                  }
+                },
+                "type": "ia.container.flex"
+              },
+              {
+                "meta": {
+                  "name": "Description"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "config": {
+                        "path": "view.custom.overview.areas[0].description"
+                      },
+                      "type": "property"
+                    }
+                  }
+                },
+                "props": {
+                  "style": {
+                    "classes": "Text/Muted"
+                  },
+                  "text": ""
+                },
+                "type": "ia.display.label"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "meta": {
+                          "name": "Value"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "propConfig": {
+                          "props.text": {
+                            "binding": {
+                              "config": {
+                                "path": "view.custom.overview.areas[0].online"
+                              },
+                              "type": "property"
+                            }
+                          }
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Kpi/Value Kpi/Good",
+                            "fontSize": "22px",
+                            "lineHeight": "28px"
+                          },
+                          "text": ""
+                        },
+                        "type": "ia.display.label"
+                      },
+                      {
+                        "meta": {
+                          "name": "Label"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Text/Muted"
+                          },
+                          "text": "online"
+                        },
+                        "type": "ia.display.label"
+                      }
+                    ],
+                    "meta": {
+                      "name": "Online"
+                    },
+                    "position": {
+                      "basis": "0px",
+                      "grow": 1
+                    },
+                    "props": {
+                      "direction": "column",
+                      "style": {}
+                    },
+                    "type": "ia.container.flex"
+                  },
+                  {
+                    "children": [
+                      {
+                        "meta": {
+                          "name": "Value"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "propConfig": {
+                          "props.style.classes": {
+                            "binding": {
+                              "config": {
+                                "expression": "if({view.custom.overview.areas[0].offline} > 0, \"Kpi/Value Kpi/Bad\", \"Kpi/Value\")"
+                              },
+                              "type": "expr"
+                            }
+                          },
+                          "props.text": {
+                            "binding": {
+                              "config": {
+                                "path": "view.custom.overview.areas[0].offline"
+                              },
+                              "type": "property"
+                            }
+                          }
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Kpi/Value",
+                            "fontSize": "22px",
+                            "lineHeight": "28px"
+                          },
+                          "text": ""
+                        },
+                        "type": "ia.display.label"
+                      },
+                      {
+                        "meta": {
+                          "name": "Label"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Text/Muted"
+                          },
+                          "text": "offline"
+                        },
+                        "type": "ia.display.label"
+                      }
+                    ],
+                    "meta": {
+                      "name": "Offline"
+                    },
+                    "position": {
+                      "basis": "0px",
+                      "grow": 1
+                    },
+                    "props": {
+                      "direction": "column",
+                      "style": {}
+                    },
+                    "type": "ia.container.flex"
+                  },
+                  {
+                    "children": [
+                      {
+                        "meta": {
+                          "name": "Value"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "propConfig": {
+                          "props.text": {
+                            "binding": {
+                              "config": {
+                                "path": "view.custom.overview.areas[0].flow"
+                              },
+                              "type": "property"
+                            }
+                          }
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Kpi/Value",
+                            "fontSize": "22px",
+                            "lineHeight": "28px"
+                          },
+                          "text": ""
+                        },
+                        "type": "ia.display.label"
+                      },
+                      {
+                        "meta": {
+                          "name": "Label"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Text/Muted"
+                          },
+                          "text": "L/s pumped"
+                        },
+                        "type": "ia.display.label"
+                      }
+                    ],
+                    "meta": {
+                      "name": "Flow"
+                    },
+                    "position": {
+                      "basis": "0px",
+                      "grow": 1
+                    },
+                    "props": {
+                      "direction": "column",
+                      "style": {}
+                    },
+                    "type": "ia.container.flex"
+                  }
+                ],
+                "meta": {
+                  "name": "Stats"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "props": {
+                  "direction": "row",
+                  "style": {
+                    "gap": "8px",
+                    "marginTop": "4px"
+                  }
+                },
+                "type": "ia.container.flex"
+              }
+            ],
+            "events": {
+              "dom": {
+                "onClick": {
+                  "config": {
+                    "script": "\tsystem.perspective.sendMessage(\"areaSelected\", {\"area\": \"North\"}, scope=\"page\")"
+                  },
+                  "scope": "G",
+                  "type": "script"
+                }
+              }
+            },
+            "meta": {
+              "name": "North"
+            },
+            "position": {
+              "basis": "0px",
+              "grow": 1
+            },
+            "propConfig": {
+              "props.style.classes": {
+                "binding": {
+                  "config": {
+                    "expression": "if({view.custom.area} = \"North\", \"Card Layout/CardClickable Layout/CardSelected\", \"Card Layout/CardClickable\")"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "direction": "column",
+              "style": {
+                "classes": "Card Layout/CardClickable",
+                "gap": "8px"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "meta": {
+                      "name": "Swatch"
+                    },
+                    "position": {
+                      "basis": "12px",
+                      "shrink": 0
+                    },
+                    "props": {
+                      "style": {
+                        "backgroundColor": "#0D9488",
+                        "borderRadius": "3px",
+                        "height": "12px"
+                      },
+                      "text": ""
+                    },
+                    "type": "ia.display.label"
+                  },
+                  {
+                    "meta": {
+                      "name": "Name"
+                    },
+                    "position": {
+                      "grow": 1
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "Section/Title"
+                      },
+                      "text": "South"
+                    },
+                    "type": "ia.display.label"
+                  },
+                  {
+                    "meta": {
+                      "name": "Count"
+                    },
+                    "position": {
+                      "shrink": 0
+                    },
+                    "propConfig": {
+                      "props.text": {
+                        "binding": {
+                          "config": {
+                            "expression": "concat({view.custom.overview.areas[1].count}, \" assets\")"
+                          },
+                          "type": "expr"
+                        }
+                      }
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "Pill/Base Pill/Info"
+                      },
+                      "text": ""
+                    },
+                    "type": "ia.display.label"
+                  }
+                ],
+                "meta": {
+                  "name": "Head"
+                },
+                "position": {
+                  "basis": "24px",
+                  "shrink": 0
+                },
+                "props": {
+                  "alignItems": "center",
+                  "direction": "row",
+                  "style": {
+                    "gap": "10px"
+                  }
+                },
+                "type": "ia.container.flex"
+              },
+              {
+                "meta": {
+                  "name": "Description"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "config": {
+                        "path": "view.custom.overview.areas[1].description"
+                      },
+                      "type": "property"
+                    }
+                  }
+                },
+                "props": {
+                  "style": {
+                    "classes": "Text/Muted"
+                  },
+                  "text": ""
+                },
+                "type": "ia.display.label"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "meta": {
+                          "name": "Value"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "propConfig": {
+                          "props.text": {
+                            "binding": {
+                              "config": {
+                                "path": "view.custom.overview.areas[1].online"
+                              },
+                              "type": "property"
+                            }
+                          }
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Kpi/Value Kpi/Good",
+                            "fontSize": "22px",
+                            "lineHeight": "28px"
+                          },
+                          "text": ""
+                        },
+                        "type": "ia.display.label"
+                      },
+                      {
+                        "meta": {
+                          "name": "Label"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Text/Muted"
+                          },
+                          "text": "online"
+                        },
+                        "type": "ia.display.label"
+                      }
+                    ],
+                    "meta": {
+                      "name": "Online"
+                    },
+                    "position": {
+                      "basis": "0px",
+                      "grow": 1
+                    },
+                    "props": {
+                      "direction": "column",
+                      "style": {}
+                    },
+                    "type": "ia.container.flex"
+                  },
+                  {
+                    "children": [
+                      {
+                        "meta": {
+                          "name": "Value"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "propConfig": {
+                          "props.style.classes": {
+                            "binding": {
+                              "config": {
+                                "expression": "if({view.custom.overview.areas[1].offline} > 0, \"Kpi/Value Kpi/Bad\", \"Kpi/Value\")"
+                              },
+                              "type": "expr"
+                            }
+                          },
+                          "props.text": {
+                            "binding": {
+                              "config": {
+                                "path": "view.custom.overview.areas[1].offline"
+                              },
+                              "type": "property"
+                            }
+                          }
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Kpi/Value",
+                            "fontSize": "22px",
+                            "lineHeight": "28px"
+                          },
+                          "text": ""
+                        },
+                        "type": "ia.display.label"
+                      },
+                      {
+                        "meta": {
+                          "name": "Label"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Text/Muted"
+                          },
+                          "text": "offline"
+                        },
+                        "type": "ia.display.label"
+                      }
+                    ],
+                    "meta": {
+                      "name": "Offline"
+                    },
+                    "position": {
+                      "basis": "0px",
+                      "grow": 1
+                    },
+                    "props": {
+                      "direction": "column",
+                      "style": {}
+                    },
+                    "type": "ia.container.flex"
+                  },
+                  {
+                    "children": [
+                      {
+                        "meta": {
+                          "name": "Value"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "propConfig": {
+                          "props.text": {
+                            "binding": {
+                              "config": {
+                                "path": "view.custom.overview.areas[1].flow"
+                              },
+                              "type": "property"
+                            }
+                          }
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Kpi/Value",
+                            "fontSize": "22px",
+                            "lineHeight": "28px"
+                          },
+                          "text": ""
+                        },
+                        "type": "ia.display.label"
+                      },
+                      {
+                        "meta": {
+                          "name": "Label"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Text/Muted"
+                          },
+                          "text": "L/s pumped"
+                        },
+                        "type": "ia.display.label"
+                      }
+                    ],
+                    "meta": {
+                      "name": "Flow"
+                    },
+                    "position": {
+                      "basis": "0px",
+                      "grow": 1
+                    },
+                    "props": {
+                      "direction": "column",
+                      "style": {}
+                    },
+                    "type": "ia.container.flex"
+                  }
+                ],
+                "meta": {
+                  "name": "Stats"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "props": {
+                  "direction": "row",
+                  "style": {
+                    "gap": "8px",
+                    "marginTop": "4px"
+                  }
+                },
+                "type": "ia.container.flex"
+              }
+            ],
+            "events": {
+              "dom": {
+                "onClick": {
+                  "config": {
+                    "script": "\tsystem.perspective.sendMessage(\"areaSelected\", {\"area\": \"South\"}, scope=\"page\")"
+                  },
+                  "scope": "G",
+                  "type": "script"
+                }
+              }
+            },
+            "meta": {
+              "name": "South"
+            },
+            "position": {
+              "basis": "0px",
+              "grow": 1
+            },
+            "propConfig": {
+              "props.style.classes": {
+                "binding": {
+                  "config": {
+                    "expression": "if({view.custom.area} = \"South\", \"Card Layout/CardClickable Layout/CardSelected\", \"Card Layout/CardClickable\")"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "direction": "column",
+              "style": {
+                "classes": "Card Layout/CardClickable",
+                "gap": "8px"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "meta": {
+                      "name": "Swatch"
+                    },
+                    "position": {
+                      "basis": "12px",
+                      "shrink": 0
+                    },
+                    "props": {
+                      "style": {
+                        "backgroundColor": "#D97706",
+                        "borderRadius": "3px",
+                        "height": "12px"
+                      },
+                      "text": ""
+                    },
+                    "type": "ia.display.label"
+                  },
+                  {
+                    "meta": {
+                      "name": "Name"
+                    },
+                    "position": {
+                      "grow": 1
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "Section/Title"
+                      },
+                      "text": "East"
+                    },
+                    "type": "ia.display.label"
+                  },
+                  {
+                    "meta": {
+                      "name": "Count"
+                    },
+                    "position": {
+                      "shrink": 0
+                    },
+                    "propConfig": {
+                      "props.text": {
+                        "binding": {
+                          "config": {
+                            "expression": "concat({view.custom.overview.areas[2].count}, \" assets\")"
+                          },
+                          "type": "expr"
+                        }
+                      }
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "Pill/Base Pill/Info"
+                      },
+                      "text": ""
+                    },
+                    "type": "ia.display.label"
+                  }
+                ],
+                "meta": {
+                  "name": "Head"
+                },
+                "position": {
+                  "basis": "24px",
+                  "shrink": 0
+                },
+                "props": {
+                  "alignItems": "center",
+                  "direction": "row",
+                  "style": {
+                    "gap": "10px"
+                  }
+                },
+                "type": "ia.container.flex"
+              },
+              {
+                "meta": {
+                  "name": "Description"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "config": {
+                        "path": "view.custom.overview.areas[2].description"
+                      },
+                      "type": "property"
+                    }
+                  }
+                },
+                "props": {
+                  "style": {
+                    "classes": "Text/Muted"
+                  },
+                  "text": ""
+                },
+                "type": "ia.display.label"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "meta": {
+                          "name": "Value"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "propConfig": {
+                          "props.text": {
+                            "binding": {
+                              "config": {
+                                "path": "view.custom.overview.areas[2].online"
+                              },
+                              "type": "property"
+                            }
+                          }
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Kpi/Value Kpi/Good",
+                            "fontSize": "22px",
+                            "lineHeight": "28px"
+                          },
+                          "text": ""
+                        },
+                        "type": "ia.display.label"
+                      },
+                      {
+                        "meta": {
+                          "name": "Label"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Text/Muted"
+                          },
+                          "text": "online"
+                        },
+                        "type": "ia.display.label"
+                      }
+                    ],
+                    "meta": {
+                      "name": "Online"
+                    },
+                    "position": {
+                      "basis": "0px",
+                      "grow": 1
+                    },
+                    "props": {
+                      "direction": "column",
+                      "style": {}
+                    },
+                    "type": "ia.container.flex"
+                  },
+                  {
+                    "children": [
+                      {
+                        "meta": {
+                          "name": "Value"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "propConfig": {
+                          "props.style.classes": {
+                            "binding": {
+                              "config": {
+                                "expression": "if({view.custom.overview.areas[2].offline} > 0, \"Kpi/Value Kpi/Bad\", \"Kpi/Value\")"
+                              },
+                              "type": "expr"
+                            }
+                          },
+                          "props.text": {
+                            "binding": {
+                              "config": {
+                                "path": "view.custom.overview.areas[2].offline"
+                              },
+                              "type": "property"
+                            }
+                          }
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Kpi/Value",
+                            "fontSize": "22px",
+                            "lineHeight": "28px"
+                          },
+                          "text": ""
+                        },
+                        "type": "ia.display.label"
+                      },
+                      {
+                        "meta": {
+                          "name": "Label"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Text/Muted"
+                          },
+                          "text": "offline"
+                        },
+                        "type": "ia.display.label"
+                      }
+                    ],
+                    "meta": {
+                      "name": "Offline"
+                    },
+                    "position": {
+                      "basis": "0px",
+                      "grow": 1
+                    },
+                    "props": {
+                      "direction": "column",
+                      "style": {}
+                    },
+                    "type": "ia.container.flex"
+                  },
+                  {
+                    "children": [
+                      {
+                        "meta": {
+                          "name": "Value"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "propConfig": {
+                          "props.text": {
+                            "binding": {
+                              "config": {
+                                "path": "view.custom.overview.areas[2].flow"
+                              },
+                              "type": "property"
+                            }
+                          }
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Kpi/Value",
+                            "fontSize": "22px",
+                            "lineHeight": "28px"
+                          },
+                          "text": ""
+                        },
+                        "type": "ia.display.label"
+                      },
+                      {
+                        "meta": {
+                          "name": "Label"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Text/Muted"
+                          },
+                          "text": "L/s pumped"
+                        },
+                        "type": "ia.display.label"
+                      }
+                    ],
+                    "meta": {
+                      "name": "Flow"
+                    },
+                    "position": {
+                      "basis": "0px",
+                      "grow": 1
+                    },
+                    "props": {
+                      "direction": "column",
+                      "style": {}
+                    },
+                    "type": "ia.container.flex"
+                  }
+                ],
+                "meta": {
+                  "name": "Stats"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "props": {
+                  "direction": "row",
+                  "style": {
+                    "gap": "8px",
+                    "marginTop": "4px"
+                  }
+                },
+                "type": "ia.container.flex"
+              }
+            ],
+            "events": {
+              "dom": {
+                "onClick": {
+                  "config": {
+                    "script": "\tsystem.perspective.sendMessage(\"areaSelected\", {\"area\": \"East\"}, scope=\"page\")"
+                  },
+                  "scope": "G",
+                  "type": "script"
+                }
+              }
+            },
+            "meta": {
+              "name": "East"
+            },
+            "position": {
+              "basis": "0px",
+              "grow": 1
+            },
+            "propConfig": {
+              "props.style.classes": {
+                "binding": {
+                  "config": {
+                    "expression": "if({view.custom.area} = \"East\", \"Card Layout/CardClickable Layout/CardSelected\", \"Card Layout/CardClickable\")"
+                  },
+                  "type": "expr"
+                }
+              }
+            },
+            "props": {
+              "direction": "column",
+              "style": {
+                "classes": "Card Layout/CardClickable",
+                "gap": "8px"
+              }
+            },
+            "type": "ia.container.flex"
+          }
+        ],
+        "meta": {
+          "name": "AreaCards"
+        },
+        "position": {
+          "shrink": 0
+        },
+        "props": {
+          "direction": "row",
+          "style": {
+            "gap": "16px",
+            "classes": "Layout/Row"
+          }
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "meta": {
+                      "name": "Title"
+                    },
+                    "position": {
+                      "shrink": 0
+                    },
+                    "propConfig": {
+                      "props.text": {
+                        "binding": {
+                          "config": {
+                            "expression": "concat({view.custom.area}, \" assets\")"
+                          },
+                          "type": "expr"
+                        }
+                      }
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "Section/Title"
+                      },
+                      "text": ""
+                    },
+                    "type": "ia.display.label"
+                  },
+                  {
+                    "meta": {
+                      "name": "Subtitle"
+                    },
+                    "position": {
+                      "shrink": 0
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "Section/Subtitle"
+                      },
+                      "text": "Sent by the areaSelected page message"
+                    },
+                    "type": "ia.display.label"
+                  }
+                ],
+                "meta": {
+                  "name": "Titles"
+                },
+                "position": {
+                  "grow": 1
+                },
+                "props": {
+                  "direction": "column",
+                  "style": {
+                    "gap": "2px"
+                  }
+                },
+                "type": "ia.container.flex"
+              },
+              {
+                "events": {
+                  "component": {
+                    "onActionPerformed": {
+                      "config": {
+                        "script": "\tsystem.perspective.navigate(page=\"/assets\")"
+                      },
+                      "scope": "G",
+                      "type": "script"
+                    }
+                  }
+                },
+                "meta": {
+                  "name": "Open"
+                },
+                "position": {
+                  "basis": "140px",
+                  "shrink": 0
+                },
+                "props": {
+                  "align": "center",
+                  "enabled": true,
+                  "image": {
+                    "height": 18,
+                    "icon": {
+                      "color": "",
+                      "path": "material/arrow_forward"
+                    },
+                    "position": "right",
+                    "source": "",
+                    "style": {
+                      "classes": ""
+                    },
+                    "width": 18
+                  },
+                  "justify": "center",
+                  "primary": false,
+                  "style": {
+                    "borderRadius": "8px",
+                    "fontSize": "13px"
+                  },
+                  "text": "Open Assets"
+                },
+                "type": "ia.input.button"
+              }
+            ],
+            "meta": {
+              "name": "Head"
+            },
+            "position": {
+              "shrink": 0
+            },
+            "props": {
+              "alignItems": "center",
+              "direction": "row",
+              "style": {
+                "classes": "Layout/CardHead"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "meta": {
+              "name": "Table"
+            },
+            "position": {
+              "basis": "300px",
+              "grow": 1
+            },
+            "propConfig": {
+              "props.data": {
+                "binding": {
+                  "config": {
+                    "path": "view.custom.overview.assets"
+                  },
+                  "transforms": [
+                    {
+                      "code": "\treturn project.overview.areaAssets(value, self.view.custom.area)",
+                      "type": "script"
+                    }
+                  ],
+                  "type": "property"
+                }
+              }
+            },
+            "props": {
+              "bodyStyle": {
+                "backgroundColor": "#FFFFFF"
+              },
+              "cells": {
+                "allowEditOn": "double-click",
+                "style": {
+                  "paddingLeft": "12px",
+                  "paddingRight": "8px"
+                }
+              },
+              "columns": [
+                {
+                  "align": "center",
+                  "boolean": "checkbox",
+                  "dateFormat": "D MMM HH:mm",
+                  "editable": false,
+                  "field": "name",
+                  "footer": {
+                    "align": "center",
+                    "justify": "left",
+                    "style": {
+                      "classes": ""
+                    },
+                    "title": ""
+                  },
+                  "header": {
+                    "align": "center",
+                    "justify": "left",
+                    "style": {
+                      "classes": ""
+                    },
+                    "title": "Asset"
+                  },
+                  "justify": "auto",
+                  "number": "value",
+                  "numberFormat": "0,0.##",
+                  "render": "auto",
+                  "resizable": true,
+                  "sort": "none",
+                  "sortable": true,
+                  "strictWidth": false,
+                  "viewParams": {},
+                  "viewPath": "",
+                  "visible": true,
+                  "width": ""
+                },
+                {
+                  "align": "center",
+                  "boolean": "checkbox",
+                  "dateFormat": "D MMM HH:mm",
+                  "editable": false,
+                  "field": "kind",
+                  "footer": {
+                    "align": "center",
+                    "justify": "left",
+                    "style": {
+                      "classes": ""
+                    },
+                    "title": ""
+                  },
+                  "header": {
+                    "align": "center",
+                    "justify": "left",
+                    "style": {
+                      "classes": ""
+                    },
+                    "title": "Kind"
+                  },
+                  "justify": "auto",
+                  "number": "value",
+                  "numberFormat": "0,0.##",
+                  "render": "auto",
+                  "resizable": true,
+                  "sort": "none",
+                  "sortable": true,
+                  "strictWidth": false,
+                  "viewParams": {},
+                  "viewPath": "",
+                  "visible": true,
+                  "width": "90"
+                },
+                {
+                  "align": "center",
+                  "boolean": "checkbox",
+                  "dateFormat": "D MMM HH:mm",
+                  "editable": false,
+                  "field": "status",
+                  "footer": {
+                    "align": "center",
+                    "justify": "left",
+                    "style": {
+                      "classes": ""
+                    },
+                    "title": ""
+                  },
+                  "header": {
+                    "align": "center",
+                    "justify": "left",
+                    "style": {
+                      "classes": ""
+                    },
+                    "title": "Status"
+                  },
+                  "justify": "auto",
+                  "number": "value",
+                  "numberFormat": "0,0.##",
+                  "render": "view",
+                  "resizable": true,
+                  "sort": "none",
+                  "sortable": true,
+                  "strictWidth": false,
+                  "viewParams": {},
+                  "viewPath": "Cells/Pill",
+                  "visible": true,
+                  "width": "100"
+                },
+                {
+                  "align": "center",
+                  "boolean": "checkbox",
+                  "dateFormat": "D MMM HH:mm",
+                  "editable": false,
+                  "field": "reading",
+                  "footer": {
+                    "align": "center",
+                    "justify": "left",
+                    "style": {
+                      "classes": ""
+                    },
+                    "title": ""
+                  },
+                  "header": {
+                    "align": "center",
+                    "justify": "left",
+                    "style": {
+                      "classes": ""
+                    },
+                    "title": "Latest"
+                  },
+                  "justify": "auto",
+                  "number": "value",
+                  "numberFormat": "0,0.##",
+                  "render": "auto",
+                  "resizable": true,
+                  "sort": "none",
+                  "sortable": true,
+                  "strictWidth": false,
+                  "viewParams": {},
+                  "viewPath": "",
+                  "visible": true,
+                  "width": "110"
+                }
+              ],
+              "emptyMessage": {
+                "noData": {
+                  "icon": null,
+                  "text": "Nothing to show",
+                  "textStyle": null
+                },
+                "noFilterResults": {
+                  "icon": null,
+                  "text": "No matches",
+                  "textStyle": null
+                }
+              },
+              "headerStyle": {
+                "backgroundColor": "#F8FAFC",
+                "borderBottom": "1px solid #E2E8F0",
+                "color": "#64748B",
+                "fontSize": "12px",
+                "fontWeight": "600",
+                "letterSpacing": "0.04em",
+                "paddingLeft": "4px",
+                "textTransform": "uppercase"
+              },
+              "pager": {
+                "activeOption": 25,
+                "activePage": 1,
+                "bottom": false,
+                "initialOption": null,
+                "options": [
+                  10,
+                  25,
+                  50
+                ],
+                "top": false
+              },
+              "rows": {
+                "height": 40,
+                "highlight": {
+                  "color": "#E0F2FE",
+                  "enabled": true
+                },
+                "striped": {
+                  "color": {
+                    "even": "",
+                    "odd": ""
+                  },
+                  "enabled": false
+                },
+                "style": {
+                  "borderBottom": "1px solid #F1F5F9"
+                },
+                "subview": {
+                  "enabled": false,
+                  "viewParams": {},
+                  "viewPath": ""
+                },
+                "subviewExpansionMode": "multiple"
+              },
+              "selection": {
+                "data": [],
+                "enableColumnSelection": false,
+                "enableRowSelection": true,
+                "mode": "single",
+                "selectedColumn": null,
+                "selectedRow": null
+              },
+              "style": {
+                "border": "1px solid #E2E8F0",
+                "borderRadius": "8px",
+                "classes": "Layout/Table",
+                "overflow": "hidden"
+              }
+            },
+            "type": "ia.display.table"
+          }
+        ],
+        "meta": {
+          "name": "AreaDetail"
+        },
+        "position": {
+          "basis": "330px",
+          "shrink": 0
+        },
+        "props": {
+          "direction": "column",
+          "style": {
+            "classes": "Card",
+            "gap": "12px"
+          }
+        },
+        "scripts": {
+          "customMethods": [],
+          "extensionFunctions": null,
+          "messageHandlers": [
+            {
+              "messageType": "areaSelected",
+              "pageScope": true,
+              "script": "\tself.view.custom.area = payload[\"area\"]\n\tself.getChild(\"Table\").refreshBinding(\"props.data\")",
+              "sessionScope": false,
+              "viewScope": false
+            }
+          ]
+        },
+        "type": "ia.container.flex"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "direction": "column",
+      "style": {
+        "classes": "Layout/Page",
+        "gap": "20px",
+        "overflow": "auto"
+      }
+    },
+    "type": "ia.container.flex"
+  }
+}

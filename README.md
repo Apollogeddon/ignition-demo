@@ -103,7 +103,7 @@ The projects are the same files the release's images run.
 
 ## Deploy
 
-Each environment is applied in two stages: `infra` (the platform and the gateway), then `config` (the gateway's configuration). See [`cluster/`](cluster/README.md) for the k3s reference environment.
+Each environment is applied in two stages, with their state encrypted in a Secret in the cluster: `infra` (the platform and the gateway), then `config` (the gateway's configuration). On 8.3 both are required, as `config` creates the database connection the project's named queries use. See [`cluster/`](cluster/README.md) for the k3s reference environment. CI's `e2e` pipeline deploys both to a throwaway k3d cluster and checks the result ([`.github/WORKFLOWS.md`](.github/WORKFLOWS.md#e2e)).
 
 ## Repository layout
 
@@ -116,7 +116,7 @@ Each environment is applied in two stages: `infra` (the platform and the gateway
 | `cluster/modules/` | OpenTofu modules: `platform`, `gateway`, `resources` |
 | `cluster/environments/` | One root module per environment (`k3s` is the reference) |
 | `develop/` | Docker Compose for local development, with the projects mounted live |
-| `scripts/` | Repository tooling: the resource sanitiser, git setup and the 8.1 event script generator |
+| `scripts/` | Repository tooling: the resource sanitiser, git setup, the 8.1 event script generator and the e2e pipeline's deployment checks |
 | `webpage/` | The documentation site (Astro) |
 
 ## Who owns what

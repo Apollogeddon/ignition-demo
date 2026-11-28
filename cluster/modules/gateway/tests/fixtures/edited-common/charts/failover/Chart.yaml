@@ -1,0 +1,8 @@
+# A stand-in for ignition-helm's charts/failover, for the chart_path tests
+apiVersion: v2
+name: ignition-failover
+version: 4.2.6
+dependencies:
+  - name: ignition-common
+    version: "^4.0.0"
+    repository: "file://../common"

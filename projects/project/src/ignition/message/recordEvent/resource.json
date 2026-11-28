@@ -1,0 +1,18 @@
+{
+  "attributes": {
+    "enabled": true,
+    "lastModification": {
+      "actor": "system",
+      "timestamp": "2025-01-01T00:00:00Z"
+    },
+    "lastModificationSignature": "0000000000000000000000000000000000000000000000000000000000000000",
+    "threadType": "Shared"
+  },
+  "files": [
+    "handleMessage.py"
+  ],
+  "overridable": true,
+  "restricted": false,
+  "scope": "G",
+  "version": 1
+}

@@ -3,6 +3,7 @@ import logoImage from "../assets/favicon.png";
 import ArchitectureComparison from "../components/ArchitectureComparison.astro";
 import FeatureGrid from "../components/FeatureGrid.astro";
 import Hero from "../components/Hero.astro";
+import Screenshots from "../components/Screenshots.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 
 const year = new Date().getFullYear();
@@ -14,6 +15,8 @@ const year = new Date().getFullYear();
     logo={logoImage}
   />
   
+  <Screenshots />
+
   <FeatureGrid />
   
   <ArchitectureComparison />

@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # Regenerate each project's Ignition 8.1 gateway events (event-scripts/data.bin)
-# from its 8.3 event script files (ignition/startup/onStartup.py, ...), using
+# from its 8.3 event script files (ignition/startup/onStartup.py, ...), timer
+# events (ignition/timer/<name>/handleTimerEvent.py) and gateway message
+# handlers (ignition/message/<name>/handleMessage.py), using
 # Ignition 8.1's own serializer in its Docker image. Run after changing an
 # event script; CI checks the generated files are up to date.
 #
@@ -16,7 +18,7 @@ projects=("$@")
 if [ ${#projects[@]} -eq 0 ]; then
   shopt -s nullglob
   for dir in projects/*/src/ignition; do
-    events=("${dir}"/startup/on*.py "${dir}"/update/on*.py "${dir}"/shutdown/on*.py)
+    events=("${dir}"/startup/on*.py "${dir}"/update/on*.py "${dir}"/shutdown/on*.py "${dir}"/timer/*/handleTimerEvent.py "${dir}"/message/*/handleMessage.py)
     [ ${#events[@]} -gt 0 ] && projects+=("$(basename "$(dirname "$(dirname "${dir}")")")")
   done
   shopt -u nullglob

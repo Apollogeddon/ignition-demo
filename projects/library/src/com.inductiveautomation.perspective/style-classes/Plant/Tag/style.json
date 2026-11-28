@@ -1,0 +1,12 @@
+{
+  "base": {
+    "style": {
+      "color": "#0F172A",
+      "fontSize": "12px",
+      "fontWeight": "600",
+      "lineHeight": "16px",
+      "textAlign": "center",
+      "whiteSpace": "nowrap"
+    }
+  }
+}

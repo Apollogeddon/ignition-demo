@@ -1,15 +1,22 @@
 """Asset queries and summaries for the overview views."""
 
+from java.lang import Throwable
 from library.data import toRows
 from library.db import namedQuery
+from library.format import EM_DASH
+from project.events import tableRows as eventRows
+from project.process import MOTORS, readValues, role
 from system.tag import configure
 from system.util import getLogger
 
 LOGGER = getLogger("demo.project.assets")
 
+# a reading at or above 100 shows without decimals (air flow, rpm), below with one
+WHOLE_NUMBER_FROM = 100
+
 MYPY = False
 if MYPY:
-	from typing import Any, Dict, Iterable, List
+	from typing import Any, Dict, Iterable, List, Optional
 
 
 def summarise(
@@ -31,6 +38,142 @@ def getSummary():
 	summary = summarise(toRows(namedQuery("assets/list")))
 	LOGGER.debug("Summarised {} areas".format(len(summary)))
 	return summary
+
+
+def live(
+	rows,  # type: List[Dict[str, Any]]
+	values,  # type: Dict[str, Dict[str, Any]]
+):
+	# type: (...) -> List[Dict[str, Any]]
+	"""Overlay each asset's tags on its assets/status row.
+
+	value becomes the tag's live reading, and a motor is online unless its
+	motor/fault is set; running says whether it runs. A tag that reads nothing
+	(no instance yet, or bad quality) keeps the database's value.
+	"""
+	result = []
+	for source in rows:
+		row = dict(source)
+		tags = values.get(row["name"]) or {}
+		# a tag that reads nothing (no instance yet, or bad quality) leaves the row's value
+		if tags.get("value") is not None:
+			row["value"] = tags["value"]
+		if row["kind"] in MOTORS and tags.get("fault") is not None:
+			row["online"] = not tags["fault"]
+			row["running"] = bool(tags.get("running"))
+		result.append(row)
+	return result
+
+
+def getStatus():
+	# type: (...) -> List[Dict[str, Any]]
+	"""Return every enabled asset with its live reading (its tags) and latest event.
+
+	The rows come from assets/status, with the tags overlaid; if the tags can't
+	be read, the database's latest reading and online flag stand.
+	"""
+	rows = toRows(namedQuery("assets/status"))
+	try:
+		return live(rows, readValues([row for row in rows if role(row)]))
+	except (Exception, Throwable) as e:  # noqa: BLE001 - the database's values still show
+		LOGGER.warn("Asset tags not read; showing the database's readings: {}".format(e))
+		return rows
+
+
+def reading(
+	value,  # type: Optional[float]
+	unit,  # type: str
+):
+	# type: (...) -> str
+	"""Format a reading with its unit, e.g. "42.3 L/s" or "1,450 rpm".
+
+	Joined by concatenation: the unit is unicode on Jython 2.7, and str.format
+	would encode it as ASCII.
+	"""
+	if value is None:
+		return EM_DASH
+	pattern = "{:,.0f}" if abs(value) >= WHOLE_NUMBER_FROM else "{:.1f}"
+	text = pattern.format(value)
+	return (text + " " + unit).strip()
+
+
+def status(
+	online,  # type: Any
+):
+	# type: (...) -> str
+	"""Return "Online" or "Offline"; tables show it as a pill (the Cells/Pill view)."""
+	return "Online" if online else "Offline"
+
+
+def tableRows(
+	rows,  # type: Iterable[Dict[str, Any]]
+):
+	# type: (...) -> List[Dict[str, Any]]
+	"""Shape assets/status rows for an asset table: status and formatted readings."""
+	return [
+		{
+			"id": row["id"],
+			"name": row["name"],
+			"area": row["area"] or "Unassigned",
+			"kind": (row["kind"] or "").capitalize(),
+			"status": status(row["online"]),
+			"reading": reading(row["value"], row["unit"] or ""),
+			"event": row["event_ms"],
+		}
+		for row in rows
+	]
+
+
+def getTable():
+	# type: (...) -> List[Dict[str, Any]]
+	"""Return every enabled asset as rows for the Assets page's table."""
+	return tableRows(getStatus())
+
+
+def detail(
+	assetId,  # type: Any
+	rows,  # type: Iterable[Dict[str, Any]]
+	readings,  # type: Iterable[Dict[str, Any]]
+	events,  # type: List[Dict[str, Any]]
+):
+	# type: (...) -> Dict[str, Any]
+	"""Return what the asset detail panel shows for one asset, or an empty panel.
+
+	readings become the time series chart's data ({time, value}); events are
+	the asset's latest, newest first, as events/list returns them.
+	"""
+	found = [row for row in rows if row["id"] == assetId]
+	if not found:
+		return {"found": False, "name": "No asset selected", "readings": [], "events": []}
+	row = found[0]
+	unit = row["unit"] or ""
+	return {
+		"found": True,
+		"id": row["id"],
+		"name": row["name"],
+		"area": row["area"] or "Unassigned",
+		"kind": (row["kind"] or "").capitalize(),
+		"online": bool(row["online"]),
+		"status": status(row["online"]),
+		"unit": unit,
+		"reading": reading(row["value"], unit),
+		"readings": [{"time": r["time"], "value": r["value"]} for r in readings],
+		"events": events,
+	}
+
+
+def getDetail(
+	assetId,  # type: Any
+):
+	# type: (...) -> Dict[str, Any]
+	"""Query one asset's status, readings and latest events for the detail panel."""
+	try:
+		assetId = int(assetId)
+	except (TypeError, ValueError):
+		return detail(None, [], [], [])
+	readings = toRows(namedQuery("readings/asset", {"assetId": assetId}))
+	events = eventRows(toRows(namedQuery("events/list", {"assetId": assetId, "limit": 5})))
+	return detail(assetId, getStatus(), readings, events)
 
 
 def buildInstances(

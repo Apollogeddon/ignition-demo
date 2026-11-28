@@ -1,0 +1,2359 @@
+{
+  "custom": {
+    "analytics": {
+      "areas": [],
+      "chart": [],
+      "gauges": {
+        "availability": {
+          "caption": "",
+          "value": 0
+        },
+        "intake": {
+          "caption": "",
+          "max": 100,
+          "value": 0
+        },
+        "reservoir": {
+          "caption": "",
+          "value": 0
+        }
+      },
+      "heatmap": {
+        "high": "",
+        "hours": [],
+        "low": "",
+        "rows": [],
+        "scale": []
+      },
+      "output": {
+        "hours": 24,
+        "volume": 0
+      }
+    },
+    "levels": []
+  },
+  "params": {},
+  "propConfig": {
+    "custom.analytics": {
+      "binding": {
+        "config": {
+          "expression": "now(60000)"
+        },
+        "transforms": [
+          {
+            "code": "\treturn project.analytics.getAnalytics()",
+            "type": "script"
+          }
+        ],
+        "type": "expr"
+      }
+    },
+    "custom.levels": {
+      "binding": {
+        "config": {
+          "expression": "now(30000)"
+        },
+        "transforms": [
+          {
+            "code": "\treturn project.analytics.getLevelHistory()",
+            "type": "script"
+          }
+        ],
+        "type": "expr"
+      }
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 1100,
+      "width": 1280
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "Title"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "props": {
+                  "style": {
+                    "classes": "Layout/PageTitle"
+                  },
+                  "text": "Analytics"
+                },
+                "type": "ia.display.label"
+              },
+              {
+                "meta": {
+                  "name": "Subtitle"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "props": {
+                  "style": {
+                    "classes": "Layout/PageSubtitle"
+                  },
+                  "text": "Trends and KPIs over the 72 hours up to the latest reading, refreshed every minute"
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "meta": {
+              "name": "Titles"
+            },
+            "position": {
+              "grow": 1
+            },
+            "props": {
+              "direction": "column",
+              "style": {
+                "gap": "2px"
+              }
+            },
+            "type": "ia.container.flex"
+          }
+        ],
+        "meta": {
+          "name": "Header"
+        },
+        "position": {
+          "shrink": 0
+        },
+        "props": {
+          "alignItems": "center",
+          "direction": "row",
+          "style": {}
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "meta": {
+                      "name": "Title"
+                    },
+                    "position": {
+                      "grow": 1
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "Kpi/Label"
+                      },
+                      "text": "Availability"
+                    },
+                    "type": "ia.display.label"
+                  },
+                  {
+                    "meta": {
+                      "name": "Icon"
+                    },
+                    "position": {
+                      "basis": "20px",
+                      "shrink": 0
+                    },
+                    "props": {
+                      "color": "#94A3B8",
+                      "path": "material/check_circle",
+                      "style": {}
+                    },
+                    "type": "ia.display.icon"
+                  }
+                ],
+                "meta": {
+                  "name": "Head"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "props": {
+                  "alignItems": "center",
+                  "direction": "row",
+                  "style": {}
+                },
+                "type": "ia.container.flex"
+              },
+              {
+                "meta": {
+                  "name": "Gauge"
+                },
+                "position": {
+                  "basis": "120px",
+                  "shrink": 0
+                },
+                "propConfig": {
+                  "props.value": {
+                    "binding": {
+                      "config": {
+                        "expression": "{view.custom.analytics.gauges.availability.value}"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                },
+                "props": {
+                  "animate": true,
+                  "arc": {
+                    "color": "#16A34A",
+                    "cornerRadius": 9,
+                    "width": 18
+                  },
+                  "arcBackground": {
+                    "color": "#E2E8F0",
+                    "opacity": 1
+                  },
+                  "endAngle": 360,
+                  "label": {
+                    "color": "#0F172A",
+                    "maxDecimal": 1,
+                    "offsetX": 0,
+                    "offsetY": 0,
+                    "size": 26,
+                    "units": "%",
+                    "visible": true
+                  },
+                  "maxValue": 100,
+                  "minValue": 0,
+                  "startAngle": 180,
+                  "style": {
+                    "classes": ""
+                  },
+                  "value": 0
+                },
+                "type": "ia.chart.simple-gauge"
+              },
+              {
+                "meta": {
+                  "name": "Caption"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "config": {
+                        "expression": "{view.custom.analytics.gauges.availability.caption}"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                },
+                "props": {
+                  "style": {
+                    "classes": "Kpi/Caption",
+                    "textAlign": "center"
+                  },
+                  "text": ""
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "meta": {
+              "name": "Availability"
+            },
+            "position": {
+              "basis": "0px",
+              "grow": 1
+            },
+            "props": {
+              "direction": "column",
+              "style": {
+                "classes": "Card",
+                "gap": "6px"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "meta": {
+                      "name": "Title"
+                    },
+                    "position": {
+                      "grow": 1
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "Kpi/Label"
+                      },
+                      "text": "Intake against capacity"
+                    },
+                    "type": "ia.display.label"
+                  },
+                  {
+                    "meta": {
+                      "name": "Icon"
+                    },
+                    "position": {
+                      "basis": "20px",
+                      "shrink": 0
+                    },
+                    "props": {
+                      "color": "#94A3B8",
+                      "path": "material/waves",
+                      "style": {}
+                    },
+                    "type": "ia.display.icon"
+                  }
+                ],
+                "meta": {
+                  "name": "Head"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "props": {
+                  "alignItems": "center",
+                  "direction": "row",
+                  "style": {}
+                },
+                "type": "ia.container.flex"
+              },
+              {
+                "meta": {
+                  "name": "Gauge"
+                },
+                "position": {
+                  "basis": "120px",
+                  "shrink": 0
+                },
+                "propConfig": {
+                  "props.maxValue": {
+                    "binding": {
+                      "config": {
+                        "expression": "{view.custom.analytics.gauges.intake.max}"
+                      },
+                      "type": "expr"
+                    }
+                  },
+                  "props.value": {
+                    "binding": {
+                      "config": {
+                        "expression": "{view.custom.analytics.gauges.intake.value}"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                },
+                "props": {
+                  "animate": true,
+                  "arc": {
+                    "color": "#2563EB",
+                    "cornerRadius": 9,
+                    "width": 18
+                  },
+                  "arcBackground": {
+                    "color": "#E2E8F0",
+                    "opacity": 1
+                  },
+                  "endAngle": 360,
+                  "label": {
+                    "color": "#0F172A",
+                    "maxDecimal": 0,
+                    "offsetX": 0,
+                    "offsetY": 0,
+                    "size": 26,
+                    "units": " L/s",
+                    "visible": true
+                  },
+                  "maxValue": 100,
+                  "minValue": 0,
+                  "startAngle": 180,
+                  "style": {
+                    "classes": ""
+                  },
+                  "value": 0
+                },
+                "type": "ia.chart.simple-gauge"
+              },
+              {
+                "meta": {
+                  "name": "Caption"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "config": {
+                        "expression": "{view.custom.analytics.gauges.intake.caption}"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                },
+                "props": {
+                  "style": {
+                    "classes": "Kpi/Caption",
+                    "textAlign": "center"
+                  },
+                  "text": ""
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "meta": {
+              "name": "Intake"
+            },
+            "position": {
+              "basis": "0px",
+              "grow": 1
+            },
+            "props": {
+              "direction": "column",
+              "style": {
+                "classes": "Card",
+                "gap": "6px"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "meta": {
+                      "name": "Title"
+                    },
+                    "position": {
+                      "grow": 1
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "Kpi/Label"
+                      },
+                      "text": "Reservoir level"
+                    },
+                    "type": "ia.display.label"
+                  },
+                  {
+                    "meta": {
+                      "name": "Icon"
+                    },
+                    "position": {
+                      "basis": "20px",
+                      "shrink": 0
+                    },
+                    "props": {
+                      "color": "#94A3B8",
+                      "path": "material/storage",
+                      "style": {}
+                    },
+                    "type": "ia.display.icon"
+                  }
+                ],
+                "meta": {
+                  "name": "Head"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "props": {
+                  "alignItems": "center",
+                  "direction": "row",
+                  "style": {}
+                },
+                "type": "ia.container.flex"
+              },
+              {
+                "meta": {
+                  "name": "Gauge"
+                },
+                "position": {
+                  "basis": "120px",
+                  "shrink": 0
+                },
+                "propConfig": {
+                  "props.value": {
+                    "binding": {
+                      "config": {
+                        "expression": "{view.custom.analytics.gauges.reservoir.value}"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                },
+                "props": {
+                  "animate": true,
+                  "arc": {
+                    "color": "#D97706",
+                    "cornerRadius": 9,
+                    "width": 18
+                  },
+                  "arcBackground": {
+                    "color": "#E2E8F0",
+                    "opacity": 1
+                  },
+                  "endAngle": 360,
+                  "label": {
+                    "color": "#0F172A",
+                    "maxDecimal": 1,
+                    "offsetX": 0,
+                    "offsetY": 0,
+                    "size": 26,
+                    "units": "%",
+                    "visible": true
+                  },
+                  "maxValue": 100,
+                  "minValue": 0,
+                  "startAngle": 180,
+                  "style": {
+                    "classes": ""
+                  },
+                  "value": 0
+                },
+                "type": "ia.chart.simple-gauge"
+              },
+              {
+                "meta": {
+                  "name": "Caption"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "config": {
+                        "expression": "{view.custom.analytics.gauges.reservoir.caption}"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                },
+                "props": {
+                  "style": {
+                    "classes": "Kpi/Caption",
+                    "textAlign": "center"
+                  },
+                  "text": ""
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "meta": {
+              "name": "Reservoir"
+            },
+            "position": {
+              "basis": "0px",
+              "grow": 1
+            },
+            "props": {
+              "direction": "column",
+              "style": {
+                "classes": "Card",
+                "gap": "6px"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "meta": {
+                      "name": "Title"
+                    },
+                    "position": {
+                      "grow": 1
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "Kpi/Label"
+                      },
+                      "text": "Plant output"
+                    },
+                    "type": "ia.display.label"
+                  },
+                  {
+                    "meta": {
+                      "name": "Icon"
+                    },
+                    "position": {
+                      "basis": "20px",
+                      "shrink": 0
+                    },
+                    "props": {
+                      "color": "#94A3B8",
+                      "path": "material/local_drink",
+                      "style": {}
+                    },
+                    "type": "ia.display.icon"
+                  }
+                ],
+                "meta": {
+                  "name": "Head"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "props": {
+                  "alignItems": "center",
+                  "direction": "row",
+                  "style": {}
+                },
+                "type": "ia.container.flex"
+              },
+              {
+                "children": [
+                  {
+                    "meta": {
+                      "name": "Led"
+                    },
+                    "position": {
+                      "basis": "64px",
+                      "shrink": 0
+                    },
+                    "propConfig": {
+                      "props.value": {
+                        "binding": {
+                          "config": {
+                            "expression": "{view.custom.analytics.output.volume}"
+                          },
+                          "type": "expr"
+                        }
+                      }
+                    },
+                    "props": {
+                      "backgroundColor": "#0F172A",
+                      "diodeOffColor": "#1E293B",
+                      "diodeOnColor": "#38BDF8",
+                      "locale": "en-US",
+                      "numberFormat": "#,##0",
+                      "segmentFormat": "7 segment",
+                      "style": {
+                        "classes": "Kpi/Led"
+                      },
+                      "value": 0
+                    },
+                    "type": "ia.display.led-display"
+                  }
+                ],
+                "meta": {
+                  "name": "Display"
+                },
+                "position": {
+                  "basis": "120px",
+                  "shrink": 0
+                },
+                "props": {
+                  "direction": "column",
+                  "justify": "center",
+                  "style": {}
+                },
+                "type": "ia.container.flex"
+              },
+              {
+                "meta": {
+                  "name": "Caption"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "config": {
+                        "expression": "concat('m\u00b3 delivered to the network in the last ', {view.custom.analytics.output.hours}, ' hours')"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                },
+                "props": {
+                  "style": {
+                    "classes": "Kpi/Caption",
+                    "textAlign": "center"
+                  },
+                  "text": ""
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "meta": {
+              "name": "Output"
+            },
+            "position": {
+              "basis": "0px",
+              "grow": 1
+            },
+            "props": {
+              "direction": "column",
+              "style": {
+                "classes": "Card",
+                "gap": "6px"
+              }
+            },
+            "type": "ia.container.flex"
+          }
+        ],
+        "meta": {
+          "name": "Kpis"
+        },
+        "position": {
+          "shrink": 0
+        },
+        "props": {
+          "direction": "row",
+          "style": {
+            "gap": "16px",
+            "classes": "Layout/Kpis Layout/Gauges"
+          }
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "meta": {
+                      "name": "Title"
+                    },
+                    "position": {
+                      "shrink": 0
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "Section/Title"
+                      },
+                      "text": "Delivered water and reservoir level"
+                    },
+                    "type": "ia.display.label"
+                  },
+                  {
+                    "meta": {
+                      "name": "Subtitle"
+                    },
+                    "position": {
+                      "shrink": 0
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "Section/Subtitle"
+                      },
+                      "text": "Hourly volume the transfer pumps sent to the network, and the reservoir's mean level"
+                    },
+                    "type": "ia.display.label"
+                  }
+                ],
+                "meta": {
+                  "name": "Titles"
+                },
+                "position": {
+                  "grow": 1
+                },
+                "props": {
+                  "direction": "column",
+                  "style": {
+                    "gap": "2px"
+                  }
+                },
+                "type": "ia.container.flex"
+              }
+            ],
+            "meta": {
+              "name": "Head"
+            },
+            "position": {
+              "shrink": 0
+            },
+            "props": {
+              "alignItems": "center",
+              "direction": "row",
+              "style": {}
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "meta": {
+              "name": "Chart"
+            },
+            "position": {
+              "basis": "300px",
+              "grow": 1
+            },
+            "propConfig": {
+              "props.dataSources.hourly": {
+                "binding": {
+                  "config": {
+                    "path": "view.custom.analytics.chart"
+                  },
+                  "type": "property"
+                }
+              }
+            },
+            "props": {
+              "background": {
+                "color": "",
+                "gradient": {
+                  "colors": [],
+                  "direction": "linear",
+                  "rotation": 0
+                },
+                "opacity": 1,
+                "render": "none"
+              },
+              "cursor": {
+                "enabled": true,
+                "lineX": {
+                  "enabled": true,
+                  "stroke": {
+                    "color": "#94A3B8",
+                    "dashArray": "",
+                    "opacity": 0.6,
+                    "width": 1
+                  }
+                },
+                "lineY": {
+                  "enabled": false,
+                  "stroke": {
+                    "color": "",
+                    "dashArray": "",
+                    "opacity": 0.4,
+                    "width": 1
+                  }
+                },
+                "series": ""
+              },
+              "dataSources": {
+                "hourly": []
+              },
+              "enableTransitions": false,
+              "legend": {
+                "absolute": {
+                  "x": 0,
+                  "y": 0
+                },
+                "enabled": true,
+                "labels": {
+                  "font": {
+                    "color": "#475569",
+                    "size": 12,
+                    "weight": 400
+                  },
+                  "text": "{name}"
+                },
+                "markers": {
+                  "cornerRadius": {
+                    "bottomLeft": 3,
+                    "bottomRight": 3,
+                    "topLeft": 3,
+                    "topRight": 3
+                  },
+                  "enabled": true,
+                  "height": 12,
+                  "icon": {
+                    "color": "",
+                    "height": 20,
+                    "horizontalCenter": "left",
+                    "path": "",
+                    "verticalCenter": "top",
+                    "width": 20
+                  },
+                  "mirrorLookOfSeries": true,
+                  "stroke": {
+                    "color": "",
+                    "opacity": 0,
+                    "width": 1
+                  },
+                  "width": 12
+                },
+                "position": "top"
+              },
+              "scrollBars": {
+                "horizontal": {
+                  "enabled": false,
+                  "series": ""
+                },
+                "vertical": {
+                  "enabled": false,
+                  "series": ""
+                }
+              },
+              "selection": {
+                "data": [],
+                "enabled": false,
+                "selectedHighlightColor": ""
+              },
+              "series": [
+                {
+                  "candlestick": {
+                    "appearance": {
+                      "deriveFieldsFromData": {
+                        "fill": {
+                          "color": "",
+                          "opacity": ""
+                        },
+                        "stroke": {
+                          "color": "",
+                          "opacity": "",
+                          "width": ""
+                        }
+                      },
+                      "fill": {
+                        "color": "",
+                        "opacity": 1
+                      },
+                      "heatRules": {
+                        "dataField": "",
+                        "enabled": false,
+                        "max": "",
+                        "min": ""
+                      },
+                      "stacked": false,
+                      "stroke": {
+                        "color": "",
+                        "opacity": 1,
+                        "width": 1
+                      }
+                    },
+                    "high": {
+                      "x": "",
+                      "y": ""
+                    },
+                    "low": {
+                      "x": "",
+                      "y": ""
+                    },
+                    "open": {
+                      "x": "",
+                      "y": ""
+                    }
+                  },
+                  "column": {
+                    "appearance": {
+                      "deriveFieldsFromData": {
+                        "fill": {
+                          "color": "",
+                          "opacity": ""
+                        },
+                        "stroke": {
+                          "color": "",
+                          "opacity": "",
+                          "width": ""
+                        }
+                      },
+                      "fill": {
+                        "color": "#7DD3FC",
+                        "opacity": 1
+                      },
+                      "heatRules": {
+                        "dataField": "",
+                        "enabled": false,
+                        "max": "",
+                        "min": ""
+                      },
+                      "height": null,
+                      "stacked": false,
+                      "stroke": {
+                        "color": "#38BDF8",
+                        "opacity": 0,
+                        "width": 0
+                      },
+                      "width": 70
+                    },
+                    "open": {
+                      "x": "",
+                      "y": ""
+                    }
+                  },
+                  "data": {
+                    "source": "hourly",
+                    "x": "label",
+                    "y": "volume"
+                  },
+                  "defaultState": {
+                    "visible": true
+                  },
+                  "hiddenInLegend": false,
+                  "label": {
+                    "text": "Delivered (m\u00b3)"
+                  },
+                  "line": {
+                    "appearance": {
+                      "bullets": [],
+                      "connect": true,
+                      "fill": {
+                        "color": "",
+                        "opacity": 0
+                      },
+                      "minDistance": 0.5,
+                      "stroke": {
+                        "color": "",
+                        "dashArray": "",
+                        "opacity": 1,
+                        "width": 3
+                      },
+                      "tensionX": 1,
+                      "tensionY": 1
+                    },
+                    "open": {
+                      "x": "",
+                      "y": ""
+                    }
+                  },
+                  "name": "Delivered",
+                  "render": "column",
+                  "stepLine": {
+                    "appearance": {
+                      "bullets": [],
+                      "connect": true,
+                      "fill": {
+                        "color": "",
+                        "opacity": 0
+                      },
+                      "minDistance": 0.5,
+                      "stroke": {
+                        "color": "",
+                        "dashArray": "",
+                        "opacity": 1,
+                        "width": 3
+                      },
+                      "tensionX": 1,
+                      "tensionY": 1
+                    },
+                    "open": {
+                      "x": "",
+                      "y": ""
+                    }
+                  },
+                  "tooltip": {
+                    "background": {
+                      "color": "",
+                      "opacity": 1
+                    },
+                    "cornerRadius": 6,
+                    "enabled": true,
+                    "pointerLength": 4,
+                    "text": "{categoryX}: [bold]{valueY} m\u00b3[/]"
+                  },
+                  "visible": true,
+                  "xAxis": "hour",
+                  "yAxis": "volume",
+                  "zIndex": 0
+                },
+                {
+                  "candlestick": {
+                    "appearance": {
+                      "deriveFieldsFromData": {
+                        "fill": {
+                          "color": "",
+                          "opacity": ""
+                        },
+                        "stroke": {
+                          "color": "",
+                          "opacity": "",
+                          "width": ""
+                        }
+                      },
+                      "fill": {
+                        "color": "",
+                        "opacity": 1
+                      },
+                      "heatRules": {
+                        "dataField": "",
+                        "enabled": false,
+                        "max": "",
+                        "min": ""
+                      },
+                      "stacked": false,
+                      "stroke": {
+                        "color": "",
+                        "opacity": 1,
+                        "width": 1
+                      }
+                    },
+                    "high": {
+                      "x": "",
+                      "y": ""
+                    },
+                    "low": {
+                      "x": "",
+                      "y": ""
+                    },
+                    "open": {
+                      "x": "",
+                      "y": ""
+                    }
+                  },
+                  "column": {
+                    "appearance": {
+                      "deriveFieldsFromData": {
+                        "fill": {
+                          "color": "",
+                          "opacity": ""
+                        },
+                        "stroke": {
+                          "color": "",
+                          "opacity": "",
+                          "width": ""
+                        }
+                      },
+                      "fill": {
+                        "color": "",
+                        "opacity": 1
+                      },
+                      "heatRules": {
+                        "dataField": "",
+                        "enabled": false,
+                        "max": "",
+                        "min": ""
+                      },
+                      "height": null,
+                      "stacked": false,
+                      "stroke": {
+                        "color": "",
+                        "opacity": 1,
+                        "width": 1
+                      },
+                      "width": null
+                    },
+                    "open": {
+                      "x": "",
+                      "y": ""
+                    }
+                  },
+                  "data": {
+                    "source": "hourly",
+                    "x": "label",
+                    "y": "reservoir"
+                  },
+                  "defaultState": {
+                    "visible": true
+                  },
+                  "hiddenInLegend": false,
+                  "label": {
+                    "text": "Reservoir level (%)"
+                  },
+                  "line": {
+                    "appearance": {
+                      "bullets": [],
+                      "connect": true,
+                      "fill": {
+                        "color": "",
+                        "opacity": 0
+                      },
+                      "minDistance": 0.5,
+                      "stroke": {
+                        "color": "#D97706",
+                        "dashArray": "",
+                        "opacity": 1,
+                        "width": 2.5
+                      },
+                      "tensionX": 0.85,
+                      "tensionY": 1
+                    },
+                    "open": {
+                      "x": "",
+                      "y": ""
+                    }
+                  },
+                  "name": "Reservoir",
+                  "render": "line",
+                  "stepLine": {
+                    "appearance": {
+                      "bullets": [],
+                      "connect": true,
+                      "fill": {
+                        "color": "",
+                        "opacity": 0
+                      },
+                      "minDistance": 0.5,
+                      "stroke": {
+                        "color": "",
+                        "dashArray": "",
+                        "opacity": 1,
+                        "width": 3
+                      },
+                      "tensionX": 1,
+                      "tensionY": 1
+                    },
+                    "open": {
+                      "x": "",
+                      "y": ""
+                    }
+                  },
+                  "tooltip": {
+                    "background": {
+                      "color": "",
+                      "opacity": 1
+                    },
+                    "cornerRadius": 6,
+                    "enabled": true,
+                    "pointerLength": 4,
+                    "text": "Reservoir: [bold]{valueY}%[/]"
+                  },
+                  "visible": true,
+                  "xAxis": "hour",
+                  "yAxis": "level",
+                  "zIndex": 1
+                }
+              ],
+              "style": {
+                "classes": ""
+              },
+              "subtitle": {
+                "appearance": {
+                  "color": "",
+                  "font": {
+                    "size": "",
+                    "weight": 500
+                  },
+                  "padding": {
+                    "bottom": 0,
+                    "left": 0,
+                    "right": 0,
+                    "top": 0
+                  }
+                },
+                "text": ""
+              },
+              "title": {
+                "appearance": {
+                  "color": "",
+                  "font": {
+                    "size": "",
+                    "weight": 700
+                  },
+                  "padding": {
+                    "bottom": 0,
+                    "left": 0,
+                    "right": 0,
+                    "top": 0
+                  }
+                },
+                "text": ""
+              },
+              "xAxes": [
+                {
+                  "appearance": {
+                    "font": {
+                      "size": 11,
+                      "weight": 400
+                    },
+                    "grid": {
+                      "color": "#E2E8F0",
+                      "dashArray": "",
+                      "minDistance": 90,
+                      "opacity": 0,
+                      "position": 0.5
+                    },
+                    "inside": false,
+                    "labels": {
+                      "color": "#64748B",
+                      "horizontalCenter": "middle",
+                      "opacity": 1,
+                      "rotation": 0,
+                      "verticalCenter": "middle"
+                    },
+                    "opposite": false
+                  },
+                  "category": {
+                    "break": {
+                      "enabled": false,
+                      "endCategory": "",
+                      "size": 0.05,
+                      "startCategory": ""
+                    }
+                  },
+                  "date": {
+                    "baseInterval": {
+                      "count": 1,
+                      "enabled": false,
+                      "skipEmptyPeriods": false,
+                      "timeUnit": "hour"
+                    },
+                    "break": {
+                      "enabled": false,
+                      "endDate": "",
+                      "size": 0.05,
+                      "startDate": ""
+                    },
+                    "format": "M/d/yyyy HH:mm:ss",
+                    "inputFormat": "yyyy-MM-dd kk:mm:ss",
+                    "range": {
+                      "max": "",
+                      "min": "",
+                      "useStrict": false
+                    }
+                  },
+                  "inversed": false,
+                  "label": {
+                    "color": "",
+                    "enabled": false,
+                    "text": ""
+                  },
+                  "name": "hour",
+                  "render": "category",
+                  "tooltip": {
+                    "background": {
+                      "color": "",
+                      "opacity": 1
+                    },
+                    "cornerRadius": 3,
+                    "enabled": false,
+                    "pointerLength": 4,
+                    "text": ""
+                  },
+                  "value": {
+                    "break": {
+                      "enabled": false,
+                      "endValue": 100,
+                      "size": 0.05,
+                      "startValue": 0
+                    },
+                    "format": "#,###.##",
+                    "logarithmic": false,
+                    "range": {
+                      "max": "",
+                      "min": "",
+                      "useStrict": false
+                    }
+                  },
+                  "visible": true
+                }
+              ],
+              "yAxes": [
+                {
+                  "appearance": {
+                    "font": {
+                      "size": 11,
+                      "weight": 400
+                    },
+                    "grid": {
+                      "color": "#E2E8F0",
+                      "dashArray": "",
+                      "minDistance": 40,
+                      "opacity": 1,
+                      "position": 0.5
+                    },
+                    "inside": false,
+                    "labels": {
+                      "color": "#64748B",
+                      "horizontalCenter": "middle",
+                      "opacity": 1,
+                      "rotation": 0,
+                      "verticalCenter": "middle"
+                    },
+                    "opposite": false
+                  },
+                  "category": {
+                    "break": {
+                      "enabled": false,
+                      "endCategory": "",
+                      "size": 0.05,
+                      "startCategory": ""
+                    }
+                  },
+                  "date": {
+                    "baseInterval": {
+                      "count": 1,
+                      "enabled": false,
+                      "skipEmptyPeriods": false,
+                      "timeUnit": "hour"
+                    },
+                    "break": {
+                      "enabled": false,
+                      "endDate": "",
+                      "size": 0.05,
+                      "startDate": ""
+                    },
+                    "format": "M/d/yyyy HH:mm:ss",
+                    "inputFormat": "yyyy-MM-dd kk:mm:ss",
+                    "range": {
+                      "max": "",
+                      "min": "",
+                      "useStrict": false
+                    }
+                  },
+                  "inversed": false,
+                  "label": {
+                    "color": "#64748B",
+                    "enabled": true,
+                    "text": "m\u00b3 per hour"
+                  },
+                  "name": "volume",
+                  "render": "value",
+                  "tooltip": {
+                    "background": {
+                      "color": "",
+                      "opacity": 1
+                    },
+                    "cornerRadius": 3,
+                    "enabled": false,
+                    "pointerLength": 4,
+                    "text": ""
+                  },
+                  "value": {
+                    "break": {
+                      "enabled": false,
+                      "endValue": 100,
+                      "size": 0.05,
+                      "startValue": 0
+                    },
+                    "format": "#,###",
+                    "logarithmic": false,
+                    "range": {
+                      "max": "",
+                      "min": 0,
+                      "useStrict": false
+                    }
+                  },
+                  "visible": true
+                },
+                {
+                  "appearance": {
+                    "font": {
+                      "size": 11,
+                      "weight": 400
+                    },
+                    "grid": {
+                      "color": "",
+                      "dashArray": "",
+                      "minDistance": 40,
+                      "opacity": 0,
+                      "position": 0.5
+                    },
+                    "inside": false,
+                    "labels": {
+                      "color": "#D97706",
+                      "horizontalCenter": "middle",
+                      "opacity": 1,
+                      "rotation": 0,
+                      "verticalCenter": "middle"
+                    },
+                    "opposite": true
+                  },
+                  "category": {
+                    "break": {
+                      "enabled": false,
+                      "endCategory": "",
+                      "size": 0.05,
+                      "startCategory": ""
+                    }
+                  },
+                  "date": {
+                    "baseInterval": {
+                      "count": 1,
+                      "enabled": false,
+                      "skipEmptyPeriods": false,
+                      "timeUnit": "hour"
+                    },
+                    "break": {
+                      "enabled": false,
+                      "endDate": "",
+                      "size": 0.05,
+                      "startDate": ""
+                    },
+                    "format": "M/d/yyyy HH:mm:ss",
+                    "inputFormat": "yyyy-MM-dd kk:mm:ss",
+                    "range": {
+                      "max": "",
+                      "min": "",
+                      "useStrict": false
+                    }
+                  },
+                  "inversed": false,
+                  "label": {
+                    "color": "#D97706",
+                    "enabled": true,
+                    "text": "Reservoir %"
+                  },
+                  "name": "level",
+                  "render": "value",
+                  "tooltip": {
+                    "background": {
+                      "color": "",
+                      "opacity": 1
+                    },
+                    "cornerRadius": 3,
+                    "enabled": false,
+                    "pointerLength": 4,
+                    "text": ""
+                  },
+                  "value": {
+                    "break": {
+                      "enabled": false,
+                      "endValue": 100,
+                      "size": 0.05,
+                      "startValue": 0
+                    },
+                    "format": "#",
+                    "logarithmic": false,
+                    "range": {
+                      "max": 100,
+                      "min": 0,
+                      "useStrict": true
+                    }
+                  },
+                  "visible": true
+                }
+              ]
+            },
+            "type": "ia.chart.xy"
+          }
+        ],
+        "meta": {
+          "name": "Delivery"
+        },
+        "position": {
+          "basis": "380px",
+          "shrink": 0
+        },
+        "props": {
+          "direction": "column",
+          "style": {
+            "classes": "Card",
+            "gap": "12px"
+          }
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "meta": {
+                      "name": "Title"
+                    },
+                    "position": {
+                      "shrink": 0
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "Section/Title"
+                      },
+                      "text": "Tank levels, last hour"
+                    },
+                    "type": "ia.display.label"
+                  },
+                  {
+                    "meta": {
+                      "name": "Subtitle"
+                    },
+                    "position": {
+                      "shrink": 0
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "Section/Subtitle"
+                      },
+                      "text": "Hourly mean of the online pumps, the last 72 hours of readings"
+                    },
+                    "type": "ia.display.label",
+                    "propConfig": {
+                      "props.text": {
+                        "binding": {
+                          "config": {
+                            "expression": "\"Tag history: the level tags' averages from the demo SQL historian, refreshed every 30 seconds\""
+                          },
+                          "type": "expr"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "meta": {
+                  "name": "Titles"
+                },
+                "position": {
+                  "grow": 1
+                },
+                "props": {
+                  "direction": "column",
+                  "style": {
+                    "gap": "2px"
+                  }
+                },
+                "type": "ia.container.flex"
+              }
+            ],
+            "meta": {
+              "name": "Head"
+            },
+            "position": {
+              "shrink": 0
+            },
+            "props": {
+              "alignItems": "center",
+              "direction": "row",
+              "style": {}
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "meta": {
+              "name": "FlowChart"
+            },
+            "position": {
+              "basis": "260px",
+              "grow": 1
+            },
+            "propConfig": {
+              "props.series[0].data": {
+                "binding": {
+                  "config": {
+                    "path": "view.custom.levels"
+                  },
+                  "type": "property"
+                }
+              }
+            },
+            "props": {
+              "autoGenerateSeriesNames": false,
+              "enablePanZoom": false,
+              "legend": {
+                "position": "top",
+                "style": {
+                  "classes": ""
+                },
+                "visible": true
+              },
+              "plots": [
+                {
+                  "axes": [
+                    {
+                      "alignment": "left",
+                      "grid": {
+                        "color": "#E2E8F0",
+                        "dashArray": 0,
+                        "opacity": 0.9,
+                        "style": {
+                          "classes": ""
+                        },
+                        "visible": true
+                      },
+                      "label": {
+                        "font": {
+                          "color": "#64748B",
+                          "size": 11
+                        },
+                        "offset": 0,
+                        "style": {
+                          "classes": ""
+                        },
+                        "text": "%",
+                        "visible": true
+                      },
+                      "max": 100,
+                      "min": 0,
+                      "name": "value",
+                      "style": {
+                        "classes": ""
+                      },
+                      "tick": {
+                        "color": "#E2E8F0",
+                        "count": 5,
+                        "label": {
+                          "font": {
+                            "color": "#64748B",
+                            "size": 11
+                          },
+                          "format": ",.0f",
+                          "style": {
+                            "classes": ""
+                          }
+                        },
+                        "style": {
+                          "classes": ""
+                        }
+                      },
+                      "width": 52
+                    }
+                  ],
+                  "markers": [],
+                  "relativeWeight": 1,
+                  "trends": [
+                    {
+                      "axis": "value",
+                      "baselines": [],
+                      "breakLine": true,
+                      "columns": [
+                        {
+                          "color": "#2563EB",
+                          "key": "Well",
+                          "styles": {
+                            "highlighted": {
+                              "fill": {
+                                "color": "#2563EB",
+                                "opacity": 0.32
+                              },
+                              "stroke": {
+                                "color": "#2563EB",
+                                "dashArray": null,
+                                "opacity": 1,
+                                "width": 3
+                              }
+                            },
+                            "muted": {
+                              "fill": {
+                                "color": "",
+                                "opacity": null
+                              },
+                              "stroke": {
+                                "color": "",
+                                "dashArray": null,
+                                "opacity": null,
+                                "width": null
+                              }
+                            },
+                            "normal": {
+                              "fill": {
+                                "color": "#2563EB",
+                                "opacity": 0.08
+                              },
+                              "stroke": {
+                                "color": "#2563EB",
+                                "dashArray": null,
+                                "opacity": 1,
+                                "width": 2
+                              }
+                            },
+                            "selected": {
+                              "fill": {
+                                "color": "",
+                                "opacity": null
+                              },
+                              "stroke": {
+                                "color": "",
+                                "dashArray": null,
+                                "opacity": null,
+                                "width": null
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "color": "#0EA5E9",
+                          "key": "Reservoir",
+                          "styles": {
+                            "highlighted": {
+                              "fill": {
+                                "color": "#0EA5E9",
+                                "opacity": 0.32
+                              },
+                              "stroke": {
+                                "color": "#0EA5E9",
+                                "dashArray": null,
+                                "opacity": 1,
+                                "width": 3
+                              }
+                            },
+                            "muted": {
+                              "fill": {
+                                "color": "",
+                                "opacity": null
+                              },
+                              "stroke": {
+                                "color": "",
+                                "dashArray": null,
+                                "opacity": null,
+                                "width": null
+                              }
+                            },
+                            "normal": {
+                              "fill": {
+                                "color": "#0EA5E9",
+                                "opacity": 0.08
+                              },
+                              "stroke": {
+                                "color": "#0EA5E9",
+                                "dashArray": null,
+                                "opacity": 1,
+                                "width": 2
+                              }
+                            },
+                            "selected": {
+                              "fill": {
+                                "color": "",
+                                "opacity": null
+                              },
+                              "stroke": {
+                                "color": "",
+                                "dashArray": null,
+                                "opacity": null,
+                                "width": null
+                              }
+                            }
+                          }
+                        }
+                      ],
+                      "interpolation": "curveMonotoneX",
+                      "radius": 2,
+                      "series": "data",
+                      "stack": false,
+                      "type": "area",
+                      "visible": true
+                    }
+                  ]
+                }
+              ],
+              "series": [
+                {
+                  "data": [],
+                  "name": "data"
+                }
+              ],
+              "style": {
+                "classes": ""
+              },
+              "timeAxis": {
+                "color": "#E2E8F0",
+                "grid": {
+                  "color": "#E2E8F0",
+                  "dashArray": 0,
+                  "opacity": 0.9,
+                  "style": {
+                    "classes": ""
+                  },
+                  "visible": false
+                },
+                "height": 30,
+                "style": {
+                  "classes": ""
+                },
+                "tick": {
+                  "color": "#E2E8F0",
+                  "label": {
+                    "angled": false,
+                    "font": {
+                      "color": "#64748B",
+                      "size": 11
+                    },
+                    "format": "ddd HH:mm",
+                    "style": {
+                      "classes": ""
+                    }
+                  },
+                  "style": {
+                    "classes": ""
+                  }
+                },
+                "tickCount": 6,
+                "visible": true
+              },
+              "timeRange": {
+                "dateFormat": "D MMM",
+                "timeFormat": "HH:mm",
+                "visible": false
+              },
+              "title": {
+                "font": {
+                  "color": "",
+                  "size": 18
+                },
+                "height": 25,
+                "style": {
+                  "classes": ""
+                },
+                "text": "",
+                "visible": false
+              },
+              "xTrace": {
+                "infoBox": {
+                  "dataFormat": "0.0",
+                  "dateFormat": "ddd D MMM",
+                  "showTime": true,
+                  "style": {
+                    "classes": ""
+                  },
+                  "timeFormat": "HH:mm",
+                  "visible": true,
+                  "width": "auto"
+                },
+                "line": {
+                  "color": "#94A3B8",
+                  "dashArray": 3,
+                  "opacity": 0.8,
+                  "style": {
+                    "classes": ""
+                  },
+                  "visible": true,
+                  "width": 1
+                },
+                "value": "",
+                "visible": true
+              }
+            },
+            "type": "ia.chart.timeseries"
+          }
+        ],
+        "meta": {
+          "name": "LevelsCard"
+        },
+        "position": {
+          "basis": "360px",
+          "shrink": 0
+        },
+        "props": {
+          "direction": "column",
+          "style": {
+            "classes": "Card",
+            "gap": "12px"
+          }
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "meta": {
+                          "name": "Title"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Section/Title"
+                          },
+                          "text": "Intake flow by hour"
+                        },
+                        "type": "ia.display.label"
+                      },
+                      {
+                        "meta": {
+                          "name": "Subtitle"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Section/Subtitle"
+                          },
+                          "text": "Each cell is an hour's mean pumped intake flow; darker is more"
+                        },
+                        "type": "ia.display.label"
+                      }
+                    ],
+                    "meta": {
+                      "name": "Titles"
+                    },
+                    "position": {
+                      "grow": 1
+                    },
+                    "props": {
+                      "direction": "column",
+                      "style": {
+                        "gap": "2px"
+                      }
+                    },
+                    "type": "ia.container.flex"
+                  }
+                ],
+                "meta": {
+                  "name": "Head"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "props": {
+                  "alignItems": "center",
+                  "direction": "row",
+                  "style": {}
+                },
+                "type": "ia.container.flex"
+              },
+              {
+                "children": [
+                  {
+                    "meta": {
+                      "name": "Hours"
+                    },
+                    "position": {
+                      "shrink": 0
+                    },
+                    "propConfig": {
+                      "props.params.cells": {
+                        "binding": {
+                          "config": {
+                            "path": "view.custom.analytics.heatmap.hours"
+                          },
+                          "type": "property"
+                        }
+                      }
+                    },
+                    "props": {
+                      "params": {
+                        "cells": [],
+                        "label": ""
+                      },
+                      "path": "Cells/HeatRow",
+                      "style": {
+                        "classes": ""
+                      },
+                      "useDefaultViewHeight": true,
+                      "useDefaultViewWidth": false
+                    },
+                    "type": "ia.display.view"
+                  },
+                  {
+                    "meta": {
+                      "name": "Days"
+                    },
+                    "position": {
+                      "shrink": 0
+                    },
+                    "propConfig": {
+                      "props.instances": {
+                        "binding": {
+                          "config": {
+                            "path": "view.custom.analytics.heatmap.rows"
+                          },
+                          "type": "property"
+                        }
+                      }
+                    },
+                    "props": {
+                      "alignContent": "flex-start",
+                      "alignItems": "stretch",
+                      "direction": "column",
+                      "elementPosition": {
+                        "basis": "0px",
+                        "grow": 1,
+                        "shrink": 1
+                      },
+                      "elementStyle": {
+                        "classes": ""
+                      },
+                      "instances": [],
+                      "justify": "flex-start",
+                      "path": "Cells/HeatRow",
+                      "style": {
+                        "classes": ""
+                      },
+                      "useDefaultViewHeight": true,
+                      "useDefaultViewWidth": false,
+                      "wrap": "nowrap"
+                    },
+                    "type": "ia.display.flex-repeater"
+                  }
+                ],
+                "meta": {
+                  "name": "Grid"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "props": {
+                  "direction": "column",
+                  "style": {
+                    "gap": "2px"
+                  }
+                },
+                "type": "ia.container.flex"
+              },
+              {
+                "children": [
+                  {
+                    "meta": {
+                      "name": "Low"
+                    },
+                    "position": {
+                      "shrink": 0
+                    },
+                    "propConfig": {
+                      "props.text": {
+                        "binding": {
+                          "config": {
+                            "expression": "{view.custom.analytics.heatmap.low}"
+                          },
+                          "type": "expr"
+                        }
+                      }
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "Text/Muted"
+                      },
+                      "text": ""
+                    },
+                    "type": "ia.display.label"
+                  },
+                  {
+                    "meta": {
+                      "name": "Scale"
+                    },
+                    "position": {
+                      "basis": "160px",
+                      "shrink": 0
+                    },
+                    "propConfig": {
+                      "props.instances": {
+                        "binding": {
+                          "config": {
+                            "path": "view.custom.analytics.heatmap.scale"
+                          },
+                          "type": "property"
+                        }
+                      }
+                    },
+                    "props": {
+                      "alignContent": "flex-start",
+                      "alignItems": "stretch",
+                      "direction": "row",
+                      "elementPosition": {
+                        "basis": "0px",
+                        "grow": 1,
+                        "shrink": 1
+                      },
+                      "elementStyle": {
+                        "classes": ""
+                      },
+                      "instances": [],
+                      "justify": "flex-start",
+                      "path": "Cells/HeatCell",
+                      "style": {
+                        "classes": ""
+                      },
+                      "useDefaultViewHeight": true,
+                      "useDefaultViewWidth": false,
+                      "wrap": "nowrap"
+                    },
+                    "type": "ia.display.flex-repeater"
+                  },
+                  {
+                    "meta": {
+                      "name": "High"
+                    },
+                    "position": {
+                      "shrink": 0
+                    },
+                    "propConfig": {
+                      "props.text": {
+                        "binding": {
+                          "config": {
+                            "expression": "{view.custom.analytics.heatmap.high}"
+                          },
+                          "type": "expr"
+                        }
+                      }
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "Text/Muted"
+                      },
+                      "text": ""
+                    },
+                    "type": "ia.display.label"
+                  }
+                ],
+                "meta": {
+                  "name": "Legend"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "props": {
+                  "alignItems": "center",
+                  "direction": "row",
+                  "justify": "flex-end",
+                  "style": {
+                    "gap": "8px"
+                  }
+                },
+                "type": "ia.container.flex"
+              }
+            ],
+            "meta": {
+              "name": "Heatmap"
+            },
+            "position": {
+              "basis": "0px",
+              "grow": 2
+            },
+            "props": {
+              "direction": "column",
+              "style": {
+                "classes": "Card",
+                "gap": "12px"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "meta": {
+                          "name": "Title"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Section/Title"
+                          },
+                          "text": "Load by area"
+                        },
+                        "type": "ia.display.label"
+                      },
+                      {
+                        "meta": {
+                          "name": "Subtitle"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Section/Subtitle"
+                          },
+                          "text": "Mean share of rated capacity its assets run at; an offline asset counts as zero"
+                        },
+                        "type": "ia.display.label"
+                      }
+                    ],
+                    "meta": {
+                      "name": "Titles"
+                    },
+                    "position": {
+                      "grow": 1
+                    },
+                    "props": {
+                      "direction": "column",
+                      "style": {
+                        "gap": "2px"
+                      }
+                    },
+                    "type": "ia.container.flex"
+                  }
+                ],
+                "meta": {
+                  "name": "Head"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "props": {
+                  "alignItems": "center",
+                  "direction": "row",
+                  "style": {}
+                },
+                "type": "ia.container.flex"
+              },
+              {
+                "meta": {
+                  "name": "Areas"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "propConfig": {
+                  "props.instances": {
+                    "binding": {
+                      "config": {
+                        "path": "view.custom.analytics.areas"
+                      },
+                      "type": "property"
+                    }
+                  }
+                },
+                "props": {
+                  "alignContent": "flex-start",
+                  "alignItems": "stretch",
+                  "direction": "column",
+                  "elementPosition": {
+                    "basis": "auto",
+                    "grow": 0,
+                    "shrink": 0
+                  },
+                  "elementStyle": {
+                    "classes": ""
+                  },
+                  "instances": [],
+                  "justify": "flex-start",
+                  "path": "Cells/AreaLoad",
+                  "style": {
+                    "classes": "",
+                    "gap": "18px"
+                  },
+                  "useDefaultViewHeight": true,
+                  "useDefaultViewWidth": false,
+                  "wrap": "nowrap"
+                },
+                "type": "ia.display.flex-repeater"
+              }
+            ],
+            "meta": {
+              "name": "Load"
+            },
+            "position": {
+              "basis": "0px",
+              "grow": 1
+            },
+            "props": {
+              "direction": "column",
+              "style": {
+                "classes": "Card",
+                "gap": "16px"
+              }
+            },
+            "type": "ia.container.flex"
+          }
+        ],
+        "meta": {
+          "name": "Bottom"
+        },
+        "position": {
+          "shrink": 0
+        },
+        "props": {
+          "direction": "row",
+          "style": {
+            "gap": "16px",
+            "classes": "Layout/ChartRow"
+          }
+        },
+        "type": "ia.container.flex"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "direction": "column",
+      "style": {
+        "classes": "Layout/Page",
+        "gap": "20px",
+        "overflow": "auto"
+      }
+    },
+    "type": "ia.container.flex"
+  }
+}

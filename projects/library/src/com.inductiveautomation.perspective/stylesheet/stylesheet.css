@@ -1,0 +1,211 @@
+/*
+ * What style classes can't express: the gateway drops CSS variables and
+ * filters from them, and a style class can't restyle its children. Kept to the
+ * Plant page's symbols and the layout on narrow screens; every other style is
+ * a style class. A container's position props are inline styles, so the layout
+ * rules need !important to override them.
+ */
+
+/* the symbols' running state: green, pulsing while it animates */
+.psc-Plant\/Equipment {
+  --symbolFill--running: #F0FDF4;
+  --symbolFillAnimation--running: #86EFAC;
+  --symbolStroke--running: #15803D;
+  transition: filter 120ms;
+}
+
+/* a clickable symbol glows on hover */
+.psc-Plant\/Equipment:hover {
+  filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.75));
+}
+
+/* the three stages of the schematic sit side by side, centred while they fit */
+.psc-Plant\/Canvas {
+  justify-content: flex-start !important;
+}
+.psc-Plant\/Canvas > :first-child {
+  margin-left: auto;
+}
+.psc-Plant\/Canvas > :last-child {
+  margin-right: auto;
+}
+
+/* narrower: the stages wrap, scaled so two fit a tablet and one a phone; a
+   stage's pipes end at its edge, so the next stage carries on the flow */
+@media (max-width: 1240px) {
+  .psc-Plant\/Canvas {
+    flex: 0 0 auto !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    align-items: flex-start !important;
+    row-gap: 16px;
+    zoom: 0.82;
+  }
+  .psc-Plant\/Canvas > * {
+    height: 470px;
+    margin: 0 !important;
+  }
+}
+
+/* the gauge clips its tick labels to its own box, so a scale like 0 to 2,000
+   lost the ends of its labels; they may spill into the popup's padding */
+.psc-Plant\/GaugeRow {
+  overflow: visible !important;
+}
+.psc-Plant\/GaugeRow g[clip-path] {
+  clip-path: none !important;
+}
+
+/* the alarm tables in the app's palette: light bars instead of grey, white
+   cells and hairline rows; a style class can't reach their inner elements */
+.psc-Alarm\/Table {
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.psc-Alarm\/Table .alarmTableToolbar,
+.psc-Alarm\/Table .alarmTableFoot,
+.psc-Alarm\/Table .pager-container {
+  background-color: #F8FAFC !important;
+}
+.psc-Alarm\/Table .alarmTableToolbar {
+  border-bottom: 1px solid #E2E8F0;
+}
+.psc-Alarm\/Table .alarmTableFoot {
+  border-top: 1px solid #E2E8F0;
+}
+.psc-Alarm\/Table .t,
+.psc-Alarm\/Table .tb,
+.psc-Alarm\/Table .tf-container {
+  background-color: #FFFFFF !important;
+}
+.psc-Alarm\/Table .th-container {
+  background-color: #FFFFFF !important;
+  border-bottom: 1px solid #E2E8F0;
+  color: #64748B;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.psc-Alarm\/Table .tr {
+  border-bottom: 1px solid #F1F5F9;
+}
+
+/* the page links scroll sideways rather than push the header off the screen */
+.psc-Shell\/Links {
+  scrollbar-width: none;
+}
+
+/* below desktop width a KPI value no longer fits a quarter or a fifth of the
+   row: four cards go two by two and five go three over two */
+@media (max-width: 1200px) {
+  .psc-Layout\/Kpis {
+    flex-wrap: wrap !important;
+  }
+  .psc-Layout\/Kpis > * {
+    flex: 1 1 calc(33.333% - 11px) !important;
+    min-width: 0;
+  }
+  /* :where keeps it to one class's weight, so the phone rules below still win */
+  .psc-Layout\/Kpis:where(:has(> :nth-child(4):last-child)) > * {
+    flex-basis: calc(50% - 8px) !important;
+  }
+}
+
+/* tablets: the clock gives the page links its room */
+@media (max-width: 1100px) {
+  /* an hour's cell is a few pixels wide: its colour carries the value */
+  .psc-Heat\/Text,
+  .psc-Heat\/TextDark {
+    color: transparent !important;
+  }
+  .psc-Shell\/Meta {
+    display: none !important;
+  }
+}
+
+/* phones: rows stack, KPI cards go two to a row, and the header keeps only the links */
+@media (max-width: 640px) {
+  .psc-Shell\/Header {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+  .psc-Shell\/Header > :first-child,
+  .psc-Shell\/Badge {
+    display: none !important;
+  }
+  /* six page links share a phone's width */
+  .psc-Shell\/Nav {
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+    font-size: 12px !important;
+  }
+  .psc-Layout\/Page {
+    padding: 16px 12px !important;
+    gap: 12px !important;
+  }
+  .psc-Layout\/Kpis {
+    flex-wrap: wrap !important;
+    gap: 12px !important;
+  }
+  .psc-Layout\/Kpis > * {
+    flex: 1 1 calc(50% - 6px) !important;
+    min-width: 0;
+  }
+  .psc-Layout\/Kpis .psc-Kpi\/Value {
+    font-size: 22px !important;
+  }
+  /* the label needs the icon's room */
+  .psc-Layout\/Kpis [data-component="ia.display.icon"] {
+    display: none !important;
+  }
+  /* a card's title takes the full width, and its legend or button goes below */
+  .psc-Layout\/CardHead {
+    flex-wrap: wrap !important;
+    row-gap: 8px;
+  }
+  .psc-Layout\/CardHead > :first-child {
+    flex-basis: 100% !important;
+  }
+  .psc-Layout\/Kpis .psc-Kpi\/Label {
+    font-size: 11px !important;
+    letter-spacing: 0.02em !important;
+  }
+  /* a gauge needs the full width to keep its value inside the arc */
+  .psc-Layout\/Gauges > * {
+    flex-basis: 100% !important;
+  }
+  .psc-Plant\/Canvas {
+    zoom: 0.78;
+  }
+  /* the equipment popup fits the screen, with a smaller gauge */
+  .ia_popup:has(.psc-Plant\/Popup) {
+    max-width: calc(100vw - 16px);
+  }
+  .psc-Plant\/Popup {
+    min-width: 0 !important;
+  }
+  .psc-Plant\/GaugeRow {
+    gap: 28px !important;
+  }
+  .psc-Plant\/GaugeRow > :first-child {
+    flex-basis: 170px !important;
+  }
+  .psc-Plant\/GaugeRow .psc-Kpi\/Value {
+    font-size: 22px !important;
+    line-height: 28px !important;
+  }
+  .psc-Layout\/Row,
+  .psc-Layout\/ChartRow {
+    flex-direction: column !important;
+    flex: 0 0 auto !important;
+    gap: 12px !important;
+  }
+  .psc-Layout\/Row > * {
+    flex: 0 0 auto !important;
+  }
+  .psc-Layout\/ChartRow > * {
+    flex: 0 0 340px !important;
+  }
+}

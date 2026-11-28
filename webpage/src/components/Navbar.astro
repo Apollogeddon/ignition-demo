@@ -86,4 +86,24 @@ const base = import.meta.env.BASE_URL;
   .social-link:hover {
     color: var(--sl-color-text);
   }
+
+  /* phones: the logo stands for the title, so the links fit */
+  @media (max-width: 520px) {
+    .nav-container {
+      padding: 0 1rem;
+    }
+
+    .site-title span {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+
+    .nav-links {
+      gap: 1rem;
+    }
+  }
 </style>

@@ -1,0 +1,12 @@
+{
+  "base": {
+    "style": {
+      "borderRadius": "999px",
+      "fontSize": "12px",
+      "fontWeight": "600",
+      "lineHeight": "20px",
+      "padding": "0 10px",
+      "whiteSpace": "nowrap"
+    }
+  }
+}

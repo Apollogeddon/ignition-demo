@@ -33,3 +33,8 @@ output "image_pull_secrets" {
   description = "Pull secret names for the gateway (empty for public images)"
   value       = [for s in kubernetes_secret_v1.registry : s.metadata[0].name]
 }
+
+output "db_backup_claim" {
+  description = "PersistentVolumeClaim holding the database dumps; null without db_backup"
+  value       = try(kubernetes_persistent_volume_claim_v1.db_backup[0].metadata[0].name, null)
+}

@@ -1,0 +1,1421 @@
+{
+  "custom": {
+    "asset": {
+      "events": [],
+      "found": false,
+      "readings": []
+    },
+    "assetId": 1,
+    "result": {
+      "ok": true,
+      "text": ""
+    }
+  },
+  "params": {},
+  "propConfig": {
+    "custom.asset": {
+      "binding": {
+        "config": {
+          "expression": "{view.custom.assetId}"
+        },
+        "transforms": [
+          {
+            "code": "\treturn project.assets.getDetail(value)",
+            "type": "script"
+          }
+        ],
+        "type": "expr"
+      }
+    }
+  },
+  "props": {
+    "defaultSize": {
+      "height": 800,
+      "width": 1280
+    }
+  },
+  "root": {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "meta": {
+                  "name": "Title"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "props": {
+                  "style": {
+                    "classes": "Layout/PageTitle"
+                  },
+                  "text": "Assets"
+                },
+                "type": "ia.display.label"
+              },
+              {
+                "meta": {
+                  "name": "Subtitle"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "propConfig": {
+                  "props.text": {
+                    "binding": {
+                      "config": {
+                        "expression": "\"Every enabled asset, its status and latest reading; select one for its detail and actions\""
+                      },
+                      "type": "expr"
+                    }
+                  }
+                },
+                "props": {
+                  "style": {
+                    "classes": "Layout/PageSubtitle"
+                  },
+                  "text": ""
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "meta": {
+              "name": "Titles"
+            },
+            "position": {
+              "grow": 1
+            },
+            "props": {
+              "direction": "column",
+              "style": {
+                "gap": "2px"
+              }
+            },
+            "type": "ia.container.flex"
+          }
+        ],
+        "meta": {
+          "name": "Header"
+        },
+        "position": {
+          "shrink": 0
+        },
+        "props": {
+          "alignItems": "flex-end",
+          "direction": "row",
+          "style": {}
+        },
+        "type": "ia.container.flex"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "meta": {
+                          "name": "Title"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Section/Title"
+                          },
+                          "text": "All assets"
+                        },
+                        "type": "ia.display.label"
+                      },
+                      {
+                        "meta": {
+                          "name": "Subtitle"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Section/Subtitle"
+                          },
+                          "text": "Select a row: it sends an assetSelected page message to the panel"
+                        },
+                        "type": "ia.display.label"
+                      }
+                    ],
+                    "meta": {
+                      "name": "Titles"
+                    },
+                    "position": {
+                      "grow": 1
+                    },
+                    "props": {
+                      "direction": "column",
+                      "style": {
+                        "gap": "2px"
+                      }
+                    },
+                    "type": "ia.container.flex"
+                  }
+                ],
+                "meta": {
+                  "name": "Head"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "props": {
+                  "direction": "row",
+                  "style": {}
+                },
+                "type": "ia.container.flex"
+              },
+              {
+                "events": {
+                  "component": {
+                    "onRowClick": {
+                      "config": {
+                        "script": "\tsystem.perspective.sendMessage(\"assetSelected\", {\"assetId\": self.props.data[event.row][\"id\"]}, scope=\"page\")"
+                      },
+                      "scope": "G",
+                      "type": "script"
+                    }
+                  }
+                },
+                "meta": {
+                  "name": "Table"
+                },
+                "position": {
+                  "basis": "400px",
+                  "grow": 1
+                },
+                "propConfig": {
+                  "props.data": {
+                    "binding": {
+                      "config": {
+                        "expression": "now(15000)"
+                      },
+                      "transforms": [
+                        {
+                          "code": "\treturn project.assets.getTable()",
+                          "type": "script"
+                        }
+                      ],
+                      "type": "expr"
+                    }
+                  }
+                },
+                "props": {
+                  "bodyStyle": {
+                    "backgroundColor": "#FFFFFF"
+                  },
+                  "cells": {
+                    "allowEditOn": "double-click",
+                    "style": {
+                      "paddingLeft": "12px",
+                      "paddingRight": "8px"
+                    }
+                  },
+                  "columns": [
+                    {
+                      "align": "center",
+                      "boolean": "checkbox",
+                      "dateFormat": "D MMM HH:mm",
+                      "editable": false,
+                      "field": "name",
+                      "footer": {
+                        "align": "center",
+                        "justify": "left",
+                        "style": {
+                          "classes": ""
+                        },
+                        "title": ""
+                      },
+                      "header": {
+                        "align": "center",
+                        "justify": "left",
+                        "style": {
+                          "classes": ""
+                        },
+                        "title": "Asset"
+                      },
+                      "justify": "auto",
+                      "number": "value",
+                      "numberFormat": "0,0.##",
+                      "render": "auto",
+                      "resizable": true,
+                      "sort": "none",
+                      "sortable": true,
+                      "strictWidth": false,
+                      "viewParams": {},
+                      "viewPath": "",
+                      "visible": true,
+                      "width": ""
+                    },
+                    {
+                      "align": "center",
+                      "boolean": "checkbox",
+                      "dateFormat": "D MMM HH:mm",
+                      "editable": false,
+                      "field": "area",
+                      "footer": {
+                        "align": "center",
+                        "justify": "left",
+                        "style": {
+                          "classes": ""
+                        },
+                        "title": ""
+                      },
+                      "header": {
+                        "align": "center",
+                        "justify": "left",
+                        "style": {
+                          "classes": ""
+                        },
+                        "title": "Area"
+                      },
+                      "justify": "auto",
+                      "number": "value",
+                      "numberFormat": "0,0.##",
+                      "render": "auto",
+                      "resizable": true,
+                      "sort": "none",
+                      "sortable": true,
+                      "strictWidth": false,
+                      "viewParams": {},
+                      "viewPath": "",
+                      "visible": true,
+                      "width": "90"
+                    },
+                    {
+                      "align": "center",
+                      "boolean": "checkbox",
+                      "dateFormat": "D MMM HH:mm",
+                      "editable": false,
+                      "field": "kind",
+                      "footer": {
+                        "align": "center",
+                        "justify": "left",
+                        "style": {
+                          "classes": ""
+                        },
+                        "title": ""
+                      },
+                      "header": {
+                        "align": "center",
+                        "justify": "left",
+                        "style": {
+                          "classes": ""
+                        },
+                        "title": "Kind"
+                      },
+                      "justify": "auto",
+                      "number": "value",
+                      "numberFormat": "0,0.##",
+                      "render": "auto",
+                      "resizable": true,
+                      "sort": "none",
+                      "sortable": true,
+                      "strictWidth": false,
+                      "viewParams": {},
+                      "viewPath": "",
+                      "visible": true,
+                      "width": "90"
+                    },
+                    {
+                      "align": "center",
+                      "boolean": "checkbox",
+                      "dateFormat": "D MMM HH:mm",
+                      "editable": false,
+                      "field": "status",
+                      "footer": {
+                        "align": "center",
+                        "justify": "left",
+                        "style": {
+                          "classes": ""
+                        },
+                        "title": ""
+                      },
+                      "header": {
+                        "align": "center",
+                        "justify": "left",
+                        "style": {
+                          "classes": ""
+                        },
+                        "title": "Status"
+                      },
+                      "justify": "auto",
+                      "number": "value",
+                      "numberFormat": "0,0.##",
+                      "render": "view",
+                      "resizable": true,
+                      "sort": "none",
+                      "sortable": true,
+                      "strictWidth": false,
+                      "viewParams": {},
+                      "viewPath": "Cells/Pill",
+                      "visible": true,
+                      "width": "100"
+                    },
+                    {
+                      "align": "center",
+                      "boolean": "checkbox",
+                      "dateFormat": "D MMM HH:mm",
+                      "editable": false,
+                      "field": "reading",
+                      "footer": {
+                        "align": "center",
+                        "justify": "left",
+                        "style": {
+                          "classes": ""
+                        },
+                        "title": ""
+                      },
+                      "header": {
+                        "align": "center",
+                        "justify": "left",
+                        "style": {
+                          "classes": ""
+                        },
+                        "title": "Latest reading"
+                      },
+                      "justify": "auto",
+                      "number": "value",
+                      "numberFormat": "0,0.##",
+                      "render": "auto",
+                      "resizable": true,
+                      "sort": "none",
+                      "sortable": true,
+                      "strictWidth": false,
+                      "viewParams": {},
+                      "viewPath": "",
+                      "visible": true,
+                      "width": "130"
+                    },
+                    {
+                      "align": "center",
+                      "boolean": "checkbox",
+                      "dateFormat": "D MMM HH:mm",
+                      "editable": false,
+                      "field": "event",
+                      "footer": {
+                        "align": "center",
+                        "justify": "left",
+                        "style": {
+                          "classes": ""
+                        },
+                        "title": ""
+                      },
+                      "header": {
+                        "align": "center",
+                        "justify": "left",
+                        "style": {
+                          "classes": ""
+                        },
+                        "title": "Last event"
+                      },
+                      "justify": "auto",
+                      "number": "value",
+                      "numberFormat": "0,0.##",
+                      "render": "date",
+                      "resizable": true,
+                      "sort": "none",
+                      "sortable": true,
+                      "strictWidth": false,
+                      "viewParams": {},
+                      "viewPath": "",
+                      "visible": true,
+                      "width": "130"
+                    }
+                  ],
+                  "emptyMessage": {
+                    "noData": {
+                      "icon": null,
+                      "text": "Nothing to show",
+                      "textStyle": null
+                    },
+                    "noFilterResults": {
+                      "icon": null,
+                      "text": "No matches",
+                      "textStyle": null
+                    }
+                  },
+                  "headerStyle": {
+                    "backgroundColor": "#F8FAFC",
+                    "borderBottom": "1px solid #E2E8F0",
+                    "color": "#64748B",
+                    "fontSize": "12px",
+                    "fontWeight": "600",
+                    "letterSpacing": "0.04em",
+                    "paddingLeft": "4px",
+                    "textTransform": "uppercase"
+                  },
+                  "pager": {
+                    "activeOption": 25,
+                    "activePage": 1,
+                    "bottom": false,
+                    "initialOption": null,
+                    "options": [
+                      10,
+                      25,
+                      50
+                    ],
+                    "top": false
+                  },
+                  "rows": {
+                    "height": 40,
+                    "highlight": {
+                      "color": "#E0F2FE",
+                      "enabled": true
+                    },
+                    "striped": {
+                      "color": {
+                        "even": "",
+                        "odd": ""
+                      },
+                      "enabled": false
+                    },
+                    "style": {
+                      "borderBottom": "1px solid #F1F5F9"
+                    },
+                    "subview": {
+                      "enabled": false,
+                      "viewParams": {},
+                      "viewPath": ""
+                    },
+                    "subviewExpansionMode": "multiple"
+                  },
+                  "selection": {
+                    "data": [],
+                    "enableColumnSelection": false,
+                    "enableRowSelection": true,
+                    "mode": "single",
+                    "selectedColumn": null,
+                    "selectedRow": null
+                  },
+                  "style": {
+                    "border": "1px solid #E2E8F0",
+                    "borderRadius": "8px",
+                    "classes": "Layout/Table",
+                    "overflow": "hidden"
+                  }
+                },
+                "type": "ia.display.table"
+              }
+            ],
+            "meta": {
+              "name": "AssetList"
+            },
+            "position": {
+              "basis": "0px",
+              "grow": 3
+            },
+            "props": {
+              "direction": "column",
+              "style": {
+                "classes": "Card",
+                "gap": "12px"
+              }
+            },
+            "type": "ia.container.flex"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "meta": {
+                          "name": "Name"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "propConfig": {
+                          "props.text": {
+                            "binding": {
+                              "config": {
+                                "expression": "{view.custom.asset.name}"
+                              },
+                              "type": "expr"
+                            }
+                          }
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Layout/PageTitle",
+                            "fontSize": "20px"
+                          },
+                          "text": ""
+                        },
+                        "type": "ia.display.label"
+                      },
+                      {
+                        "meta": {
+                          "name": "Meta"
+                        },
+                        "position": {
+                          "shrink": 0
+                        },
+                        "propConfig": {
+                          "props.text": {
+                            "binding": {
+                              "config": {
+                                "expression": "if({view.custom.asset.found}, concat({view.custom.asset.area}, \" area, \", {view.custom.asset.kind}), \"Pick an asset from the table\")"
+                              },
+                              "type": "expr"
+                            }
+                          }
+                        },
+                        "props": {
+                          "style": {
+                            "classes": "Text/Muted"
+                          },
+                          "text": ""
+                        },
+                        "type": "ia.display.label"
+                      }
+                    ],
+                    "meta": {
+                      "name": "Titles"
+                    },
+                    "position": {
+                      "grow": 1
+                    },
+                    "props": {
+                      "direction": "column",
+                      "style": {
+                        "gap": "2px"
+                      }
+                    },
+                    "type": "ia.container.flex"
+                  },
+                  {
+                    "meta": {
+                      "name": "Status"
+                    },
+                    "position": {
+                      "basis": "84px",
+                      "shrink": 0
+                    },
+                    "propConfig": {
+                      "props.params.value": {
+                        "binding": {
+                          "config": {
+                            "expression": "if({view.custom.asset.found}, {view.custom.asset.status}, \"\")"
+                          },
+                          "type": "expr"
+                        }
+                      }
+                    },
+                    "props": {
+                      "params": {
+                        "value": ""
+                      },
+                      "path": "Cells/Pill",
+                      "style": {}
+                    },
+                    "type": "ia.display.view"
+                  }
+                ],
+                "meta": {
+                  "name": "Head"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "props": {
+                  "alignItems": "center",
+                  "direction": "row",
+                  "style": {}
+                },
+                "type": "ia.container.flex"
+              },
+              {
+                "children": [
+                  {
+                    "meta": {
+                      "name": "Label"
+                    },
+                    "position": {
+                      "shrink": 0
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "Kpi/Label"
+                      },
+                      "text": "Latest reading"
+                    },
+                    "type": "ia.display.label"
+                  },
+                  {
+                    "meta": {
+                      "name": "Value"
+                    },
+                    "position": {
+                      "shrink": 0
+                    },
+                    "propConfig": {
+                      "props.text": {
+                        "binding": {
+                          "config": {
+                            "expression": "{view.custom.asset.reading}"
+                          },
+                          "type": "expr"
+                        }
+                      }
+                    },
+                    "props": {
+                      "style": {
+                        "classes": "Kpi/Value"
+                      },
+                      "text": ""
+                    },
+                    "type": "ia.display.label"
+                  }
+                ],
+                "meta": {
+                  "name": "Latest"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "props": {
+                  "direction": "column",
+                  "style": {
+                    "gap": "2px"
+                  }
+                },
+                "type": "ia.container.flex"
+              },
+              {
+                "meta": {
+                  "name": "Trend"
+                },
+                "position": {
+                  "basis": "180px",
+                  "shrink": 0
+                },
+                "propConfig": {
+                  "props.series[0].data": {
+                    "binding": {
+                      "config": {
+                        "path": "view.custom.asset.readings"
+                      },
+                      "type": "property"
+                    }
+                  }
+                },
+                "props": {
+                  "autoGenerateSeriesNames": false,
+                  "enablePanZoom": false,
+                  "legend": {
+                    "position": "top",
+                    "style": {
+                      "classes": ""
+                    },
+                    "visible": false
+                  },
+                  "plots": [
+                    {
+                      "axes": [
+                        {
+                          "alignment": "left",
+                          "grid": {
+                            "color": "#E2E8F0",
+                            "dashArray": 0,
+                            "opacity": 0.9,
+                            "style": {
+                              "classes": ""
+                            },
+                            "visible": true
+                          },
+                          "label": {
+                            "font": {
+                              "color": "#64748B",
+                              "size": 11
+                            },
+                            "offset": 0,
+                            "style": {
+                              "classes": ""
+                            },
+                            "text": "",
+                            "visible": true
+                          },
+                          "max": "",
+                          "min": 0,
+                          "name": "value",
+                          "style": {
+                            "classes": ""
+                          },
+                          "tick": {
+                            "color": "#E2E8F0",
+                            "count": 5,
+                            "label": {
+                              "font": {
+                                "color": "#64748B",
+                                "size": 11
+                              },
+                              "format": ",.0f",
+                              "style": {
+                                "classes": ""
+                              }
+                            },
+                            "style": {
+                              "classes": ""
+                            }
+                          },
+                          "width": 52
+                        }
+                      ],
+                      "markers": [],
+                      "relativeWeight": 1,
+                      "trends": [
+                        {
+                          "axis": "value",
+                          "baselines": [],
+                          "breakLine": true,
+                          "columns": [
+                            {
+                              "color": "#0EA5E9",
+                              "key": "value",
+                              "styles": {
+                                "highlighted": {
+                                  "fill": {
+                                    "color": "#0EA5E9",
+                                    "opacity": 0.32
+                                  },
+                                  "stroke": {
+                                    "color": "#0EA5E9",
+                                    "dashArray": null,
+                                    "opacity": 1,
+                                    "width": 3
+                                  }
+                                },
+                                "muted": {
+                                  "fill": {
+                                    "color": "",
+                                    "opacity": null
+                                  },
+                                  "stroke": {
+                                    "color": "",
+                                    "dashArray": null,
+                                    "opacity": null,
+                                    "width": null
+                                  }
+                                },
+                                "normal": {
+                                  "fill": {
+                                    "color": "#0EA5E9",
+                                    "opacity": 0.12
+                                  },
+                                  "stroke": {
+                                    "color": "#0EA5E9",
+                                    "dashArray": null,
+                                    "opacity": 1,
+                                    "width": 2
+                                  }
+                                },
+                                "selected": {
+                                  "fill": {
+                                    "color": "",
+                                    "opacity": null
+                                  },
+                                  "stroke": {
+                                    "color": "",
+                                    "dashArray": null,
+                                    "opacity": null,
+                                    "width": null
+                                  }
+                                }
+                              }
+                            }
+                          ],
+                          "interpolation": "curveMonotoneX",
+                          "radius": 2,
+                          "series": "data",
+                          "stack": false,
+                          "type": "area",
+                          "visible": true
+                        }
+                      ]
+                    }
+                  ],
+                  "series": [
+                    {
+                      "data": [],
+                      "name": "data"
+                    }
+                  ],
+                  "style": {
+                    "classes": ""
+                  },
+                  "timeAxis": {
+                    "color": "#E2E8F0",
+                    "grid": {
+                      "color": "#E2E8F0",
+                      "dashArray": 0,
+                      "opacity": 0.9,
+                      "style": {
+                        "classes": ""
+                      },
+                      "visible": false
+                    },
+                    "height": 30,
+                    "style": {
+                      "classes": ""
+                    },
+                    "tick": {
+                      "color": "#E2E8F0",
+                      "label": {
+                        "angled": false,
+                        "font": {
+                          "color": "#64748B",
+                          "size": 11
+                        },
+                        "format": "ddd HH:mm",
+                        "style": {
+                          "classes": ""
+                        }
+                      },
+                      "style": {
+                        "classes": ""
+                      }
+                    },
+                    "tickCount": 6,
+                    "visible": true
+                  },
+                  "timeRange": {
+                    "dateFormat": "D MMM",
+                    "timeFormat": "HH:mm",
+                    "visible": false
+                  },
+                  "title": {
+                    "font": {
+                      "color": "",
+                      "size": 18
+                    },
+                    "height": 25,
+                    "style": {
+                      "classes": ""
+                    },
+                    "text": "",
+                    "visible": false
+                  },
+                  "xTrace": {
+                    "infoBox": {
+                      "dataFormat": "0,0.0",
+                      "dateFormat": "ddd D MMM",
+                      "showTime": true,
+                      "style": {
+                        "classes": ""
+                      },
+                      "timeFormat": "HH:mm",
+                      "visible": true,
+                      "width": "auto"
+                    },
+                    "line": {
+                      "color": "#94A3B8",
+                      "dashArray": 3,
+                      "opacity": 0.8,
+                      "style": {
+                        "classes": ""
+                      },
+                      "visible": true,
+                      "width": 1
+                    },
+                    "value": "",
+                    "visible": true
+                  }
+                },
+                "type": "ia.chart.timeseries"
+              },
+              {
+                "meta": {
+                  "name": "EventsTitle"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "props": {
+                  "style": {
+                    "classes": "Text/Strong"
+                  },
+                  "text": "Recent events"
+                },
+                "type": "ia.display.label"
+              },
+              {
+                "meta": {
+                  "name": "Events"
+                },
+                "position": {
+                  "basis": "180px",
+                  "shrink": 0
+                },
+                "propConfig": {
+                  "props.data": {
+                    "binding": {
+                      "config": {
+                        "path": "view.custom.asset.events"
+                      },
+                      "type": "property"
+                    }
+                  }
+                },
+                "props": {
+                  "bodyStyle": {
+                    "backgroundColor": "#FFFFFF"
+                  },
+                  "cells": {
+                    "allowEditOn": "double-click",
+                    "style": {
+                      "paddingLeft": "12px",
+                      "paddingRight": "8px"
+                    }
+                  },
+                  "columns": [
+                    {
+                      "align": "center",
+                      "boolean": "checkbox",
+                      "dateFormat": "D MMM HH:mm",
+                      "editable": false,
+                      "field": "time",
+                      "footer": {
+                        "align": "center",
+                        "justify": "left",
+                        "style": {
+                          "classes": ""
+                        },
+                        "title": ""
+                      },
+                      "header": {
+                        "align": "center",
+                        "justify": "left",
+                        "style": {
+                          "classes": ""
+                        },
+                        "title": "When"
+                      },
+                      "justify": "auto",
+                      "number": "value",
+                      "numberFormat": "0,0.##",
+                      "render": "date",
+                      "resizable": true,
+                      "sort": "none",
+                      "sortable": true,
+                      "strictWidth": false,
+                      "viewParams": {},
+                      "viewPath": "",
+                      "visible": true,
+                      "width": "120"
+                    },
+                    {
+                      "align": "center",
+                      "boolean": "checkbox",
+                      "dateFormat": "D MMM HH:mm",
+                      "editable": false,
+                      "field": "kind",
+                      "footer": {
+                        "align": "center",
+                        "justify": "left",
+                        "style": {
+                          "classes": ""
+                        },
+                        "title": ""
+                      },
+                      "header": {
+                        "align": "center",
+                        "justify": "left",
+                        "style": {
+                          "classes": ""
+                        },
+                        "title": "Kind"
+                      },
+                      "justify": "auto",
+                      "number": "value",
+                      "numberFormat": "0,0.##",
+                      "render": "view",
+                      "resizable": true,
+                      "sort": "none",
+                      "sortable": true,
+                      "strictWidth": false,
+                      "viewParams": {},
+                      "viewPath": "Cells/Pill",
+                      "visible": true,
+                      "width": "130"
+                    },
+                    {
+                      "align": "center",
+                      "boolean": "checkbox",
+                      "dateFormat": "D MMM HH:mm",
+                      "editable": false,
+                      "field": "message",
+                      "footer": {
+                        "align": "center",
+                        "justify": "left",
+                        "style": {
+                          "classes": ""
+                        },
+                        "title": ""
+                      },
+                      "header": {
+                        "align": "center",
+                        "justify": "left",
+                        "style": {
+                          "classes": ""
+                        },
+                        "title": "Message"
+                      },
+                      "justify": "auto",
+                      "number": "value",
+                      "numberFormat": "0,0.##",
+                      "render": "auto",
+                      "resizable": true,
+                      "sort": "none",
+                      "sortable": true,
+                      "strictWidth": false,
+                      "viewParams": {},
+                      "viewPath": "",
+                      "visible": true,
+                      "width": ""
+                    }
+                  ],
+                  "emptyMessage": {
+                    "noData": {
+                      "icon": null,
+                      "text": "No events for this asset yet",
+                      "textStyle": null
+                    },
+                    "noFilterResults": {
+                      "icon": null,
+                      "text": "No matches",
+                      "textStyle": null
+                    }
+                  },
+                  "headerStyle": {
+                    "backgroundColor": "#F8FAFC",
+                    "borderBottom": "1px solid #E2E8F0",
+                    "color": "#64748B",
+                    "fontSize": "12px",
+                    "fontWeight": "600",
+                    "letterSpacing": "0.04em",
+                    "paddingLeft": "4px",
+                    "textTransform": "uppercase"
+                  },
+                  "pager": {
+                    "activeOption": 25,
+                    "activePage": 1,
+                    "bottom": false,
+                    "initialOption": null,
+                    "options": [
+                      10,
+                      25,
+                      50
+                    ],
+                    "top": false
+                  },
+                  "rows": {
+                    "height": 40,
+                    "highlight": {
+                      "color": "#E0F2FE",
+                      "enabled": true
+                    },
+                    "striped": {
+                      "color": {
+                        "even": "",
+                        "odd": ""
+                      },
+                      "enabled": false
+                    },
+                    "style": {
+                      "borderBottom": "1px solid #F1F5F9"
+                    },
+                    "subview": {
+                      "enabled": false,
+                      "viewParams": {},
+                      "viewPath": ""
+                    },
+                    "subviewExpansionMode": "multiple"
+                  },
+                  "selection": {
+                    "data": [],
+                    "enableColumnSelection": false,
+                    "enableRowSelection": true,
+                    "mode": "single",
+                    "selectedColumn": null,
+                    "selectedRow": null
+                  },
+                  "style": {
+                    "border": "1px solid #E2E8F0",
+                    "borderRadius": "8px",
+                    "classes": "Layout/Table",
+                    "overflow": "hidden"
+                  }
+                },
+                "type": "ia.display.table"
+              },
+              {
+                "meta": {
+                  "name": "Note"
+                },
+                "position": {
+                  "basis": "72px",
+                  "shrink": 0
+                },
+                "props": {
+                  "deferUpdates": true,
+                  "enabled": true,
+                  "placeholder": "Write a note for the log, or acknowledge the asset's state",
+                  "rejectUpdatesWhileFocused": true,
+                  "resize": "none",
+                  "spellcheck": true,
+                  "style": {
+                    "border": "1px solid #E2E8F0",
+                    "borderRadius": "8px",
+                    "fontFamily": "Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+                    "fontSize": "14px",
+                    "padding": "8px 10px"
+                  },
+                  "text": "",
+                  "wrap": "soft"
+                },
+                "type": "ia.input.text-area"
+              },
+              {
+                "children": [
+                  {
+                    "events": {
+                      "component": {
+                        "onActionPerformed": {
+                          "config": {
+                            "script": "\tpanel = self.parent.parent\n\tauth = self.session.props.auth\n\tuser = auth.user.userName if auth.authenticated else None\n\tresult = project.events.send(\n\t\tself.view.custom.assetId,\n\t\t\"acknowledge\",\n\t\tpanel.getChild(\"Note\").props.text,\n\t\tuser,\n\t)\n\tself.view.custom.result = result\n\tif result.get(\"ok\"):\n\t\tpanel.getChild(\"Note\").props.text = \"\"\n\t\tself.view.refreshBinding(\"custom.asset\")\n\t\tsystem.perspective.sendMessage(\"eventRecorded\", {\"kind\": \"acknowledge\"}, scope=\"session\")\n"
+                          },
+                          "scope": "G",
+                          "type": "script"
+                        }
+                      }
+                    },
+                    "meta": {
+                      "name": "Acknowledge"
+                    },
+                    "position": {
+                      "basis": "0px",
+                      "grow": 1
+                    },
+                    "propConfig": {
+                      "props.enabled": {
+                        "binding": {
+                          "config": {
+                            "expression": "{view.custom.asset.found}"
+                          },
+                          "type": "expr"
+                        }
+                      }
+                    },
+                    "props": {
+                      "align": "center",
+                      "enabled": true,
+                      "image": {
+                        "height": 18,
+                        "icon": {
+                          "color": "",
+                          "path": "material/done_all"
+                        },
+                        "position": "left",
+                        "source": "",
+                        "style": {
+                          "classes": ""
+                        },
+                        "width": 18
+                      },
+                      "justify": "center",
+                      "primary": false,
+                      "style": {
+                        "borderRadius": "8px",
+                        "fontSize": "14px"
+                      },
+                      "text": "Acknowledge"
+                    },
+                    "type": "ia.input.button"
+                  },
+                  {
+                    "events": {
+                      "component": {
+                        "onActionPerformed": {
+                          "config": {
+                            "script": "\tpanel = self.parent.parent\n\tauth = self.session.props.auth\n\tuser = auth.user.userName if auth.authenticated else None\n\tresult = project.events.send(\n\t\tself.view.custom.assetId,\n\t\t\"note\",\n\t\tpanel.getChild(\"Note\").props.text,\n\t\tuser,\n\t)\n\tself.view.custom.result = result\n\tif result.get(\"ok\"):\n\t\tpanel.getChild(\"Note\").props.text = \"\"\n\t\tself.view.refreshBinding(\"custom.asset\")\n\t\tsystem.perspective.sendMessage(\"eventRecorded\", {\"kind\": \"note\"}, scope=\"session\")\n"
+                          },
+                          "scope": "G",
+                          "type": "script"
+                        }
+                      }
+                    },
+                    "meta": {
+                      "name": "LogNote"
+                    },
+                    "position": {
+                      "basis": "0px",
+                      "grow": 1
+                    },
+                    "propConfig": {
+                      "props.enabled": {
+                        "binding": {
+                          "config": {
+                            "expression": "{view.custom.asset.found}"
+                          },
+                          "type": "expr"
+                        }
+                      }
+                    },
+                    "props": {
+                      "align": "center",
+                      "enabled": true,
+                      "image": {
+                        "height": 18,
+                        "icon": {
+                          "color": "",
+                          "path": "material/create"
+                        },
+                        "position": "left",
+                        "source": "",
+                        "style": {
+                          "classes": ""
+                        },
+                        "width": 18
+                      },
+                      "justify": "center",
+                      "primary": true,
+                      "style": {
+                        "borderRadius": "8px",
+                        "fontSize": "14px"
+                      },
+                      "text": "Log note"
+                    },
+                    "type": "ia.input.button"
+                  }
+                ],
+                "meta": {
+                  "name": "Actions"
+                },
+                "position": {
+                  "basis": "38px",
+                  "shrink": 0
+                },
+                "props": {
+                  "direction": "row",
+                  "style": {
+                    "gap": "10px"
+                  }
+                },
+                "type": "ia.container.flex"
+              },
+              {
+                "meta": {
+                  "name": "Result"
+                },
+                "position": {
+                  "shrink": 0
+                },
+                "propConfig": {
+                  "position.display": {
+                    "binding": {
+                      "config": {
+                        "expression": "len({view.custom.result.text}) > 0"
+                      },
+                      "type": "expr"
+                    }
+                  },
+                  "props.style.classes": {
+                    "binding": {
+                      "config": {
+                        "expression": "if({view.custom.result.ok}, \"Banner/Ok\", \"Banner/Bad\")"
+                      },
+                      "type": "expr"
+                    }
+                  },
+                  "props.text": {
+                    "binding": {
+                      "config": {
+                        "expression": "{view.custom.result.text}"
+                      },
+                      "type": "expr"
+                    }
+                  }
+                },
+                "props": {
+                  "style": {
+                    "classes": "Banner/Ok"
+                  },
+                  "text": ""
+                },
+                "type": "ia.display.label"
+              }
+            ],
+            "meta": {
+              "name": "Detail"
+            },
+            "position": {
+              "basis": "500px",
+              "shrink": 0
+            },
+            "props": {
+              "direction": "column",
+              "style": {
+                "classes": "Card",
+                "gap": "10px"
+              }
+            },
+            "scripts": {
+              "customMethods": [],
+              "extensionFunctions": null,
+              "messageHandlers": [
+                {
+                  "messageType": "assetSelected",
+                  "pageScope": true,
+                  "script": "\tself.view.custom.assetId = payload[\"assetId\"]\n\tself.view.custom.result = {\"ok\": True, \"text\": \"\"}",
+                  "sessionScope": false,
+                  "viewScope": false
+                }
+              ]
+            },
+            "type": "ia.container.flex"
+          }
+        ],
+        "meta": {
+          "name": "Body"
+        },
+        "position": {
+          "basis": "640px",
+          "grow": 1
+        },
+        "props": {
+          "direction": "row",
+          "style": {
+            "gap": "16px",
+            "classes": "Layout/Row"
+          }
+        },
+        "type": "ia.container.flex"
+      }
+    ],
+    "meta": {
+      "name": "root"
+    },
+    "props": {
+      "direction": "column",
+      "style": {
+        "classes": "Layout/Page",
+        "gap": "20px",
+        "overflow": "auto"
+      }
+    },
+    "type": "ia.container.flex"
+  }
+}
