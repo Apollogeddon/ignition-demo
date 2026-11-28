@@ -66,6 +66,16 @@ const base = import.meta.env.BASE_URL;
     gap: 1.5rem;
   }
 
+  .nav-link,
+  .social-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    /* 44px tap targets */
+    min-height: 44px;
+    min-width: 44px;
+  }
+
   .nav-link {
     text-decoration: none;
     color: var(--sl-color-text-muted);

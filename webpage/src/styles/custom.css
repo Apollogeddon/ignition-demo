@@ -72,8 +72,8 @@
   --sl-color-accent: #a16207;
   --sl-color-accent-rgb: 161, 98, 7;
   --sl-color-accent-high: #713f12;
-  /* the shared secondary is too pale for the heading gradient on white */
-  --sl-color-accent-secondary: #eab308;
+  /* the shared secondary is too pale for the heading gradient on white: this end is 7:1 */
+  --sl-color-accent-secondary: #854d0e;
 
   --sl-color-text: #111827;
   --sl-color-text-muted: #4b5563;
@@ -183,6 +183,11 @@ h6 {
   padding-bottom: 0.5rem;
 }
 
+/* a heading linked from the contents lands below the sticky navbar */
+.prose :is(h2, h3, h4)[id] {
+  scroll-margin-top: calc(var(--sl-nav-height) + 1rem);
+}
+
 .prose h3 {
   font-size: 1.25rem;
   margin-top: 2.5rem;
@@ -245,16 +250,15 @@ h6 {
 }
 
 .prose code:not(pre code) {
-  overflow-wrap: anywhere;
+  /* breaks a long identifier only when it can't fit a line of its own, never mid-word in a table cell */
+  overflow-wrap: break-word;
 }
 
-/* below tablet width a wide table scrolls inside itself rather than widen the page */
-@media (max-width: 768px) {
-  .prose table {
-    display: block;
-    max-width: 100%;
-    overflow-x: auto;
-  }
+/* a table too wide for the column scrolls inside itself rather than widen the page or run under the contents rail */
+.prose table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
 }
 
 .prose blockquote {

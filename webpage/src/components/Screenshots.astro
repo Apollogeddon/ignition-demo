@@ -150,11 +150,11 @@ const phones = [
         popup fits the screen. These are media queries in the project's advanced stylesheet.
       </p>
     </div>
-    <div class="phone-row">
+    <div class="phone-row" role="region" aria-label="Phone screenshots" tabindex="0">
       {
         phones.map((phone) => (
           <div class="phone">
-            <Image src={phone.image} alt={phone.alt} widths={[240, 480]} sizes="240px" loading="lazy" />
+            <Image src={phone.image} alt={phone.alt} widths={[240, 480]} sizes="(max-width: 640px) 60vw, 240px" loading="lazy" />
           </div>
         ))
       }
@@ -370,12 +370,37 @@ const phones = [
       padding: 3rem 1rem 4rem;
     }
 
+    /* one row of tabs that scrolls sideways, rather than three rows */
+    .tabs {
+      flex-wrap: nowrap;
+      justify-content: flex-start;
+      overflow-x: auto;
+      scrollbar-width: thin;
+      margin: 0 -1rem 1.5rem;
+      padding: 0.25rem 1rem 0.5rem;
+    }
+
+    .tabs button {
+      flex: 0 0 auto;
+      white-space: nowrap;
+    }
+
+    /* the phones scroll sideways, each a readable size */
     .phone-row {
       flex-basis: 100%;
-      gap: 0.75rem;
+      min-width: 0;
+      justify-content: flex-start;
+      gap: 1rem;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: thin;
+      margin: 0 -1rem;
+      padding: 0 1rem 1rem;
     }
 
     .phone {
+      flex: 0 0 60vw;
+      scroll-snap-align: center;
       border-width: 4px;
       border-radius: 18px;
     }

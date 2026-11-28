@@ -70,7 +70,9 @@ docker compose -f develop/docker-compose.yml up -d --build
     position: relative;
     padding: 8rem 1rem 6rem;
     text-align: center;
-    overflow: hidden;
+    /* clip the glows sideways only, so the lower one fades out below the section instead of ending at its edge */
+    overflow-x: clip;
+    overflow-y: visible;
     display: flex;
     flex-direction: column;
     align-items: center;
