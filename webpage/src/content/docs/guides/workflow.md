@@ -39,13 +39,13 @@ uv run pytest
 
 The resource sanitiser runs as a git filter (enabled once with `scripts/setup-git.sh`). It rewrites the fields the Designer changes on every save, so a commit only shows what actually changed.
 
-Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/) (`feat: ...`, `fix(webpage): ...`). Running `npm ci` at the repository root installs the lefthook hooks: one checks commit messages, and the pre-commit hooks run ruff on staged Python files, the Jython compatibility check when a script changes, and shellcheck on staged shell scripts.
+Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/) (`feat: ...`, `fix(webpage): ...`). Running `npm ci` at the repository root installs the lefthook hooks: one checks commit messages, and the pre-commit hooks run ruff on staged Python files, the Jython compatibility check when a script changes, `projects-sync-check` (`uv run poe sync-check`, which fails if forgepy's managed configs in `projects/.forgepy/` are out of date), and shellcheck on staged shell scripts.
 
 ## 4. Ship
 
-CI runs on every pull request and every push to `main`. Each job on the run page reads `<pipeline> / <stage>`, and on a pull request each pipeline but the website's runs only when its own files changed:
+CI runs on every pull request and every push to `main`, nightly, weekly and on a manual run. Each job on the run page reads `<pipeline> / <stage>`, and on a pull request each pipeline but the website's runs only when its own files changed:
 
-| Pipeline | What it checks |
+| Pipeline | What it does |
 | --- | --- |
 | `library (8.1)`, `library (8.3)` | forgepy's `library.yml`, once per Ignition API: ruff format and lint, basedpyright, the Jython 2.7 compatibility check and the forgepy config drift check (`lint`), OSV-Scanner (`scan`) and pytest (`test`) |
 | `scripts` | shellcheck, that every committed `resource.json` is clean, that the Ignition versions match the base images and that the 8.1 event scripts are up to date (`lint`), and the sanitiser's and the image scripts' tests (`test`) |
@@ -53,6 +53,11 @@ CI runs on every pull request and every push to `main`. Each job on the run page
 | `docker (8.1)`, `docker (8.3)` | builds and smoke-tests the image for 8.1 and 8.3 (`build`, `test`); on `main`, pushes it to GHCR and tests the pushed image (`push`) |
 | `website` | forgejs's `website.yml`: Gitleaks over the repository and OSV-Scanner, Biome and the type check, the build, and the built site's links and accessibility; `website / lint (markdown)` runs markdownlint over every Markdown file |
 | `pages` | on `main`, deploys this site to GitHub Pages |
+| `e2e (published)`, `e2e (ignition-helm)` | deploys both k3s stages to a throwaway k3d cluster and runs `scripts/e2e-check.sh` (`deploy`): on a pull request that changes `cluster/`, `gateway/`, `projects/` or `database/`, against the pinned chart, and nightly, also against an ignition-helm branch |
+| `deploy` | on a manual run (or a push to `main` with `DEPLOY_ON_PUSH`), plans the k3s environment (`plan`) and applies the reviewed plan (`apply`) |
+| `version`, `publish` | on `main`, release-please's release pull request and release (`version / release`), then the release's project exports and image digests (`publish / assets`) |
+| `patch (projects)` | weekly, on a manual run and after a Dependabot merge, proposes a refresh of forgepy's managed configs as a pull request (`update`) |
+| `merge` | on Dependabot's pull requests, asks for a review and turns on squash auto-merge once every check passed or was skipped (`review`, `squash`) |
 
 On `main`, release-please keeps a release pull request open with the next version and changelog, generated from the Conventional Commits. Merging it creates the release as a draft; the same run checks it, publishes its images, and `publish / assets` attaches the project exports and image digests and publishes it.
 

@@ -10,7 +10,7 @@ This guide is for anyone trying the demo for the first time. It gets a gateway r
 
 - Docker or Podman with Compose
 - [uv](https://docs.astral.sh/uv/), for the script checks and the resource sanitiser
-- Node.js and npm, for the commit hooks
+- Node.js 24 or later (`engines` in `package.json`) and npm, for the commit hooks
 - Git
 
 You only need OpenTofu and a Kubernetes cluster to deploy; see [Cluster](../../components/cluster/).
@@ -36,6 +36,8 @@ docker compose -f develop/docker-compose.yml up -d --build
 ```
 
 This builds the gateway image from `gateway/Dockerfile`, the same image every environment runs, and starts it with a PostgreSQL database initialised from `database/init`.
+
+Starting the stack accepts the [Ignition EULA](https://inductiveautomation.com/ignition/license) for this local image: the compose file sets `ACCEPT_IGNITION_EULA: "Y"`, so only start it if you accept it.
 
 | Service | Address | Login |
 | --- | --- | --- |

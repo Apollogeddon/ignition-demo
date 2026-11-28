@@ -16,9 +16,9 @@ const pages = [
     id: "overview",
     label: "Overview",
     image: overview,
-    alt: "Overview page: KPI cards, a 72-hour flow chart per area, a donut chart of assets by area, area cards and the selected area's asset table",
+    alt: "Overview page: KPI cards, a 72-hour time-series chart of pumped flow with a series per area, a donut chart of assets by area, area cards and the selected area's asset table",
     caption:
-      "KPI cards, a flow chart per area and a donut chart. Clicking an area card sends the areaSelected page message to the table below.",
+      "KPI cards, a time-series chart of pumped flow with a series per area, and a donut chart. Clicking an area card sends the areaSelected page message to the table below.",
     components: ["ia.chart.timeseries", "ia.chart.pie", "ia.display.table"],
   },
   {
@@ -43,10 +43,10 @@ const pages = [
     id: "analytics",
     label: "Analytics",
     image: analytics,
-    alt: "Analytics page: three simple gauges, an LED display, an XY chart of delivered water against reservoir level, an hourly heatmap and load bars per area",
+    alt: "Analytics page: three simple gauges, an LED display, an XY chart of hourly delivered water against reservoir level, and the top of the tank level history chart",
     caption:
-      "Simple gauges, an LED display, an XY chart with two axes, the tanks' level history from the SQL historian, a heatmap built from flex repeaters, and load bars.",
-    components: ["ia.chart.xy", "tag history", "ia.display.flex-repeater"],
+      "Simple gauges, an LED display, an XY chart with two axes and, below them, the tanks' level history from the SQL historian.",
+    components: ["ia.chart.simple-gauge", "ia.chart.xy", "tag history"],
   },
   {
     id: "assets",
@@ -78,7 +78,7 @@ const pages = [
 ];
 
 const phones = [
-  { image: phoneOverview, alt: "Overview page on a phone: KPI cards two to a row above the flow chart" },
+  { image: phoneOverview, alt: "Overview page on a phone: KPI cards two to a row above the pumped flow chart" },
   { image: phonePlant, alt: "Plant page on a phone: KPI cards and the start of the schematic, which scrolls sideways" },
   { image: phoneAnalytics, alt: "Analytics page on a phone: full-width gauges stacked down the page" },
 ];
@@ -86,7 +86,8 @@ const phones = [
 
 <section class="screens-section" aria-labelledby="screens-title">
   <div class="header">
-    <h2 id="screens-title">See it <span class="text-gradient">running</span></h2>
+    <p class="section-eyebrow">Sample project</p>
+    <h2 id="screens-title">See it running</h2>
     <p class="lede">
       The sample project, Demo Waterworks, is six Perspective pages over a live plant: a gateway timer runs a process
       model on UDT tags, with alarms and tag history. It uses built-in components only, and the same files run on
@@ -115,11 +116,6 @@ const phones = [
     pages.map((page, i) => (
       <figure class="panel" role="tabpanel" id={`panel-${page.id}`} aria-labelledby={`tab-${page.id}`} hidden={i !== 0}>
         <div class="browser glass">
-          <div class="browser-bar" aria-hidden="true">
-            <span />
-            <span />
-            <span />
-          </div>
           <Image
             src={page.image}
             alt={page.alt}
@@ -150,11 +146,11 @@ const phones = [
         popup fits the screen. These are media queries in the project's advanced stylesheet.
       </p>
     </div>
-    <div class="phone-row">
+    <div class="phone-row" role="region" aria-label="Phone screenshots" tabindex="0">
       {
         phones.map((phone) => (
           <div class="phone">
-            <Image src={phone.image} alt={phone.alt} widths={[240, 480]} sizes="240px" loading="lazy" />
+            <Image src={phone.image} alt={phone.alt} widths={[240, 480]} sizes="(max-width: 640px) 60vw, 240px" loading="lazy" />
           </div>
         ))
       }
@@ -200,9 +196,11 @@ const phones = [
   }
 
   h2 {
-    font-size: clamp(2rem, 5vw, 3rem);
-    font-weight: 800;
-    margin-bottom: 1rem;
+    margin: 0 0 0.75rem;
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    line-height: 1.15;
+    font-weight: 600;
+    letter-spacing: -0.035em;
   }
 
   .lede {
@@ -222,9 +220,9 @@ const phones = [
 
   .tabs button {
     font: inherit;
-    font-size: 0.95rem;
-    font-weight: 600;
-    padding: 0.55rem 1.1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
     border-radius: 999px;
     border: 1px solid var(--sl-color-hairline);
     background: transparent;
@@ -241,10 +239,11 @@ const phones = [
     border-color: var(--sl-color-accent);
   }
 
+  /* the shown page: a solid pill in the text colour, like the primary button */
   .tabs button[aria-selected="true"] {
-    color: var(--sl-color-text-invert);
-    background: var(--sl-color-accent);
-    border-color: var(--sl-color-accent);
+    color: var(--sl-color-bg);
+    background: var(--sl-color-text);
+    border-color: var(--sl-color-text);
   }
 
   .tabs button:focus-visible {
@@ -260,25 +259,6 @@ const phones = [
     border-radius: 14px;
     overflow: hidden;
     box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.45);
-  }
-
-  .browser-bar {
-    display: flex;
-    gap: 6px;
-    padding: 10px 14px;
-    background: var(--sl-color-gray-6);
-    border-bottom: 1px solid var(--sl-color-hairline);
-  }
-
-  :global(:root[data-theme="light"]) .browser-bar {
-    background: #f3f4f6;
-  }
-
-  .browser-bar span {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: var(--sl-color-gray-5);
   }
 
   .browser img,
@@ -319,6 +299,11 @@ const phones = [
     border-radius: 6px;
     background: rgba(var(--sl-color-accent-rgb), 0.1);
     color: var(--sl-color-accent);
+  }
+
+  /* the light accent on its own tint is 4.3:1; the deeper one is well past 4.5:1 */
+  :global(:root[data-theme="light"]) .chips code {
+    color: var(--sl-color-accent-high);
   }
 
   .phones {
@@ -370,12 +355,37 @@ const phones = [
       padding: 3rem 1rem 4rem;
     }
 
+    /* one row of tabs that scrolls sideways, rather than three rows */
+    .tabs {
+      flex-wrap: nowrap;
+      justify-content: flex-start;
+      overflow-x: auto;
+      scrollbar-width: thin;
+      margin: 0 -1rem 1.5rem;
+      padding: 0.25rem 1rem 0.5rem;
+    }
+
+    .tabs button {
+      flex: 0 0 auto;
+      white-space: nowrap;
+    }
+
+    /* the phones scroll sideways, each a readable size */
     .phone-row {
       flex-basis: 100%;
-      gap: 0.75rem;
+      min-width: 0;
+      justify-content: flex-start;
+      gap: 1rem;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: thin;
+      margin: 0 -1rem;
+      padding: 0 1rem 1rem;
     }
 
     .phone {
+      flex: 0 0 60vw;
+      scroll-snap-align: center;
       border-width: 4px;
       border-radius: 18px;
     }

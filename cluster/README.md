@@ -6,7 +6,7 @@ OpenTofu modules that deploy the gateway image to Kubernetes and configure the r
 | --- | --- |
 | `modules/platform` | The namespace (restricted Pod Security), and the demo PostgreSQL database from `database/init` with a NetworkPolicy and nightly backup |
 | `modules/gateway` | The [ignition-failover](https://github.com/apollogeddon/ignition-helm) Helm chart running the gateway image, and a nightly gateway backup (8.3) |
-| `modules/resources` | Gateway resources through the REST API (8.3): the database connection and optional journal, users, audit and email profiles |
+| `modules/resources` | Gateway resources through the REST API (8.3): the database connection and, optionally, the `demo` SQL historian for tag history (`ignition_historian_provider`), the alarm journal, users, audit and email profiles |
 
 Each environment is applied in two stages, as the Ignition provider needs a running gateway:
 
@@ -40,6 +40,10 @@ Passwords, licensing, and the API key or seed variables reach the gateway from o
 
 - `chart_version` 4.x: the chart renders `<name>-secrets` from `ignition.secrets`.
 - A chart from 5.0, or `chart_path`: the module creates `<name>-gateway` (`kubernetes_secret_v1.gateway`) and passes it as `ignition.existingSecret`. A hash of it rolls the gateways when it changes: from chart 5.1 (or `chart_path`) it goes in through `ignition.podAnnotations`, so the install or upgrade waits for the rollout; chart 5.0 has no `podAnnotations`, so the module patches the StatefulSet after the install, which restarts a new pair once more. An [External Secrets](https://external-secrets.io/) `ExternalSecret` of the same name and keys can replace it.
+
+### A gateway on plain HTTP
+
+On 8.3 the gateway takes its API key over HTTPS or the ingress's TLS only. The k3s environment serves HTTPS, so this only matters when you call the gateway module from your own environment: for a gateway reached over plain HTTP, set the module's `api_token_require_tls = false`, as `develop/` does on loopback. Any pod reaching the gateway's HTTP port could then fake the ingress's `X-Forwarded-Proto: https`, so keep other workloads out of the namespace.
 
 ### A local chart (`chart_path`)
 
@@ -284,10 +288,6 @@ export SSL_CERT_FILE="$PWD/ca-bundle.pem"
 ```
 
 `allow_insecure_tls = true` skips the check, on a throwaway cluster only: anyone who intercepts the connection gets the key.
-
-#### If the gateway is on plain HTTP
-
-The API key needs HTTPS or the ingress's TLS. For plain HTTP, set `api_token_require_tls = false`, as `develop/` does on loopback. Any pod reaching the gateway's HTTP port could fake the ingress's `X-Forwarded-Proto: https`, so keep other workloads out of the namespace.
 
 ### From CI
 

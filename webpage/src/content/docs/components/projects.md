@@ -42,7 +42,7 @@ The message flows:
 - **Acknowledge or log a note.** The detail panel's buttons call `project.events.send`, which asks the `recordEvent` gateway message handler (`system.util.sendRequest`). The handler, `ignition/message/recordEvent/handleMessage.py`, calls `project.events.handle`: it validates the request, inserts the row with the `events/insert` named query and answers `{ok, text}`, which the panel shows. The panel then refreshes and sends the `eventRecorded` session message, which refreshes the Events and Plant pages in any other tab of the session.
 - **Open equipment.** A symbol on the Plant page opens the equipment popup, whose Acknowledge button records an event the same way.
 
-The named queries (`assets/list`, `assets/status`, `readings/flowByArea`, `readings/hourly`, `readings/asset`, `events/list`, `events/insert`) are plain SQL on the `demo` connection, the same on 8.1 and 8.3. The data comes from `database/init`, which PostgreSQL only runs when the database volume is created: after pulling a change to it, reset the develop stack with `docker compose -f develop/docker-compose.yml down -v`.
+The named queries (`assets/list`, `assets/status`, `readings/flowByArea`, `readings/hourly`, `readings/asset`, `readings/insert`, `events/list`, `events/insert`) are plain SQL on the `demo` connection, the same on 8.1 and 8.3. The data comes from `database/init`, which PostgreSQL only runs when the database volume is created: after pulling a change to it, reset the develop stack with `docker compose -f develop/docker-compose.yml down -v`.
 
 ## The live process
 
@@ -90,7 +90,7 @@ The components each page uses, beyond flex containers, labels and icons:
 | `Page/Overview` | Time Series Chart, Pie Chart, Table, Button |
 | `Page/Plant` | Coordinate Container in fixed mode, with its pipes; Cylindrical Tank; the Pump, Motor, Vessel, Valve and Sensor symbols |
 | `Popup/Equipment` | Gauge, Sparkline, Button |
-| `Page/Analytics` | Simple Gauge, LED Display, XY Chart (columns and a line on two axes), Flex Repeater, Embedded View, Progress Bar |
+| `Page/Analytics` | Simple Gauge, LED Display, XY Chart (columns and a line on two axes), Time Series Chart, Flex Repeater, Embedded View; the Progress Bar is in `Cells/AreaLoad`, which a Flex Repeater draws per area |
 | `Page/Assets` | Table, Time Series Chart, Text Area, Button |
 | `Page/Events` | Table |
 
@@ -152,7 +152,7 @@ The checks are also [poe](https://poethepoet.natn.io/) tasks, run with `uv run p
 The tooling comes from [forgepy](https://github.com/apollogeddon/forgepy)'s `--jython` setup:
 
 - `ruff.toml` extends forgepy's managed Jython base in `.forgepy/ruff-jython.toml`, selects every rule, and turns off the ones that don't fit Jython scripts or Ignition's naming conventions. Scripts are indented with tabs, as the Designer writes them.
-- `pyrightconfig.json` extends `.forgepy/pyrightconfig.json`, adds the script folders to the import path, and defines `MYPY` as true so basedpyright reads the type-only imports.
+- `pyrightconfig.json` extends `.forgepy/pyrightconfig.json`, adds the script folders to the import path, and defines `MYPY` as true so basedpyright reads the type-only imports. Its `stubPath`, `stubs/`, types the gateway internals `library.gateway81` uses that the Ignition API stubs leave out.
 - `uv run forgepy sync` refreshes the files in `.forgepy/`; CI fails if they are out of date.
 - `conftest.py` registers mocks for the `system.*` modules, so scripts import under pytest exactly as they do in the gateway.
 
@@ -186,6 +186,7 @@ uv run --no-project scripts/sanitise.py --fix FILE...     # rewrite in place
 | `library.data` | Dataset rows as dictionaries |
 | `library.db` | Named queries on both versions |
 | `library.format` | Display formatting |
+| `library.history` | Tag history on both versions: `averages` (through `query` and `toPoints`) returns each path's averages as chart points, from `system.historian` on 8.3 and `system.tag.queryTagHistory` on 8.1 |
 | `library.log` | Consistently named loggers |
 | `library.udts` | UDT definitions kept as files: import and export |
 | `library.seed` | Applies the 8.1 seed spec (`gateway/seed/seed.json`) through a `GatewayConfig` store, which it picks once from the gateway version (none on 8.3) |
@@ -199,9 +200,10 @@ uv run --no-project scripts/sanitise.py --fix FILE...     # rewrite in place
 | --- | --- |
 | Startup | Applies the seed (8.1), imports the UDT definitions, then creates or updates a UDT instance per asset in the background, retrying while the database comes up |
 | Project update | Exports the UDT definitions back to the files, so a UDT edit made in the Designer becomes a diff (save the project after editing tags) |
+| Timer `process` | Every five seconds (fixed delay), `project.gateway.onTick` creates the asset instances until that succeeds, then calls `project.process.tick` to step the plant model on the tags (see [The live process](#the-live-process)) |
 | Message handler `recordEvent` | Records an operator's note or acknowledgement and answers the view (`project.events.handle`; see [the demo application](#the-demo-application)) |
 
-The events are written once, in 8.3's format (`ignition/startup/onStartup.py`, `ignition/update/onUpdate.py`, and `ignition/message/<name>/handleMessage.py` with its `enabled` and `threadType` in `resource.json`). 8.1 stores gateway events and message handlers as a binary `ignition/event-scripts/data.bin`, so `scripts/generate-event-scripts.sh` builds it from those files with Ignition 8.1's own serializer (in its Docker image), byte for byte reproducibly; CI fails if it is out of date. Run it after changing an event script or a message handler.
+The events are written once, in 8.3's format (`ignition/startup/onStartup.py`, `ignition/update/onUpdate.py`, `ignition/timer/<name>/handleTimerEvent.py` with its delay in `resource.json`, and `ignition/message/<name>/handleMessage.py` with its `enabled` and `threadType` in `resource.json`). 8.1 stores gateway events, timers and message handlers as a binary `ignition/event-scripts/data.bin`, so `scripts/generate-event-scripts.sh` builds it from those files with Ignition 8.1's own serializer (in its Docker image), byte for byte reproducibly; CI fails if it is out of date. Run it after changing an event script, a timer or a message handler.
 
 ## UDT definitions
 

@@ -64,4 +64,6 @@ Both keep their state in a Secret in the cluster, locked by a Lease and encrypte
 | `cluster/environments/` | One root module per environment (`k3s` is the reference) |
 | `database/` | The application's schema and seed data |
 | `develop/` | Docker Compose for local development, with the projects mounted live |
-| `scripts/` | Repository tooling: the resource sanitiser and git setup |
+| `scripts/` | Repository tooling: the resource sanitiser (`sanitise.py`) and the git setup that enables it (`setup-git.sh`, `setup-git.ps1`); `generate-event-scripts.sh`, which builds 8.1's `data.bin` from the 8.3 event scripts (with `ignition/event_scripts.py`); `check-ignition-versions.sh`, which finds files still on an old Ignition release; `e2e-check.sh`, the e2e pipeline's checks; `release-artifacts.sh`, a release's project zips and image digests; and their tests in `tests/` |
+| `webpage/` | This documentation site (Astro); its component pages mirror the folders' READMEs |
+| `.github/` | The CI workflows (`.index.yml` calls one pipeline per job; [`WORKFLOWS.md`](https://github.com/apollogeddon/ignition-demo/blob/main/.github/WORKFLOWS.md) documents each), Dependabot, release-please and CODEOWNERS |
