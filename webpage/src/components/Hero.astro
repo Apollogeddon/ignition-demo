@@ -42,6 +42,10 @@ docker compose -f develop/docker-compose.yml up -d --build
         <svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
       </button>
     </div>
+    <p class="quick-note">
+      On Ignition 8.3 (the default), then apply <code>develop/config</code> to create the database connection:
+      see <a href={`${base}/docs/guides/getting-started/#3-create-the-gateway-resources-83`}>Getting started, step 3</a>.
+    </p>
   </div>
 </section>
 
@@ -181,9 +185,29 @@ docker compose -f develop/docker-compose.yml up -d --build
 
   pre {
     margin: 0;
+    max-width: 100%;
     font-size: 0.9rem;
     overflow-x: auto;
+    padding-bottom: 0.25rem;
     color: var(--sl-color-text);
+  }
+
+  .quick-note {
+    max-width: 600px;
+    margin: 1rem auto 0;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--sl-color-text-muted);
+    text-wrap: pretty;
+  }
+
+  .quick-note a {
+    color: var(--sl-color-accent);
+    text-underline-offset: 2px;
+  }
+
+  .quick-note code {
+    font-size: 0.85em;
   }
 
   .copy-btn {

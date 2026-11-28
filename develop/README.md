@@ -7,6 +7,7 @@ cp develop/.env.example develop/.env        # set the passwords, pick IGNITION_V
 docker compose -f develop/docker-compose.yml up -d --build
 ```
 
+- Starting the stack accepts the [Ignition EULA](https://inductiveautomation.com/ignition/license) for this local image: the compose file sets `ACCEPT_IGNITION_EULA: "Y"`, so only start it if you accept it.
 - Gateway: <http://localhost:8088> (`admin` / `IGNITION_ADMIN_PASSWORD`); open the Designer from there.
 - Database: `localhost:5432`, database and user `demo` (`DB_PASSWORD`), initialised from `database/init` the first time the volume is created.
 - Both publish their ports on 127.0.0.1 only, so the `change-me` passwords in `.env.example` aren't reachable from the network.

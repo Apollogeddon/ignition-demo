@@ -12,6 +12,8 @@ cp develop/.env.example develop/.env        # set the passwords, pick IGNITION_V
 docker compose -f develop/docker-compose.yml up -d --build
 ```
 
+Starting the stack accepts the [Ignition EULA](https://inductiveautomation.com/ignition/license) for this local image: the compose file sets `ACCEPT_IGNITION_EULA: "Y"`, so only start it if you accept it.
+
 | Service | Address | Notes |
 | --- | --- | --- |
 | Gateway | <http://localhost:8088> | `admin` / `IGNITION_ADMIN_PASSWORD`; open the Designer from here |
@@ -38,7 +40,7 @@ Both publish their ports on 127.0.0.1 only, so the `change-me` passwords in `.en
 
 1. Edit in the Designer, or in an editor: the gateway rescans the project folders every 10 seconds. Changes land in `projects/*/src`.
 2. Run the checks in `projects/`: ruff, basedpyright, `poe compat` and pytest (see [Projects](../projects/#checks)).
-3. Commit. The resource sanitiser strips the Designer's noise from `resource.json` files as they are staged.
+3. Commit. `scripts/setup-git.sh` makes git strip the Designer's noise from `resource.json` files as they are staged (see [Projects](../projects/#the-resource-sanitiser)).
 
 ## Gateway resources
 

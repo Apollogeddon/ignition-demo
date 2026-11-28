@@ -39,7 +39,7 @@ The message flows:
 - **Acknowledge or log a note.** The detail panel's buttons call `project.events.send`, which asks the `recordEvent` gateway message handler (`system.util.sendRequest`). The handler, `ignition/message/recordEvent/handleMessage.py`, calls `project.events.handle`: it validates the request, inserts the row with the `events/insert` named query and answers `{ok, text}`, which the panel shows. The panel then refreshes and sends the `eventRecorded` session message, which refreshes the Events and Plant pages in any other tab of the session.
 - **Open equipment.** A symbol on the Plant page opens the equipment popup, whose Acknowledge button records an event the same way.
 
-The named queries (`assets/list`, `assets/status`, `readings/flowByArea`, `readings/hourly`, `readings/asset`, `events/list`, `events/insert`) are plain SQL on the `demo` connection, the same on 8.1 and 8.3. The data comes from `database/init`, which PostgreSQL only runs when the database volume is created: after pulling a change to it, reset the develop stack with `docker compose -f develop/docker-compose.yml down -v`.
+The named queries (`assets/list`, `assets/status`, `readings/flowByArea`, `readings/hourly`, `readings/asset`, `readings/insert`, `events/list`, `events/insert`) are plain SQL on the `demo` connection, the same on 8.1 and 8.3. The data comes from `database/init`, which PostgreSQL only runs when the database volume is created: after pulling a change to it, reset the develop stack with `docker compose -f develop/docker-compose.yml down -v`.
 
 ## The live process
 
@@ -87,7 +87,7 @@ The components each page uses, beyond flex containers, labels and icons:
 | `Page/Overview` | Time Series Chart, Pie Chart, Table, Button |
 | `Page/Plant` | Coordinate Container in fixed mode, with its pipes; Cylindrical Tank; the Pump, Motor, Vessel, Valve and Sensor symbols |
 | `Popup/Equipment` | Gauge, Sparkline, Button |
-| `Page/Analytics` | Simple Gauge, LED Display, XY Chart (columns and a line on two axes), Flex Repeater, Embedded View, Progress Bar |
+| `Page/Analytics` | Simple Gauge, LED Display, XY Chart (columns and a line on two axes), Time Series Chart, Flex Repeater, Embedded View; the Progress Bar is in `Cells/AreaLoad`, which a Flex Repeater draws per area |
 | `Page/Assets` | Table, Time Series Chart, Text Area, Button |
 | `Page/Events` | Table |
 
